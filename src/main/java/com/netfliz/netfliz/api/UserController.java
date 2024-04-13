@@ -19,12 +19,12 @@ public class UserController implements UserApi{
     }
 
     @Override
-    public ResponseEntity<Void> updateUser(Long userId, User user) {
+    public ResponseEntity<Void> updateUser(String userId, User user) {
         return userService.updateUser(userId, user);
     }
 
     @Override
-    public ResponseEntity<Void> deleteUser(Long userId) {
+    public ResponseEntity<Void> deleteUser(String userId) {
         return userService.deleteUser(userId);
     }
 
@@ -34,7 +34,7 @@ public class UserController implements UserApi{
     }
 
     @Override
-    public ResponseEntity<User> getUserById(Long userId) {
+    public ResponseEntity<User> getUserById(String userId) {
         return userService.getUserById(userId);
     }
 }

@@ -32,16 +32,16 @@ public class MovieService implements MovieApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Movie> getMovieById(Long movieId) {
-        movieValidator.validateMovieExist(String.valueOf(movieId));
+    public ResponseEntity<Movie> getMovieById(String movieId) {
+        movieValidator.validateMovieExist(movieId);
 
-        Optional<MovieEntity> movieOptional = movieRepository.findById(String.valueOf(movieId));
+        Optional<MovieEntity> movieOptional = movieRepository.findById(movieId);
 
         if (movieOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        Movie movie = movieMapper.mapMovieEntityToMovie(movieRepository.findById(String.valueOf(movieId)).get());
+        Movie movie = movieMapper.mapMovieEntityToMovie(movieRepository.findById(movieId).get());
         return ResponseEntity.ok(movie);
     }
 
@@ -53,32 +53,41 @@ public class MovieService implements MovieApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> updateMovie(Long movieId, Movie movie) {
-        movieValidator.validateMovieExist(String.valueOf(movieId));
+    public ResponseEntity<Void> updateMovie(String movieId, Movie movie) {
+        movieValidator.validateMovieExist(movieId);
 
-        Optional<MovieEntity> movieOptional = movieRepository.findById(String.valueOf(movieId));
+        Optional<MovieEntity> movieOptional = movieRepository.findById(movieId);
 
         if (movieOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         MovieEntity movieEntity = movieMapper.mapMovieToMovieEntity(movie);
-        movieEntity.setId(String.valueOf(movieId));
+        movieEntity.setId(movieId);
         movieRepository.save(movieEntity);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<Void> deleteMovie(Long movieId) {
-        movieValidator.validateMovieExist(String.valueOf(movieId));
+    public ResponseEntity<Void> deleteMovie(String movieId) {
+        movieValidator.validateMovieExist(movieId);
 
-        Optional<MovieEntity> movieOptional = movieRepository.findById(String.valueOf(movieId));
+        Optional<MovieEntity> movieOptional = movieRepository.findById(movieId);
 
         if (movieOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        movieRepository.deleteById(String.valueOf(movieId));
+        movieRepository.deleteById(movieId);
         return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<List<Movie>> bulkMovie(List<Movie> movies) {
+        movies.forEach(movie -> {
+            MovieEntity movieEntity = movieMapper.mapMovieToMovieEntity(movie);
+            movieRepository.save(movieEntity);
+        });
+
+        return ResponseEntity.ok(movies);
     }
 }
