@@ -1,0 +1,598 @@
+openapi: 3.0.3
+info:
+  title: Swagger Netfliz - OpenAPI 3.0
+  description: |-
+    Netfliz API is a Spring Boot application that provides a set of RESTful endpoints to manage users, profiles, and movies.
+    You can find out more about Swagger at
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:8080/api/v1/
+    description: Local server
+  - url: https://api.netfliz.com/api/v1/
+    description: Production server
+tags:
+  - name: user
+    description: Operations about user
+  - name: profile
+    description: Operations about profile
+  - name: movie
+    description: Operations about movie
+
+
+paths:
+  /user:
+    get:
+      tags:
+        - user
+      summary: get all user
+      description: Returns all user from the system that the user has access to
+      operationId: getAllUser
+      responses:
+        '200':
+          description: A list of user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserArray'
+    post:
+      tags:
+        - user
+      summary: Create user
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid user supplied
+        '409':
+          description: User already exists
+
+  /user/{userId}:
+    get:
+      tags:
+        - user
+      summary: get user by id
+      description: Returns a single user
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+    put:
+      tags:
+        - user
+      summary: Updated user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '400':
+          description: Invalid user supplied
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid user supplied
+        '404':
+          description: User not found
+
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+        '400':
+          description: Invalid username/password supplied
+
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+
+
+  /profile:
+    get:
+      tags:
+        - profile
+      summary: get all profile
+      description: Returns all profile from the system that the user has access to
+      operationId: getAllProfile
+      responses:
+        '200':
+          description: A list of profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileArray'
+    post:
+      tags:
+        - profile
+      summary: Create profile
+      description: This can only be done by the logged in user.
+      operationId: createProfile
+      requestBody:
+        description: Created profile object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          description: Invalid profile supplied
+        '409':
+          description: Profile already exists
+
+  /profile/{profileId}:
+    get:
+      tags:
+        - profile
+      summary: get profile by id
+      description: Returns a single profile
+      operationId: getProfileById
+      parameters:
+        - name: profileId
+          in: path
+          description: ID of profile to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Profile not found
+    put:
+      tags:
+        - profile
+      summary: Updated profile
+      description: This can only be done by the logged in user.
+      operationId: updateProfile
+      parameters:
+        - name: profileId
+          in: path
+          description: ID of profile to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated profile object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '400':
+          description: Invalid profile supplied
+        '404':
+          description: Profile not found
+    delete:
+      tags:
+        - profile
+      summary: Delete profile
+      description: This can only be done by the logged in user.
+      operationId: deleteProfile
+      parameters:
+        - name: profileId
+          in: path
+          description: ID of profile to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid profile supplied
+        '404':
+          description: Profile not found
+
+  /movie:
+    get:
+      tags:
+        - movie
+      summary: get all movie
+      description: Returns all movie from the system that the user has access to
+      operationId: getAllMovie
+      responses:
+        '200':
+          description: A list of movie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieArray'
+    post:
+      tags:
+        - movie
+      summary: Create movie
+      description: This can only be done by the logged in user.
+      operationId: createMovie
+      requestBody:
+        description: Created movie object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid movie supplied
+        '409':
+          description: Movie already exists
+
+  /movie/{movieId}:
+    get:
+      tags:
+        - movie
+      summary: get movie by id
+      description: Returns a single movie
+      operationId: getMovieById
+      parameters:
+        - name: movieId
+          in: path
+          description: ID of movie to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Movie not found
+    put:
+      tags:
+        - movie
+      summary: Updated movie
+      description: This can only be done by the logged in user.
+      operationId: updateMovie
+      parameters:
+        - name: movieId
+          in: path
+          description: ID of movie to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated movie object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '400':
+          description: Invalid movie supplied
+        '404':
+          description: Movie not found
+    delete:
+      tags:
+        - movie
+      summary: Delete movie
+      description: This can only be done by the logged in user.
+      operationId: deleteMovie
+      parameters:
+        - name: movieId
+          in: path
+          description: ID of movie to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid movie supplied
+        '404':
+          description: Movie not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: theUser
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: '12345'
+        phone:
+          type: string
+          example: '12345'
+        status:
+          type: integer
+          description: User Status
+          format: int32
+          example: 1
+      xml:
+        name: user
+
+    UserArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1001
+        userId:
+          type: integer
+          format: int64
+          example: 1001
+        name:
+          type: string
+          example: 'Profile 1'
+        avatar:
+          type: string
+          example: 'image.png'
+        status:
+          type: string
+        type:
+          type: string
+        password:
+          type: string
+        description:
+          type: string
+      xml:
+        name: profile
+
+    ProfileArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Profile'
+
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1001
+        title:
+          type: string
+          example: 'Movie 1'
+        year:
+          type: integer
+          format: int64
+          example: 2024
+        rated:
+          type: string
+          example: 'PG-13'
+        released:
+          type: string
+          example: '01/01/2024'
+        runtime:
+          type: string
+          example: '143 min'
+        genre:
+          type: string
+          example: 'Action, Sci-fi'
+        director:
+          type: string
+          example: 'jame'
+        writer:
+          type: string
+          example: 'jame'
+        actors:
+          type: string
+          example: 'jame'
+        plot:
+          type: string
+          example: 'this is plot'
+        language:
+          type: string
+          example: 'EN, VI'
+        country:
+          type: string
+          example: 'USA'
+        awards:
+          type: string
+          example: 'there are awards'
+        poster:
+          type: string
+          example: 'this is poster'
+        metaScore:
+          type: integer
+          format: int64
+          example: 69
+        imdbRating:
+          type: string
+          example: '7.8'
+        imdbVotes:
+          type: integer
+          format: int64
+          example: 100000
+        type:
+          type: string
+          example: 'movie'
+        response:
+          type: boolean
+          example: true
+        images:
+          type: string
+          example: 'image1.png, image2.png'
+      xml:
+        name: movie
+
+    MovieArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Movie'
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  requestBodies:
+    Movie:
+      description: Pet object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Movie'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Movie'
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

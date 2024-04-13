@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://swpts:son28032001@netfliz.kcjz9dq.mongodb.net/?retryWrites=true&w=majority&appName=Netfliz
+      database: netfliz
