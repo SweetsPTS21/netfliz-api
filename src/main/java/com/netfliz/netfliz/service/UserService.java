@@ -32,16 +32,16 @@ public class UserService implements UserApiDelegate {
     }
 
     @Override
-    public ResponseEntity<User> getUserById(Long userId) {
-        userValidator.validateUserExist(String.valueOf(userId));
+    public ResponseEntity<User> getUserById(String userId) {
+        userValidator.validateUserExist(userId);
 
-        Optional<UserEntity> userOptional = userRepository.findById(String.valueOf(userId));
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
 
         if (userOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        User user = userMapper.mapUserEntityToUser(userRepository.findById(String.valueOf(userId)).get());
+        User user = userMapper.mapUserEntityToUser(userRepository.findById(userId).get());
         return ResponseEntity.ok(user);
     }
 
@@ -53,10 +53,10 @@ public class UserService implements UserApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> updateUser(Long userId, User user) {
-        userValidator.validateUserExist(String.valueOf(userId));
+    public ResponseEntity<Void> updateUser(String userId, User user) {
+        userValidator.validateUserExist(userId);
 
-        Optional<UserEntity> userOptional = userRepository.findById(String.valueOf(userId));
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
 
         if (userOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -68,16 +68,16 @@ public class UserService implements UserApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> deleteUser(Long userId) {
-        userValidator.validateUserExist(String.valueOf(userId));
+    public ResponseEntity<Void> deleteUser(String userId) {
+        userValidator.validateUserExist(userId);
 
-        Optional<UserEntity> userOptional = userRepository.findById(String.valueOf(userId));
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
 
         if (userOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        userRepository.deleteById(String.valueOf(userId));
+        userRepository.deleteById(userId);
         return ResponseEntity.ok().build();
     }
 

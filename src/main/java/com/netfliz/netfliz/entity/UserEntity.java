@@ -10,10 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Setter
-@Getter
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "users")
 public class UserEntity implements UserDetails {
@@ -32,21 +31,6 @@ public class UserEntity implements UserDetails {
     private int status;
     private String type;
     private String role;
-
-    public UserEntity() {
-    }
-
-    public UserEntity(String id, String username, String password, String email, String phone, String avatar, int status, String type, String role) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.phone = phone;
-        this.avatar = avatar;
-        this.status = status;
-        this.type = type;
-        this.role = role;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

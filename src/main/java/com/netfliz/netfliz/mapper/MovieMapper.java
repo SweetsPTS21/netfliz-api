@@ -13,9 +13,8 @@ public class MovieMapper {
     public MovieEntity mapMovieToMovieEntity(Movie from) {
         MovieEntity to = new MovieEntity();
 
-        to.setId(from.getId().toString());
         to.setTitle(from.getTitle());
-        to.setYear(Integer.parseInt(from.getYear().toString()));
+        to.setYear(from.getYear().intValue());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
@@ -24,7 +23,7 @@ public class MovieMapper {
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
         to.setPlot(from.getPlot());
-        to.setLanguage(from.getLanguage());
+        to.setLanguages(from.getLanguages());
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
         to.setPoster(from.getPoster());
@@ -33,7 +32,7 @@ public class MovieMapper {
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
         to.setResponse(from.getResponse());
-        to.setImages(Collections.singletonList(from.getImages()));
+        to.setImages(from.getImages());
 
         return to;
     }
@@ -41,7 +40,7 @@ public class MovieMapper {
     public Movie mapMovieEntityToMovie(MovieEntity from) {
         Movie to = new Movie();
 
-        to.setId(Long.parseLong(from.getId()));
+        to.setId(from.getId());
         to.setTitle(from.getTitle());
         to.setYear((long) from.getYear());
         to.setRated(from.getRated());
@@ -52,7 +51,7 @@ public class MovieMapper {
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
         to.setPlot(from.getPlot());
-        to.setLanguage(from.getLanguage());
+        to.setLanguages(from.getLanguages());
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
         to.setPoster(from.getPoster());
@@ -60,8 +59,8 @@ public class MovieMapper {
         to.setImdbRating(from.getImdbRating());
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
-        to.setResponse(from.getResponse());
-        to.setImages(from.getImages().get(0));
+        to.setResponse(from.isResponse());
+        to.setImages(from.getImages());
 
         return to;
     }

@@ -31,16 +31,16 @@ public class ProfileService implements ProfileApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Profile> getProfileById(Long profileId) {
-        profileValidator.validateProfileExist(String.valueOf(profileId));
+    public ResponseEntity<Profile> getProfileById(String profileId) {
+        profileValidator.validateProfileExist(profileId);
 
-        Optional<ProfileEntity> profileOptional = profileRepository.findById(String.valueOf(profileId));
+        Optional<ProfileEntity> profileOptional = profileRepository.findById(profileId);
 
         if (profileOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        Profile profile = profileMapper.mapProfileEntityToProfile(profileRepository.findById(String.valueOf(profileId)).get());
+        Profile profile = profileMapper.mapProfileEntityToProfile(profileRepository.findById(profileId).get());
         return ResponseEntity.ok(profile);
 
     }
@@ -53,32 +53,32 @@ public class ProfileService implements ProfileApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> updateProfile(Long profileId, Profile profile) {
-        profileValidator.validateProfileExist(String.valueOf(profileId));
+    public ResponseEntity<Void> updateProfile(String profileId, Profile profile) {
+        profileValidator.validateProfileExist(profileId);
 
-        Optional<ProfileEntity> profileOptional = profileRepository.findById(String.valueOf(profileId));
+        Optional<ProfileEntity> profileOptional = profileRepository.findById(profileId);
 
         if (profileOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         ProfileEntity profileEntity = profileMapper.mapProfileToProfileEntity(profile);
-        profileEntity.setId(String.valueOf(profileId));
+        profileEntity.setId(profileId);
         profileRepository.save(profileEntity);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<Void> deleteProfile(Long profileId) {
-        profileValidator.validateProfileExist(String.valueOf(profileId));
+    public ResponseEntity<Void> deleteProfile(String profileId) {
+        profileValidator.validateProfileExist(profileId);
 
-        Optional<ProfileEntity> profileOptional = profileRepository.findById(String.valueOf(profileId));
+        Optional<ProfileEntity> profileOptional = profileRepository.findById(profileId);
 
         if (profileOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        profileRepository.deleteById(String.valueOf(profileId));
+        profileRepository.deleteById(profileId);
         return ResponseEntity.ok().build();
     }
 }

@@ -19,7 +19,7 @@ public class ProfileController implements ProfileApi {
     }
 
     @Override
-    public ResponseEntity<Profile> getProfileById(Long profileId) {
+    public ResponseEntity<Profile> getProfileById(String profileId) {
         return ProfileApi.super.getProfileById(profileId);
     }
 
@@ -29,12 +29,12 @@ public class ProfileController implements ProfileApi {
     }
 
     @Override
-    public ResponseEntity<Void> updateProfile(Long profileId, Profile profile) {
+    public ResponseEntity<Void> updateProfile(String profileId, Profile profile) {
         return ProfileApi.super.updateProfile(profileId, profile);
     }
 
     @Override
-    public ResponseEntity<Void> deleteProfile(Long profileId) {
+    public ResponseEntity<Void> deleteProfile(String profileId) {
         return ProfileApi.super.deleteProfile(profileId);
     }
 }
