@@ -4,6 +4,8 @@ import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.model.Profile;
 import com.netfliz.netfliz.service.MovieService;
 import com.netfliz.netfliz.service.ProfileService;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,5 +27,7 @@ public class BulkController {
     public ResponseEntity<List<Movie>> bulkMovie(@RequestBody List<Movie> movies) {
         return movieService.bulkMovie(movies);
     }
+
+
 
 }

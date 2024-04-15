@@ -1,0 +1,57 @@
+type Movie {
+    id: ID!
+    title: String!
+    year: Int!
+    rated: String!
+    released: String!
+    runtime: String!
+    genre: String!
+    director: String!
+    writer: String!
+    actors: String!
+    plot: String!
+    languages: String
+    country: String!
+    awards: String!
+    poster: String!
+    metascore: Int
+    imdbRating: String
+    imdbVotes: Int
+    type: String!
+    response: Boolean!
+    images: [String]
+}
+
+input MovieInput {
+    title: String
+    year: Int
+    rated: String
+    released: String
+    runtime: String
+    genre: String
+    director: String
+    writer: String
+    actors: String
+    plot: String
+    language: String
+    country: String
+    awards: String
+    poster: String
+    metascore: Int
+    imdbRating: String
+    imdbVotes: Int
+    type: String
+    response: Boolean
+    images: [String]
+}
+
+type Query {
+    getAllMovie: [Movie]
+    getMovieById(movieId: ID!): Movie
+}
+
+type Mutation {
+    createMovie(movie: MovieInput!): Movie
+    updateMovie(movieId: ID!, movie: MovieInput!): Movie
+    deleteMovie(movieId: ID!): Boolean
+}

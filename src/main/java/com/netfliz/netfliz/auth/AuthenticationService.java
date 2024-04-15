@@ -6,16 +6,15 @@ import com.netfliz.netfliz.entity.Token;
 import com.netfliz.netfliz.entity.TokenType;
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.exception.BadCredentialException;
+import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +27,6 @@ public class AuthenticationService implements UserDetailsChecker {
     private final ITokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = UserEntity.builder()
@@ -53,7 +51,7 @@ public class AuthenticationService implements UserDetailsChecker {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialException("Invalid email/password"));
 
-        //check(user);
+        check(user);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialException("Invalid email/password");
@@ -66,7 +64,27 @@ public class AuthenticationService implements UserDetailsChecker {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .tokenType(TokenType.BEARER)
                 .build();
+    }
+
+    public AuthenticationResponse getUserToken(User user) {
+
+        var findUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new BadCredentialException("User not found"));
+
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(findUser.getId());
+        if (validUserTokens.isEmpty())
+            return null;
+
+        var token = validUserTokens.get(0);
+
+        return AuthenticationResponse.builder()
+                .accessToken(token.getToken())
+                .refreshToken(token.getToken())
+                .tokenType(TokenType.BEARER)
+                .build();
+
     }
 
     private void saveUserToken(UserEntity user, String jwtToken) {
@@ -122,16 +140,16 @@ public class AuthenticationService implements UserDetailsChecker {
     @Override
     public void check(UserDetails toCheck) {
         if (!toCheck.isAccountNonLocked()) {
-            throw new LockedException("User is locked");
+            throw new BadCredentialException("User is locked");
         }
         if (!toCheck.isAccountNonExpired()) {
-            throw new AccountExpiredException("Account is expired");
+            throw new BadCredentialException("Account is expired");
         }
         if (!toCheck.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException("Credentials are expired");
+            throw new BadCredentialException("Credentials are expired");
         }
         if (!toCheck.isEnabled()) {
-            throw new DisabledException("User is disabled");
+            throw new BadCredentialException("User is disabled");
         }
     }
 }
