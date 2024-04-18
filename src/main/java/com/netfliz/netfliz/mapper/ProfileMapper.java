@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.mapper;
 
 import com.netfliz.netfliz.entity.ProfileEntity;
+import com.netfliz.netfliz.entity.ProfileType;
 import com.netfliz.netfliz.model.Profile;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class ProfileMapper {
         to.setName(from.getName());
         to.setAvatar(from.getAvatar());
         to.setStatus(from.getStatus());
-        to.setType(from.getType());
+        to.setType(ProfileType.valueOf(from.getType()));
         to.setPassword(from.getPassword());
         to.setDescription(from.getDescription());
         to.setUserId(from.getUserId().toString());
@@ -28,7 +29,7 @@ public class ProfileMapper {
         to.setName(profileEntity.getName());
         to.setAvatar(profileEntity.getAvatar());
         to.setStatus(profileEntity.getStatus());
-        to.setType(profileEntity.getType());
+        to.setType(String.valueOf(profileEntity.getType()));
         to.setPassword(profileEntity.getPassword());
         to.setDescription(profileEntity.getDescription());
         to.setUserId(Long.parseLong(profileEntity.getUserId()));

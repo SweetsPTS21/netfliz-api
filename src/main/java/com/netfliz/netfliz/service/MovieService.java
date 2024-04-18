@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.service;
 
-import com.netfliz.netfliz.api.MovieApiDelegate;
+import com.netfliz.netfliz.api.MoviesApiDelegate;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.mapper.MovieMapper;
 import com.netfliz.netfliz.model.Movie;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MovieService implements MovieApiDelegate {
+public class MovieService implements MoviesApiDelegate {
     IMovieRepository movieRepository;
 
     private final MovieMapper movieMapper;

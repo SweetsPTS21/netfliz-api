@@ -45,13 +45,43 @@ input MovieInput {
     images: [String]
 }
 
+# Profile
+type Profile {
+    id: ID!
+    userId: ID!
+    name: String!
+    avatar: String
+    status: String
+    type: String!
+    password: String!
+    description: String
+}
+
+input ProfileInput {
+    userId: ID
+    name: String
+    avatar: String
+    status: String
+    type: String
+    password: String
+    description: String
+}
+
 type Query {
     getAllMovie: [Movie]
     getMovieById(movieId: ID!): Movie
+
+    getAllProfile: [Profile]
+    getProfileById(profileId: ID!): [Profile]
+    getAllProfileByUserId(userId: ID!): [Profile]
 }
 
 type Mutation {
     createMovie(movie: MovieInput!): Movie
     updateMovie(movieId: ID!, movie: MovieInput!): Movie
     deleteMovie(movieId: ID!): Boolean
+
+    createProfile(profile: ProfileInput!): Profile
+    updateProfile(profileId: ID!, profile: ProfileInput!): Profile
+    deleteProfile(profileId: ID!): Boolean
 }

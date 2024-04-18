@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-public class UserController implements UserApi{
+public class UserController implements UsersApi{
     private final UserService userService;
 
     public UserController(UserService userService) {

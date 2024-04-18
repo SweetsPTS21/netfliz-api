@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.service;
 
-import com.netfliz.netfliz.api.ProfileApiDelegate;
+import com.netfliz.netfliz.api.ProfilesApiDelegate;
 import com.netfliz.netfliz.entity.ProfileEntity;
 import com.netfliz.netfliz.mapper.ProfileMapper;
 import com.netfliz.netfliz.model.Profile;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProfileService implements ProfileApiDelegate {
+public class ProfileService implements ProfilesApiDelegate {
     IProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
     private final ProfileValidator profileValidator;

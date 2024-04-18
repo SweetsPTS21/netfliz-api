@@ -2,29 +2,32 @@ package com.netfliz.netfliz.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.config.JwtService;
-import com.netfliz.netfliz.entity.Token;
-import com.netfliz.netfliz.entity.TokenType;
-import com.netfliz.netfliz.entity.UserEntity;
+import com.netfliz.netfliz.entity.*;
 import com.netfliz.netfliz.exception.BadCredentialException;
 import com.netfliz.netfliz.model.User;
+import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService implements UserDetailsChecker {
     private final IUserRepository userRepository;
     private final ITokenRepository tokenRepository;
+    private final IProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -41,6 +44,18 @@ public class AuthenticationService implements UserDetailsChecker {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+
+        // create profile for user
+        var profile = ProfileEntity.builder()
+                .userId(savedUser.getId())
+                .name("Default")
+                .description("Default profile")
+                .status("active")
+                .type(ProfileType.DEFAULT)
+                .build();
+
+        profileRepository.save(profile);
+
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -66,6 +81,35 @@ public class AuthenticationService implements UserDetailsChecker {
                 .refreshToken(refreshToken)
                 .tokenType(TokenType.BEARER)
                 .build();
+    }
+
+    public ResponseEntity<AuthenticationResponse> logout(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        final String authHeader = request.getHeader("Cookie");
+
+        if (authHeader == null) {
+            throw new BadCredentialException("Invalid token");
+        }
+
+        List<String> cookies = Arrays.asList(authHeader.split(";"));
+        final String jwt = cookies.stream()
+            .filter(cookie -> cookie.contains("accessToken"))
+            .findFirst()
+            .orElseThrow(() -> new BadCredentialException("Invalid token"))
+            .split("=")[1];
+
+        var storedToken = tokenRepository.findByToken(jwt)
+            .orElseThrow(() -> new BadCredentialException("Invalid token"));
+
+        if (storedToken != null) {
+            storedToken.setExpired(true);
+            storedToken.setRevoked(true);
+            tokenRepository.save(storedToken);
+        }
+
+        return ResponseEntity.ok().build();
     }
 
     public AuthenticationResponse getUserToken(User user) {

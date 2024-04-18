@@ -30,13 +30,20 @@ public class AuthenticationController {
     return ResponseEntity.ok(service.authenticate(request));
   }
 
+  @PostMapping("/logout")
+    public ResponseEntity<AuthenticationResponse> logout(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+       return service.logout(request, response);
+    }
+
   @PostMapping("/token")
   public ResponseEntity<AuthenticationResponse> getToken(
           @RequestBody User user
           ) {
     return ResponseEntity.ok(service.getUserToken(user));
   }
-
 
   @PostMapping("/refresh-token")
   public void refreshToken(
