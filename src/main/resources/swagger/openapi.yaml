@@ -538,9 +538,8 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 10
+          type: string
+          example: 1001
         username:
           type: string
           example: theUser
@@ -576,12 +575,10 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
           example: 1001
         userId:
-          type: integer
-          format: int64
+          type: string
           example: 1001
         name:
           type: string
@@ -618,6 +615,9 @@ components:
           type: integer
           format: int64
           example: 2024
+        trailer:
+          type: string
+          example: 'ndl1W4ltcmg'
         rated:
           type: string
           example: 'PG-13'
@@ -630,6 +630,10 @@ components:
         genre:
           type: string
           example: 'Action, Sci-fi'
+        categories:
+          type: array
+          items:
+            type: string
         director:
           type: string
           example: 'jame'

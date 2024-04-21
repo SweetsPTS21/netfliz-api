@@ -12,27 +12,27 @@ public class ProfileMapper {
 
     public ProfileEntity mapProfileToProfileEntity(Profile from) {
         ProfileEntity to = new ProfileEntity();
-        to.setId(from.getId().toString());
+        to.setId(from.getId());
         to.setName(from.getName());
         to.setAvatar(from.getAvatar());
         to.setStatus(from.getStatus());
         to.setType(ProfileType.valueOf(from.getType()));
         to.setPassword(from.getPassword());
         to.setDescription(from.getDescription());
-        to.setUserId(from.getUserId().toString());
+        to.setUserId(from.getUserId());
         return to;
     }
 
     public Profile mapProfileEntityToProfile(ProfileEntity profileEntity) {
         Profile to = new Profile();
-        to.setId(Long.parseLong(profileEntity.getId()));
+        to.setId(profileEntity.getId());
         to.setName(profileEntity.getName());
         to.setAvatar(profileEntity.getAvatar());
         to.setStatus(profileEntity.getStatus());
         to.setType(String.valueOf(profileEntity.getType()));
         to.setPassword(profileEntity.getPassword());
         to.setDescription(profileEntity.getDescription());
-        to.setUserId(Long.parseLong(profileEntity.getUserId()));
+        to.setUserId(profileEntity.getUserId());
         return to;
     }
 

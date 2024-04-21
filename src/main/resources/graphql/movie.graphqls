@@ -2,6 +2,7 @@ type Movie {
     id: ID!
     title: String!
     year: Int!
+    trailer: String
     rated: String!
     released: String!
     runtime: String!
@@ -25,6 +26,7 @@ type Movie {
 input MovieInput {
     title: String
     year: Int
+    trailer: String
     rated: String
     released: String
     runtime: String
@@ -45,30 +47,36 @@ input MovieInput {
     images: [String]
 }
 
+type MovieByCategory {
+    category: String
+    movies: [Movie]
+}
+
 # Profile
 type Profile {
     id: ID!
     userId: ID!
     name: String!
     avatar: String
-    status: String
+    status: String!
     type: String!
-    password: String!
+    password: String
     description: String
 }
 
 input ProfileInput {
-    userId: ID
+    userId: ID!
     name: String
     avatar: String
     status: String
-    type: String
+    type: String!
     password: String
     description: String
 }
 
 type Query {
     getAllMovie: [Movie]
+    getMovieByCategory: [MovieByCategory]
     getMovieById(movieId: ID!): Movie
 
     getAllProfile: [Profile]
@@ -82,6 +90,6 @@ type Mutation {
     deleteMovie(movieId: ID!): Boolean
 
     createProfile(profile: ProfileInput!): Profile
-    updateProfile(profileId: ID!, profile: ProfileInput!): Profile
+    updateProfile(profileId: ID!, profile: ProfileInput!): Boolean
     deleteProfile(profileId: ID!): Boolean
 }

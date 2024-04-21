@@ -74,7 +74,7 @@ public class UserService implements UsersApiDelegate {
 
         Optional<ProfileEntity> profileOptional = profileRepository.findByUserIdAndProfileId(userId, profileId);
 
-        if (profileOptional.isEmpty()) {
+        if (profileOptional.isPresent()) {
             Profile profile = profileMapper.mapProfileEntityToProfile(profileRepository.findById(profileId).get());
             return ResponseEntity.ok(profile);
         }

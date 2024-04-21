@@ -47,9 +47,8 @@ public class ProfileService implements ProfilesApiDelegate {
 
     @Override
     public ResponseEntity<Profile> createProfile(Profile profile) {
-        ProfileEntity profileEntity = profileMapper.mapProfileToProfileEntity(profile);
-        profileRepository.save(profileEntity);
-        return ResponseEntity.ok(profile);
+        ProfileEntity profileEntity = profileRepository.save(profileMapper.mapProfileToProfileEntity(profile));
+        return ResponseEntity.ok(profileMapper.mapProfileEntityToProfile(profileEntity));
     }
 
     @Override

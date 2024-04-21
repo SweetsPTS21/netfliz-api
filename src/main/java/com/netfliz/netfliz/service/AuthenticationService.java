@@ -1,9 +1,13 @@
-package com.netfliz.netfliz.auth;
+package com.netfliz.netfliz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.config.JwtService;
 import com.netfliz.netfliz.entity.*;
 import com.netfliz.netfliz.exception.BadCredentialException;
+import com.netfliz.netfliz.mapper.UserMapper;
+import com.netfliz.netfliz.model.AuthenticationRequest;
+import com.netfliz.netfliz.model.AuthenticationResponse;
+import com.netfliz.netfliz.model.RegisterRequest;
 import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
@@ -20,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,7 @@ public class AuthenticationService implements UserDetailsChecker {
     private final IProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserMapper userMapper;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = UserEntity.builder()
@@ -179,6 +186,35 @@ public class AuthenticationService implements UserDetailsChecker {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    public User getMe(HttpServletRequest request) {
+        final String authHeader = request.getHeader(HttpHeaders.COOKIE);
+        final String accessToken;
+        final String userEmail;
+
+        if (authHeader == null) {
+            return null;
+        }
+        Map<String, String> cookies = new HashMap<>();
+
+        for (String cookiePair : authHeader.split(";")) {
+            String[] keyValue = cookiePair.trim().split("=");
+            if (keyValue.length == 2) {
+                cookies.put(keyValue[0], keyValue[1]);
+            }
+        }
+
+        accessToken = cookies.get("accessToken");
+        userEmail = jwtService.extractUsername(accessToken);
+
+        if (userEmail != null) {
+            UserEntity userEntity = userRepository.findByEmail(userEmail).orElseThrow(
+                    () -> new BadCredentialException("User not found")
+            );
+            return userMapper.mapUserEntityToUser(userEntity);
+        }
+        return null;
     }
 
     @Override

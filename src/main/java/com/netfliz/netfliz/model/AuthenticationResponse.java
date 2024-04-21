@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.auth;
+package com.netfliz.netfliz.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netfliz.netfliz.entity.TokenType;

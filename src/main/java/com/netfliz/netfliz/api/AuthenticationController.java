@@ -1,5 +1,9 @@
-package com.netfliz.netfliz.auth;
+package com.netfliz.netfliz.api;
 
+import com.netfliz.netfliz.model.AuthenticationRequest;
+import com.netfliz.netfliz.model.AuthenticationResponse;
+import com.netfliz.netfliz.service.AuthenticationService;
+import com.netfliz.netfliz.model.RegisterRequest;
 import com.netfliz.netfliz.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,6 +55,11 @@ public class AuthenticationController {
       HttpServletResponse response
   ) throws IOException {
     service.refreshToken(request, response);
+  }
+
+  @GetMapping("/me")
+  public User getMe(HttpServletRequest request) {
+    return service.getMe(request);
   }
 
 
