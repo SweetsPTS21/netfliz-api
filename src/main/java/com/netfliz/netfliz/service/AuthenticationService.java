@@ -1,34 +1,42 @@
-package com.netfliz.netfliz.auth;
+package com.netfliz.netfliz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.config.JwtService;
-import com.netfliz.netfliz.entity.Token;
-import com.netfliz.netfliz.entity.TokenType;
-import com.netfliz.netfliz.entity.UserEntity;
+import com.netfliz.netfliz.entity.*;
 import com.netfliz.netfliz.exception.BadCredentialException;
+import com.netfliz.netfliz.mapper.UserMapper;
+import com.netfliz.netfliz.model.AuthenticationRequest;
+import com.netfliz.netfliz.model.AuthenticationResponse;
+import com.netfliz.netfliz.model.RegisterRequest;
+import com.netfliz.netfliz.model.User;
+import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService implements UserDetailsChecker {
     private final IUserRepository userRepository;
     private final ITokenRepository tokenRepository;
+    private final IProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    private final UserMapper userMapper;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = UserEntity.builder()
@@ -43,6 +51,18 @@ public class AuthenticationService implements UserDetailsChecker {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+
+        // create profile for user
+        var profile = ProfileEntity.builder()
+                .userId(savedUser.getId())
+                .name("Default")
+                .description("Default profile")
+                .status("active")
+                .type(ProfileType.DEFAULT)
+                .build();
+
+        profileRepository.save(profile);
+
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -53,7 +73,7 @@ public class AuthenticationService implements UserDetailsChecker {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialException("Invalid email/password"));
 
-        //check(user);
+        check(user);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialException("Invalid email/password");
@@ -66,7 +86,56 @@ public class AuthenticationService implements UserDetailsChecker {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .tokenType(TokenType.BEARER)
                 .build();
+    }
+
+    public ResponseEntity<AuthenticationResponse> logout(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        final String authHeader = request.getHeader("Cookie");
+
+        if (authHeader == null) {
+            throw new BadCredentialException("Invalid token");
+        }
+
+        List<String> cookies = Arrays.asList(authHeader.split(";"));
+        final String jwt = cookies.stream()
+            .filter(cookie -> cookie.contains("accessToken"))
+            .findFirst()
+            .orElseThrow(() -> new BadCredentialException("Invalid token"))
+            .split("=")[1];
+
+        var storedToken = tokenRepository.findByToken(jwt)
+            .orElseThrow(() -> new BadCredentialException("Invalid token"));
+
+        if (storedToken != null) {
+            storedToken.setExpired(true);
+            storedToken.setRevoked(true);
+            tokenRepository.save(storedToken);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    public AuthenticationResponse getUserToken(User user) {
+
+        var findUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new BadCredentialException("User not found"));
+
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(findUser.getId());
+        if (validUserTokens.isEmpty())
+            return null;
+
+        var token = validUserTokens.get(0);
+
+        return AuthenticationResponse.builder()
+                .accessToken(token.getToken())
+                .refreshToken(token.getToken())
+                .tokenType(TokenType.BEARER)
+                .build();
+
     }
 
     private void saveUserToken(UserEntity user, String jwtToken) {
@@ -119,19 +188,48 @@ public class AuthenticationService implements UserDetailsChecker {
         }
     }
 
+    public User getMe(HttpServletRequest request) {
+        final String authHeader = request.getHeader(HttpHeaders.COOKIE);
+        final String accessToken;
+        final String userEmail;
+
+        if (authHeader == null) {
+            return null;
+        }
+        Map<String, String> cookies = new HashMap<>();
+
+        for (String cookiePair : authHeader.split(";")) {
+            String[] keyValue = cookiePair.trim().split("=");
+            if (keyValue.length == 2) {
+                cookies.put(keyValue[0], keyValue[1]);
+            }
+        }
+
+        accessToken = cookies.get("accessToken");
+        userEmail = jwtService.extractUsername(accessToken);
+
+        if (userEmail != null) {
+            UserEntity userEntity = userRepository.findByEmail(userEmail).orElseThrow(
+                    () -> new BadCredentialException("User not found")
+            );
+            return userMapper.mapUserEntityToUser(userEntity);
+        }
+        return null;
+    }
+
     @Override
     public void check(UserDetails toCheck) {
         if (!toCheck.isAccountNonLocked()) {
-            throw new LockedException("User is locked");
+            throw new BadCredentialException("User is locked");
         }
         if (!toCheck.isAccountNonExpired()) {
-            throw new AccountExpiredException("Account is expired");
+            throw new BadCredentialException("Account is expired");
         }
         if (!toCheck.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException("Credentials are expired");
+            throw new BadCredentialException("Credentials are expired");
         }
         if (!toCheck.isEnabled()) {
-            throw new DisabledException("User is disabled");
+            throw new BadCredentialException("User is disabled");
         }
     }
 }

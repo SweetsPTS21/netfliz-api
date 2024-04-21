@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,8 +23,10 @@ public class ProfileEntity {
     private String avatar;
     @TextIndexed
     private String status;
-    private String type;
+    private ProfileType type;
     private String password;
     private String description;
     private String userId;
+    private Date createdDate;
+    private Date updatedDate;
 }

@@ -16,6 +16,7 @@ public class Token {
   @Id
   public String id;
   public String token;
+
   public TokenType tokenType = TokenType.BEARER;
 
   public boolean revoked;

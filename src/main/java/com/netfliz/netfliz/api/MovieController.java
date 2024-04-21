@@ -2,14 +2,12 @@ package com.netfliz.netfliz.api;
 
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.service.MovieService;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-public class MovieController implements MovieApi {
+public class MovieController implements MoviesApi {
 
     private final MovieService movieService;
 
@@ -23,22 +21,22 @@ public class MovieController implements MovieApi {
     }
 
     @Override
-    public ResponseEntity<Movie> getMovieById(String movieId) {
+    public ResponseEntity<Movie> getMovieById(@Argument String movieId) {
         return movieService.getMovieById(movieId);
     }
 
     @Override
-    public ResponseEntity<Movie> createMovie(Movie movie) {
+    public ResponseEntity<Movie> createMovie(@Argument Movie movie) {
         return movieService.createMovie(movie);
     }
 
     @Override
-    public ResponseEntity<Void> updateMovie(String movieId, Movie movie) {
+    public ResponseEntity<Void> updateMovie(@Argument String movieId,@Argument Movie movie) {
         return movieService.updateMovie(movieId, movie);
     }
 
     @Override
-    public ResponseEntity<Void> deleteMovie(String movieId) {
+    public ResponseEntity<Void> deleteMovie(@Argument String movieId) {
         return movieService.deleteMovie(movieId);
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public class UserMapper {
     public UserEntity mapUserToUserEntity(User from) {
         UserEntity to = new UserEntity();
-        to.setId(from.getId().toString());
+        to.setId(from.getId());
         to.setUsername(from.getUsername());
         to.setPassword(from.getPassword());
         to.setFirstName(from.getFirstName());
@@ -24,7 +24,7 @@ public class UserMapper {
 
     public User mapUserEntityToUser(UserEntity from) {
         User to = new User();
-        to.setId(Long.parseLong(from.getId()));
+        to.setId(from.getId());
         to.setUsername(from.getUsername());
         to.setPassword(from.getPassword());
         to.setFirstName(from.getFirstName());

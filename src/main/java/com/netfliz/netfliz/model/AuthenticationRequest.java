@@ -1,6 +1,5 @@
-package com.netfliz.netfliz.auth;
+package com.netfliz.netfliz.model;
 
-import com.netfliz.netfliz.role.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class AuthenticationRequest {
 
-  private String firstname;
-  private String lastname;
   private String email;
   private String password;
-  private Role role;
 }
