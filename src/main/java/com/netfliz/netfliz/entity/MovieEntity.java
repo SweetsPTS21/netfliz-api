@@ -23,7 +23,7 @@ public class MovieEntity {
     private String rated;
     private String released;
     private String runtime;
-    private String genre;
+    private List<String> genre;
     private List<String> categories;
     @TextIndexed
     private String director;

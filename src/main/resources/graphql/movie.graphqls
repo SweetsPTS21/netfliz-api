@@ -1,25 +1,25 @@
 type Movie {
-    id: ID!
-    title: String!
-    year: Int!
+    id: ID
+    title: String
+    year: Int
     trailer: String
-    rated: String!
-    released: String!
-    runtime: String!
-    genre: String!
-    director: String!
-    writer: String!
-    actors: String!
-    plot: String!
+    rated: String
+    released: String
+    runtime: String
+    genre: [String]
+    director: String
+    writer: String
+    actors: String
+    plot: String
     languages: String
-    country: String!
-    awards: String!
-    poster: String!
+    country: String
+    awards: String
+    poster: String
     metascore: Int
     imdbRating: String
     imdbVotes: Int
-    type: String!
-    response: Boolean!
+    type: String
+    response: Boolean
     images: [String]
 }
 
@@ -30,12 +30,12 @@ input MovieInput {
     rated: String
     released: String
     runtime: String
-    genre: String
+    genre: [String]
     director: String
     writer: String
     actors: String
     plot: String
-    language: String
+    languages: String
     country: String
     awards: String
     poster: String
@@ -75,7 +75,7 @@ input ProfileInput {
 }
 
 type Query {
-    getAllMovie: [Movie]
+    getAllMovie(page: Int, pageSize: Int, filter: String, sort: String): [Movie]
     getMovieByCategory: [MovieByCategory]
     getMovieById(movieId: ID!): Movie
 
@@ -86,7 +86,7 @@ type Query {
 
 type Mutation {
     createMovie(movie: MovieInput!): Movie
-    updateMovie(movieId: ID!, movie: MovieInput!): Movie
+    updateMovie(movieId: ID!, movie: MovieInput!): Boolean
     deleteMovie(movieId: ID!): Boolean
 
     createProfile(profile: ProfileInput!): Profile

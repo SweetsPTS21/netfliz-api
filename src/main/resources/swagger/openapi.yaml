@@ -433,6 +433,29 @@ paths:
       summary: get all movie
       description: Returns all movie from the system that the user has access to
       operationId: getAllMovie
+      parameters:
+        - name: page
+          in: path
+          description: page number
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: path
+          description: page size
+          schema:
+            type: integer
+            format: int32
+        - name: filter
+          in: path
+          description: filter
+          schema:
+            type: string
+        - name: sort
+          in: path
+          description: sort
+          schema:
+            type: string
       responses:
         '200':
           description: A list of movie
@@ -628,8 +651,9 @@ components:
           type: string
           example: '143 min'
         genre:
-          type: string
-          example: 'Action, Sci-fi'
+          type: array
+          items:
+            type: string
         categories:
           type: array
           items:

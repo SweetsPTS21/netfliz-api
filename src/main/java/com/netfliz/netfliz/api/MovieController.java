@@ -16,8 +16,8 @@ public class MovieController implements MoviesApi {
     }
 
     @Override
-    public ResponseEntity<List<Movie>> getAllMovie() {
-        return movieService.getAllMovie();
+    public ResponseEntity<List<Movie>> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
+        return movieService.getAllMovie(page, pageSize, filter, sort);
     }
 
     @Override
