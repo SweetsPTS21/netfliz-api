@@ -12,7 +12,12 @@ public class ProfileMapper {
 
     public ProfileEntity mapProfileToProfileEntity(Profile from) {
         ProfileEntity to = new ProfileEntity();
-        to.setId(from.getId());
+        if (from.getId() != null) {
+            to.setId(Math.toIntExact(from.getId()));
+        } else {
+            to.setId(null);
+        }
+
         to.setName(from.getName());
         to.setAvatar(from.getAvatar());
         to.setStatus(from.getStatus());
@@ -25,7 +30,7 @@ public class ProfileMapper {
 
     public Profile mapProfileEntityToProfile(ProfileEntity profileEntity) {
         Profile to = new Profile();
-        to.setId(profileEntity.getId());
+        to.setId(Long.valueOf(profileEntity.getId()));
         to.setName(profileEntity.getName());
         to.setAvatar(profileEntity.getAvatar());
         to.setStatus(profileEntity.getStatus());

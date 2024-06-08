@@ -41,7 +41,7 @@ public class UserService implements UsersApiDelegate {
     }
 
     @Override
-    public ResponseEntity<User> getUserById(String userId) {
+    public ResponseEntity<User> getUserById(Long userId) {
         userValidator.validateUserExist(userId);
 
         Optional<UserEntity> userOptional = userRepository.findById(userId);
@@ -55,10 +55,10 @@ public class UserService implements UsersApiDelegate {
     }
 
     @Override
-    public ResponseEntity<List<Profile>> getAllProfileByUserId(String userId) {
+    public ResponseEntity<List<Profile>> getAllProfileByUserId(Long userId) {
         userValidator.validateUserExist(userId);
 
-        Optional<List<ProfileEntity>> profileOptional = profileRepository.findByUserId(userId);
+        Optional<List<ProfileEntity>> profileOptional = profileRepository.findByUserId(String.valueOf(userId));
 
         if (profileOptional.isPresent()) {
             List<Profile> profiles = profileMapper.mapProfileEntityListToProfileList(profileOptional.get());
@@ -69,7 +69,7 @@ public class UserService implements UsersApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Profile> getProfileByUserIdAndProfileId(String userId, String profileId) {
+    public ResponseEntity<Profile> getProfileByUserIdAndProfileId(Long userId, Long profileId) {
         userValidator.validateUserExist(userId);
 
         Optional<ProfileEntity> profileOptional = profileRepository.findByUserIdAndProfileId(userId, profileId);
@@ -90,7 +90,7 @@ public class UserService implements UsersApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> updateUser(String userId, User user) {
+    public ResponseEntity<Void> updateUser(Long userId, User user) {
         userValidator.validateUserExist(userId);
 
         Optional<UserEntity> userOptional = userRepository.findById(userId);
@@ -105,7 +105,7 @@ public class UserService implements UsersApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> deleteUser(String userId) {
+    public ResponseEntity<Void> deleteUser(Long userId) {
         userValidator.validateUserExist(userId);
 
         Optional<UserEntity> userOptional = userRepository.findById(userId);

@@ -1,21 +1,19 @@
 package com.netfliz.netfliz.repository;
 
 import com.netfliz.netfliz.entity.Token;
-import org.springframework.data.mongodb.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface ITokenRepository extends IBaseRepository<Token, String> {
+public interface ITokenRepository extends JpaRepository<Token, Long> {
     @Query(value = """
-        select t from Token t inner join User u\s
-        on t.user.id = u.id\s
-        where u.id = id and (t.expired = false or t.revoked = false)\s
-        """)
-    List<Token> findAllValidTokenByUser(String id);
+      select t from Token t inner join UserEntity u\s
+      on t.user.id = u.id\s
+      where u.id = :id and (t.expired = false or t.revoked = false)\s
+      """)
+    List<Token> findAllValidTokenByUser(Long id);
 
-    @Query("{'token': ?0}")
     Optional<Token> findByToken(String token);
 }

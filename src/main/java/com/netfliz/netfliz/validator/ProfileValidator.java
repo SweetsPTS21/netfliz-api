@@ -12,7 +12,7 @@ public class ProfileValidator {
         this.profileRepository = profileRepository;
     }
 
-    public void validateProfileExist(String profileId) {
+    public void validateProfileExist(Long profileId) {
         if (profileRepository.existsById(profileId)) {
             return;
         }

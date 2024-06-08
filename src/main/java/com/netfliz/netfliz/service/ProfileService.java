@@ -31,7 +31,7 @@ public class ProfileService implements ProfilesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Profile> getProfileById(String profileId) {
+    public ResponseEntity<Profile> getProfileById(Long profileId) {
         profileValidator.validateProfileExist(profileId);
 
         Optional<ProfileEntity> profileOptional = profileRepository.findById(profileId);
@@ -52,7 +52,7 @@ public class ProfileService implements ProfilesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> updateProfile(String profileId, Profile profile) {
+    public ResponseEntity<Void> updateProfile(Long profileId, Profile profile) {
         profileValidator.validateProfileExist(profileId);
 
         Optional<ProfileEntity> profileOptional = profileRepository.findById(profileId);
@@ -62,13 +62,13 @@ public class ProfileService implements ProfilesApiDelegate {
         }
 
         ProfileEntity profileEntity = profileMapper.mapProfileToProfileEntity(profile);
-        profileEntity.setId(profileId);
+        profileEntity.setId(Math.toIntExact(profileId));
         profileRepository.save(profileEntity);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<Void> deleteProfile(String profileId) {
+    public ResponseEntity<Void> deleteProfile(Long profileId) {
         profileValidator.validateProfileExist(profileId);
 
         Optional<ProfileEntity> profileOptional = profileRepository.findById(profileId);

@@ -1,26 +1,26 @@
 type Movie {
-    id: ID!
-    title: String!
-    year: Int!
+    id: ID
+    title: String
+    year: Int
     trailer: String
-    rated: String!
-    released: String!
-    runtime: String!
-    genre: String!
-    director: String!
-    writer: String!
-    actors: String!
-    plot: String!
+    rated: String
+    released: String
+    runtime: String
+    genre: [String]
+    director: String
+    writer: String
+    actors: String
+    plot: String
     languages: String
-    country: String!
-    awards: String!
-    poster: String!
+    country: String
+    awards: String
+    poster: String
     metascore: Int
     imdbRating: String
     imdbVotes: Int
-    type: String!
-    response: Boolean!
-    images: [String]
+    type: String
+    response: Boolean
+    images: String
 }
 
 input MovieInput {
@@ -30,12 +30,12 @@ input MovieInput {
     rated: String
     released: String
     runtime: String
-    genre: String
+    genre: [String]
     director: String
     writer: String
     actors: String
     plot: String
-    language: String
+    languages: String
     country: String
     awards: String
     poster: String
@@ -44,7 +44,7 @@ input MovieInput {
     imdbVotes: Int
     type: String
     response: Boolean
-    images: [String]
+    images: String
 }
 
 type MovieByCategory {
@@ -75,21 +75,21 @@ input ProfileInput {
 }
 
 type Query {
-    getAllMovie: [Movie]
+    getAllMovie(page: Int, pageSize: Int, filter: String, sort: String): [Movie]
     getMovieByCategory: [MovieByCategory]
-    getMovieById(movieId: ID!): Movie
+    getMovieById(id: ID!): Movie
 
     getAllProfile: [Profile]
-    getProfileById(profileId: ID!): [Profile]
-    getAllProfileByUserId(userId: ID!): [Profile]
+    getProfileById(id: ID!): [Profile]
+    getAllProfileByUserId(id: ID!): [Profile]
 }
 
 type Mutation {
     createMovie(movie: MovieInput!): Movie
-    updateMovie(movieId: ID!, movie: MovieInput!): Movie
-    deleteMovie(movieId: ID!): Boolean
+    updateMovie(id: ID!, movie: MovieInput!): Boolean
+    deleteMovie(id: ID!): Boolean
 
     createProfile(profile: ProfileInput!): Profile
-    updateProfile(profileId: ID!, profile: ProfileInput!): Boolean
-    deleteProfile(profileId: ID!): Boolean
+    updateProfile(id: ID!, profile: ProfileInput!): Boolean
+    deleteProfile(id: ID!): Boolean
 }

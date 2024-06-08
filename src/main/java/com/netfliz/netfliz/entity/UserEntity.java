@@ -1,9 +1,7 @@
 package com.netfliz.netfliz.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.TextIndexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,18 +13,21 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
+@Entity
+@Table(name = "_user")
 public class UserEntity implements UserDetails {
     @Id
-    private String id;
-    @TextIndexed
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String username;
     private String password;
     private String firstName;
     private String lastName;
-    @TextIndexed
     private String email;
-    @TextIndexed
+
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
+
     private String phone;
     private String avatar;
     private int status;

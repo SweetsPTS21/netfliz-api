@@ -24,14 +24,14 @@ public class MovieGraphql {
     }
 
     @QueryMapping
-    public List<Movie> getAllMovie() {
-        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovie();
+    public List<Movie> getAllMovie(@Argument int page, @Argument int pageSize, @Argument String filter, @Argument String sort) {
+        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovie(page, pageSize, filter, sort);
         return responseEntity.getBody();
     }
 
     @QueryMapping
     public List<MovieByCategory> getMovieByCategory() {
-        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovie();
+        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovie(1, 20, null, null);
         List<Movie> movies = responseEntity.getBody();
 
         if (movies == null) {
@@ -39,23 +39,25 @@ public class MovieGraphql {
         }
 
         List<MovieByCategory> movieByCategories = movies.stream()
-                .flatMap(movie -> Arrays.stream(movie.getGenre().split(", "))) // Split genres and create new stream
+                .flatMap(movie -> movie.getGenre().stream()) // Directly use genre stream
                 .distinct() // Remove duplicate genres (optional)
-                .map(genre -> MovieByCategory.builder() // Create MovieByCategory per genre
-                        .category(genre.trim()) // Trim leading/trailing whitespace (optional)
-                        .movies(movies.stream() // Filter movies for this genre
-                                .filter(m -> m.getGenre().contains(genre)) // Check if genre exists in movie genres
-                                .collect(Collectors.toList())) // Collect filtered movies into a list
-                        .build())
-                .collect(Collectors.toList());
+                .map(genre -> {
+                    List<Movie> movieList = movies.stream()
+                            .filter(movie -> movie.getGenre().contains(genre))
+                            .collect(Collectors.toList());
+                    return MovieByCategory.builder()
+                            .category(genre)
+                            .movies(movieList)
+                            .build();
+                }).toList();
 
 
         return movieByCategories;
     }
 
     @QueryMapping
-    public Movie getMovieById(@Argument String movieId) {
-        ResponseEntity<Movie> responseEntity = movieService.getMovieById(movieId);
+    public Movie getMovieById(@Argument Long id) {
+        ResponseEntity<Movie> responseEntity = movieService.getMovieById(id);
         return responseEntity.getBody();
     }
 
@@ -66,13 +68,13 @@ public class MovieGraphql {
     }
 
     @MutationMapping
-    public boolean updateMovie(@Argument String movieId,@Argument Movie movie) {
-        ResponseEntity<Void> responseEntity = movieService.updateMovie(movieId, movie);
+    public boolean updateMovie(@Argument Long id,@Argument Movie movie) {
+        ResponseEntity<Void> responseEntity = movieService.updateMovie(id, movie);
         return responseEntity.getStatusCode().is2xxSuccessful();
     }
 
     @MutationMapping
-    public void deleteMovie(@Argument String movieId) {
-        ResponseEntity<Void> responseEntity = movieService.deleteMovie(movieId);
+    public void deleteMovie(@Argument Long id) {
+        ResponseEntity<Void> responseEntity = movieService.deleteMovie(id);
     }
 }

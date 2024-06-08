@@ -54,7 +54,7 @@ public class AuthenticationService implements UserDetailsChecker {
 
         // create profile for user
         var profile = ProfileEntity.builder()
-                .userId(savedUser.getId())
+                .userId(String.valueOf(savedUser.getId()))
                 .name("Default")
                 .description("Default profile")
                 .status("active")
@@ -124,7 +124,7 @@ public class AuthenticationService implements UserDetailsChecker {
         var findUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new BadCredentialException("User not found"));
 
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(findUser.getId());
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(Long.valueOf(findUser.getId()));
         if (validUserTokens.isEmpty())
             return null;
 
@@ -150,7 +150,7 @@ public class AuthenticationService implements UserDetailsChecker {
     }
 
     private void revokeAllUserTokens(UserEntity user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(Long.valueOf(user.getId()));
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {

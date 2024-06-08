@@ -23,6 +23,6 @@ public class ApplicationAuditAware implements AuditorAware<String> {
         }
 
         UserEntity userPrincipal = (UserEntity) authentication.getPrincipal();
-        return Optional.of(userPrincipal.getId());
+        return Optional.of(String.valueOf(userPrincipal.getId()));
     }
 }

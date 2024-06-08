@@ -1,14 +1,22 @@
 package com.netfliz.netfliz.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.Movie;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Component
 public class MovieMapper {
+
+    private final Logger logger = Logger.getLogger(MovieMapper.class.getName());
 
     public MovieEntity mapMovieToMovieEntity(Movie from) {
         MovieEntity to = new MovieEntity();
@@ -19,7 +27,7 @@ public class MovieMapper {
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
-        to.setGenre(from.getGenre());
+        to.setGenre(mapListToString(from.getGenre()));
         to.setDirector(from.getDirector());
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
@@ -33,7 +41,10 @@ public class MovieMapper {
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
         to.setResponse(from.getResponse());
-        to.setImages(from.getImages());
+        to.setImages(mapListToString(from.getImages()));
+
+        to.setCreatedDate(new Date());
+        to.setUpdatedDate(new Date());
 
         return to;
     }
@@ -41,14 +52,14 @@ public class MovieMapper {
     public Movie mapMovieEntityToMovie(MovieEntity from) {
         Movie to = new Movie();
 
-        to.setId(from.getId());
+        to.setId(Long.valueOf(from.getId()));
         to.setTitle(from.getTitle());
         to.setYear((long) from.getYear());
         to.setTrailer(from.getTrailer());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
-        to.setGenre(from.getGenre());
+        to.setGenre(mapStringToList(from.getGenre()));
         to.setDirector(from.getDirector());
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
@@ -62,7 +73,7 @@ public class MovieMapper {
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
         to.setResponse(from.isResponse());
-        to.setImages(from.getImages());
+        to.setImages(mapStringToList(from.getImages()));
 
         return to;
     }
@@ -73,5 +84,33 @@ public class MovieMapper {
 
     public List<MovieEntity> mapMovieListToMovieEntityList(List<Movie> from) {
         return from.stream().map(this::mapMovieToMovieEntity).toList();
+    }
+
+    public List<String> mapStringToList(String genre) {
+        if (genre == null) {
+            return Collections.emptyList();
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            return mapper.readValue(genre, new TypeReference<List<String>>() {});
+        } catch (JsonProcessingException e) {
+            logger.warning("Error parsing genre: " + genre);
+        }
+
+        return Collections.emptyList();
+    }
+
+    public String mapListToString(List<String> genre) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            return mapper.writeValueAsString(genre);
+        } catch (JsonProcessingException e) {
+            logger.warning("Error parsing genre: " + genre);
+        }
+
+        return "";
     }
 }
