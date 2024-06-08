@@ -1,22 +1,21 @@
 package com.netfliz.netfliz.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.TextIndexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "movies")
+@Entity
+@Table(name = "movie")
 public class MovieEntity {
     @Id
-    private String id;
-    @TextIndexed
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String title;
     private int year;
     private String trailer;
@@ -24,15 +23,13 @@ public class MovieEntity {
     private String released;
     private String runtime;
     private String genre;
-    private List<String> categories;
-    @TextIndexed
+    private String categories;
     private String director;
     private String writer;
-    @TextIndexed
     private String actors;
+    @Column(columnDefinition = "TEXT")
     private String plot;
     private String languages;
-    @TextIndexed
     private String country;
     private String awards;
     private String poster;
@@ -41,8 +38,8 @@ public class MovieEntity {
     private Long imdbVotes;
     private String type;
     private boolean response;
-    private List<String> images;
+    @Column(columnDefinition = "TEXT")
+    private String images;
     private Date createdDate;
     private Date updatedDate;
-
 }

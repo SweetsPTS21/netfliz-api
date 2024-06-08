@@ -12,7 +12,7 @@ public class UserValidator {
         this.userRepository = userRepository;
     }
 
-    public void validateUserExist(String userId) {
+    public void validateUserExist(Long userId) {
         if (userRepository.existsById(userId)) {
             return;
         }

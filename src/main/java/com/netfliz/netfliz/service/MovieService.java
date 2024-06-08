@@ -6,9 +6,16 @@ import com.netfliz.netfliz.mapper.MovieMapper;
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.repository.IMovieRepository;
 import com.netfliz.netfliz.validator.MovieValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +33,37 @@ public class MovieService implements MoviesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<List<Movie>> getAllMovie() {
-        List<Movie> movies = movieMapper.mapMovieEntityListToMovieList(movieRepository.findAll());
-        return ResponseEntity.ok(movies);
+    public ResponseEntity<List<Movie>> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
+        Specification<MovieEntity> specification = null;
+
+        Pageable pageable = PageRequest.of(page != null ? page : 0, pageSize != null ? pageSize : 10, Sort.by(Sort.Direction.DESC, "imdbRating"));
+
+        if (filter != null && !filter.isEmpty()) {
+            String[] filterArray = filter.split(" ");
+            String field =  Arrays.stream(filterArray).findFirst().get();
+            String operator = Arrays.stream(filterArray).skip(1).findFirst().get();
+            String value = Arrays.stream(filterArray).skip(2).findFirst().get();
+
+            specification = (root, query, criteriaBuilder) -> {
+                return criteriaBuilder.and(
+                        criteriaBuilder.equal(root.get(field), value)
+                );
+            };
+
+            Page<MovieEntity> resultPage = movieRepository.findAllByFieldName(field, value, pageable);
+            List<Movie> result = movieMapper.mapMovieEntityListToMovieList(resultPage.getContent());
+
+            return ResponseEntity.ok(result);
+        }
+
+        List<MovieEntity> resultPage = movieRepository.findAll();
+        List<Movie> result = movieMapper.mapMovieEntityListToMovieList(resultPage);
+
+        return ResponseEntity.ok(result);
     }
 
     @Override
-    public ResponseEntity<Movie> getMovieById(String movieId) {
+    public ResponseEntity<Movie> getMovieById(Long movieId) {
         movieValidator.validateMovieExist(movieId);
 
         Optional<MovieEntity> movieOptional = movieRepository.findById(movieId);
@@ -53,7 +84,7 @@ public class MovieService implements MoviesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Void> updateMovie(String movieId, Movie movie) {
+    public ResponseEntity<Void> updateMovie(Long movieId, Movie movie) {
         movieValidator.validateMovieExist(movieId);
 
         Optional<MovieEntity> movieOptional = movieRepository.findById(movieId);
@@ -63,13 +94,13 @@ public class MovieService implements MoviesApiDelegate {
         }
 
         MovieEntity movieEntity = movieMapper.mapMovieToMovieEntity(movie);
-        movieEntity.setId(movieId);
+        movieEntity.setId(Math.toIntExact(movieId));
         movieRepository.save(movieEntity);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<Void> deleteMovie(String movieId) {
+    public ResponseEntity<Void> deleteMovie(Long movieId) {
         movieValidator.validateMovieExist(movieId);
 
         Optional<MovieEntity> movieOptional = movieRepository.findById(movieId);
@@ -89,5 +120,24 @@ public class MovieService implements MoviesApiDelegate {
         });
 
         return ResponseEntity.ok(movies);
+    }
+
+    public String setFilterQuery(String filter) {
+        String query = "";
+
+        if (filter != null && !filter.isEmpty()) {
+            String[] filterArray = filter.split(" ");
+            String operator = Arrays.stream(filterArray).skip(1).findFirst().get();
+            String value = Arrays.stream(filterArray).skip(2).findFirst().get();
+
+            query = switch (operator) {
+                case "ne" -> " != " + value;
+                case "in" ->" like " + "%" + value + "%";
+                case "nin" ->" not like " + "%" + value + "%";
+                default -> " = " + value;
+            };
+        }
+
+        return query;
     }
 }

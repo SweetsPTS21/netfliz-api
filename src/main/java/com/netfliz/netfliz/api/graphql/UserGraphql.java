@@ -20,8 +20,8 @@ public class UserGraphql {
     }
 
     @QueryMapping
-    public List<Profile> getAllProfileByUserId(@Argument String userId) {
-        ResponseEntity<List<Profile>> responseEntity = userService.getAllProfileByUserId(userId);
+    public List<Profile> getAllProfileByUserId(@Argument Long id) {
+        ResponseEntity<List<Profile>> responseEntity = userService.getAllProfileByUserId(id);
         return responseEntity.getBody();
     }
 }
