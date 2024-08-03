@@ -1,6 +1,7 @@
-package com.netfliz.netfliz.auth;
+package com.netfliz.netfliz.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.netfliz.netfliz.entity.TokenType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationResponse {
 
-  @JsonProperty("access_token")
+  @JsonProperty("accessToken")
   private String accessToken;
-  @JsonProperty("refresh_token")
+  @JsonProperty("refreshToken")
   private String refreshToken;
+  @JsonProperty("tokenType")
+  private TokenType tokenType;
 }

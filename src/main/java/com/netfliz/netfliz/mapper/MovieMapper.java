@@ -15,6 +15,7 @@ public class MovieMapper {
 
         to.setTitle(from.getTitle());
         to.setYear(from.getYear().intValue());
+        to.setTrailer(from.getTrailer());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
@@ -43,6 +44,7 @@ public class MovieMapper {
         to.setId(from.getId());
         to.setTitle(from.getTitle());
         to.setYear((long) from.getYear());
+        to.setTrailer(from.getTrailer());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());

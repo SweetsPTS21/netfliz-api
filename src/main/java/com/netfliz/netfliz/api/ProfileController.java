@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-public class ProfileController implements ProfileApi {
+public class ProfileController implements ProfilesApi {
     private final ProfileService profileService;
 
     public ProfileController(ProfileService profileService) {
@@ -15,26 +15,26 @@ public class ProfileController implements ProfileApi {
 
     @Override
     public ResponseEntity<List<Profile>> getAllProfile() {
-        return ProfileApi.super.getAllProfile();
+        return profileService.getAllProfile();
     }
 
     @Override
     public ResponseEntity<Profile> getProfileById(String profileId) {
-        return ProfileApi.super.getProfileById(profileId);
+        return profileService.getProfileById(profileId);
     }
 
     @Override
     public ResponseEntity<Profile> createProfile(Profile profile) {
-        return ProfileApi.super.createProfile(profile);
+        return profileService.createProfile(profile);
     }
 
     @Override
     public ResponseEntity<Void> updateProfile(String profileId, Profile profile) {
-        return ProfileApi.super.updateProfile(profileId, profile);
+        return profileService.updateProfile(profileId, profile);
     }
 
     @Override
     public ResponseEntity<Void> deleteProfile(String profileId) {
-        return ProfileApi.super.deleteProfile(profileId);
+        return profileService.deleteProfile(profileId);
     }
 }

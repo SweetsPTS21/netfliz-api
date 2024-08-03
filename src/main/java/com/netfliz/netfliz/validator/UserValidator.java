@@ -1,5 +1,6 @@
 package com.netfliz.netfliz.validator;
 
+import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.repository.IUserRepository;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,6 @@ public class UserValidator {
         if (userRepository.existsById(userId)) {
             return;
         }
-        throw new RuntimeException("User not found");
+        throw new NotFoundException("User not found");
     }
 }

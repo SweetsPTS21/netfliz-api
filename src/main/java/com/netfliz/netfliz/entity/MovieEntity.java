@@ -19,10 +19,12 @@ public class MovieEntity {
     @TextIndexed
     private String title;
     private int year;
+    private String trailer;
     private String rated;
     private String released;
     private String runtime;
     private String genre;
+    private List<String> categories;
     @TextIndexed
     private String director;
     private String writer;
