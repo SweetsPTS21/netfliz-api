@@ -1,12 +1,10 @@
 package com.netfliz.netfliz.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.TextIndexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
@@ -14,14 +12,14 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "profiles")
+@Entity
+@Table(name = "profile")
 public class ProfileEntity {
     @Id
-    private String id;
-    @TextIndexed
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String name;
     private String avatar;
-    @TextIndexed
     private String status;
     private ProfileType type;
     private String password;

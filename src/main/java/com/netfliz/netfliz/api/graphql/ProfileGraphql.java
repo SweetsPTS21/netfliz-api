@@ -28,8 +28,8 @@ public class ProfileGraphql {
     }
 
     @QueryMapping
-    public Profile getProfileById(@Argument String profileId) {
-        ResponseEntity<Profile> responseEntity = profileService.getProfileById(profileId);
+    public Profile getProfileById(@Argument Long id) {
+        ResponseEntity<Profile> responseEntity = profileService.getProfileById(id);
         return responseEntity.getBody();
     }
 
@@ -40,14 +40,14 @@ public class ProfileGraphql {
     }
 
     @MutationMapping
-    public boolean updateProfile(@Argument String profileId, @Argument Profile profile) {
-        ResponseEntity<Void> responseEntity = profileService.updateProfile(profileId, profile);
+    public boolean updateProfile(@Argument Long id, @Argument Profile profile) {
+        ResponseEntity<Void> responseEntity = profileService.updateProfile(id, profile);
         return responseEntity.getStatusCode().is2xxSuccessful();
     }
 
     @MutationMapping
-    public void deleteProfile(@Argument String profileId) {
-        ResponseEntity<Void> responseEntity = profileService.deleteProfile(profileId);
+    public void deleteProfile(@Argument Long id) {
+        ResponseEntity<Void> responseEntity = profileService.deleteProfile(id);
 
     }
 }

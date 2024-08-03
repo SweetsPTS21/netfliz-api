@@ -13,7 +13,7 @@ public class MovieValidator {
         this.movieRepository = movieRepository;
     }
 
-    public void validateMovieExist(String movieId) {
+    public void validateMovieExist(Long movieId) {
         if (movieRepository.existsById(movieId)) {
             return;
         }
