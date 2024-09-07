@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/netfliz
+    url: jdbc:postgresql://172.17.0.2:5432/netfliz
     username: postgres
     password: 280301
     driver-class-name: org.postgresql.Driver
