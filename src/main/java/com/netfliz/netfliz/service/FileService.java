@@ -1,5 +1,6 @@
 package com.netfliz.netfliz.service;
 
+import com.netfliz.netfliz.entity.FileEntity;
 import com.netfliz.netfliz.mapper.FileMapper;
 import com.netfliz.netfliz.model.FileModel;
 import com.netfliz.netfliz.repository.IFileRepository;
@@ -53,5 +54,9 @@ public class FileService {
     public String getFirebaseDownloadUri(MultipartFile file, String objectId) {
         // Upload file to firebase
         return firebaseStorageService.uploadFile(file, UPLOAD_TYPE, objectId);
+    }
+
+    public FileEntity getFileById(Long id) {
+        return fileRepository.findById(id).orElse(null);
     }
 }

@@ -5,18 +5,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.Movie;
+import com.netfliz.netfliz.service.FileService;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 @Component
 public class MovieMapper {
 
     private final Logger logger = Logger.getLogger(MovieMapper.class.getName());
+    private final FileService fileService;
+
+    public MovieMapper(FileService fileService) {
+        this.fileService = fileService;
+    }
+
 
     public MovieEntity mapMovieToMovieEntity(Movie from) {
         MovieEntity to = new MovieEntity();
@@ -35,8 +40,8 @@ public class MovieMapper {
         to.setLanguages(from.getLanguages());
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
-        to.setPoster(from.getPoster());
-        to.setMetascore(from.getMetaScore());
+        to.setPosterId(from.getPosterId());
+        to.setMetaScore(from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
@@ -67,8 +72,9 @@ public class MovieMapper {
         to.setLanguages(from.getLanguages());
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
-        to.setPoster(from.getPoster());
-        to.setMetaScore(from.getMetascore());
+        to.setPoster(getPosterLinkById(from.getPosterId()));
+        to.setPosterId(from.getPosterId());
+        to.setMetaScore(from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
@@ -112,5 +118,15 @@ public class MovieMapper {
         }
 
         return "";
+    }
+
+    private String getPosterLinkById(long posterId) {
+        AtomicReference<String> poster = new AtomicReference<>("");
+
+        Optional.ofNullable(fileService.getFileById(posterId)).ifPresent(file -> {
+            poster.set(file.getFileDownloadUri());
+        });
+
+        return poster.get();
     }
 }

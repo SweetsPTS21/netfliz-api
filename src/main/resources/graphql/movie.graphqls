@@ -15,7 +15,8 @@ type Movie {
     country: String
     awards: String
     poster: String
-    metascore: Int
+    posterId: Int
+    metaScore: Int
     imdbRating: String
     imdbVotes: Int
     type: String
@@ -38,8 +39,8 @@ input MovieInput {
     languages: String
     country: String
     awards: String
-    poster: String
-    metascore: Int
+    posterId: Int
+    metaScore: Int
     imdbRating: String
     imdbVotes: Int
     type: String
