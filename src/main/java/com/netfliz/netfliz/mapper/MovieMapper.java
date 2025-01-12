@@ -7,6 +7,7 @@ import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.service.FileService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,10 +41,10 @@ public class MovieMapper {
         to.setLanguages(from.getLanguages());
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
-        to.setPosterId(from.getPosterId());
-        to.setMetaScore(from.getMetaScore());
+        to.setPosterId(ObjectUtils.isEmpty(from.getPosterId()) ? 0 : from.getPosterId());
+        to.setMetaScore(ObjectUtils.isEmpty(from.getMetaScore()) ? 0 : from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
-        to.setImdbVotes(from.getImdbVotes());
+        to.setImdbVotes(ObjectUtils.isEmpty(from.getImdbVotes()) ? 0 : from.getImdbVotes());
         to.setType(from.getType());
         to.setResponse(from.getResponse());
         to.setImages(mapListToString(from.getImages()));
