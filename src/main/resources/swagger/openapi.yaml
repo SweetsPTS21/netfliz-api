@@ -700,6 +700,9 @@ components:
         poster:
           type: string
           example: 'this is poster'
+        posterId:
+          type: integer
+          format: int64
         metaScore:
           type: integer
           format: int64

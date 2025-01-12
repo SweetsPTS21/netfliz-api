@@ -2,6 +2,7 @@ package com.netfliz.netfliz.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.Date;
 import java.util.UUID;
@@ -32,8 +33,9 @@ public class MovieEntity {
     private String languages;
     private String country;
     private String awards;
-    private String poster;
-    private Long metascore;
+    @Column(columnDefinition = "bigint default 0")
+    private long posterId;
+    private Long metaScore;
     private String imdbRating;
     private Long imdbVotes;
     private String type;
