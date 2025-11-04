@@ -1,18 +1,18 @@
-spring:
-  config:
-    import: vault://
-  # vault config
-  application:
-    name: application
-  cloud:
-    vault:
-      uri: http://localhost:8200
-      authentication: APPROLE
-      app-role:
-        role-id: ${SPRING_CLOUD_VAULT_APPROLE_ROLE_ID}
-        secret-id: ${SPRING_CLOUD_VAULT_APPROLE_SECRET_ID}
-      kv:
-        enabled: true
-        backend: kv
-        application-name: application
-      fail-fast: true
+#spring:
+#  config:
+#    import: vault://
+#  # vault config
+#  application:
+#    name: application
+#  cloud:
+#    vault:
+#      uri: http://localhost:8200
+#      authentication: APPROLE
+#      app-role:
+#        role-id: ${SPRING_CLOUD_VAULT_APP_ROLE_ROLE_ID}
+#        secret-id: ${SPRING_CLOUD_VAULT_APP_ROLE_SECRET_ID}
+#      kv:
+#        enabled: true
+#        backend: kv
+#        application-name: application
+#      fail-fast: true
