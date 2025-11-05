@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -18,6 +19,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 import static com.netfliz.netfliz.role.Permission.*;
 import static com.netfliz.netfliz.role.Role.ADMIN;
 import static  com.netfliz.netfliz.role.Role.MANAGER;
@@ -29,6 +32,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfiguration {
+    @Value("${spring.cors.allowed-origin-patterns:*}")
+    private List<String> allowedOriginPatterns;
 
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/auth/**",
@@ -75,10 +80,9 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3008");
+        configuration.setAllowedOriginPatterns(allowedOriginPatterns);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
