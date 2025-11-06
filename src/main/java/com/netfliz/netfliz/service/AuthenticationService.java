@@ -3,6 +3,8 @@ package com.netfliz.netfliz.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.config.JwtService;
 import com.netfliz.netfliz.entity.*;
+import com.netfliz.netfliz.entity.enums.ProfileType;
+import com.netfliz.netfliz.entity.enums.TokenType;
 import com.netfliz.netfliz.exception.BadCredentialException;
 import com.netfliz.netfliz.mapper.UserMapper;
 import com.netfliz.netfliz.model.AuthenticationRequest;
@@ -24,9 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -94,20 +94,14 @@ public class AuthenticationService implements UserDetailsChecker {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        final String authHeader = request.getHeader("Cookie");
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authHeader == null) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new BadCredentialException("Invalid token");
         }
+        final String refreshToken = authHeader.substring(7);
 
-        List<String> cookies = Arrays.asList(authHeader.split(";"));
-        final String jwt = cookies.stream()
-            .filter(cookie -> cookie.contains("accessToken"))
-            .findFirst()
-            .orElseThrow(() -> new BadCredentialException("Invalid token"))
-            .split("=")[1];
-
-        var storedToken = tokenRepository.findByToken(jwt)
+        var storedToken = tokenRepository.findByToken(refreshToken)
             .orElseThrow(() -> new BadCredentialException("Invalid token"));
 
         if (storedToken != null) {
@@ -189,23 +183,11 @@ public class AuthenticationService implements UserDetailsChecker {
     }
 
     public User getMe(HttpServletRequest request) {
-        final String authHeader = request.getHeader(HttpHeaders.COOKIE);
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String accessToken;
         final String userEmail;
 
-        if (authHeader == null) {
-            return null;
-        }
-        Map<String, String> cookies = new HashMap<>();
-
-        for (String cookiePair : authHeader.split(";")) {
-            String[] keyValue = cookiePair.trim().split("=");
-            if (keyValue.length == 2) {
-                cookies.put(keyValue[0], keyValue[1]);
-            }
-        }
-
-        accessToken = cookies.get("accessToken");
+        accessToken = authHeader.substring(7);
         userEmail = jwtService.extractUsername(accessToken);
 
         if (userEmail != null) {
