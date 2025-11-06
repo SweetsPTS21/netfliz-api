@@ -16,51 +16,49 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3008, http://localhost:3000"}, allowedHeaders = "*", allowCredentials = "true")
 public class AuthenticationController {
 
-  private final AuthenticationService service;
+    private final AuthenticationService service;
 
-  @PostMapping("/register")
-  public ResponseEntity<AuthenticationResponse> register(
-      @RequestBody RegisterRequest request
-  ) {
-    return ResponseEntity.ok(service.register(request));
-  }
-  @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody AuthenticationRequest request
-  ) {
-    return ResponseEntity.ok(service.authenticate(request));
-  }
-
-  @PostMapping("/logout")
-    public ResponseEntity<AuthenticationResponse> logout(
-        HttpServletRequest request,
-        HttpServletResponse response
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> register(
+            @RequestBody RegisterRequest request
     ) {
-       return service.logout(request, response);
+        return ResponseEntity.ok(service.register(request));
     }
 
-  @PostMapping("/token")
-  public ResponseEntity<AuthenticationResponse> getToken(
-          @RequestBody User user
-          ) {
-    return ResponseEntity.ok(service.getUserToken(user));
-  }
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody AuthenticationRequest request
+    ) {
+        return ResponseEntity.ok(service.authenticate(request));
+    }
 
-  @PostMapping("/refresh-token")
-  public void refreshToken(
-      HttpServletRequest request,
-      HttpServletResponse response
-  ) throws IOException {
-    service.refreshToken(request, response);
-  }
+    @PostMapping("/logout")
+    public ResponseEntity<AuthenticationResponse> logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        return service.logout(request, response);
+    }
 
-  @GetMapping("/me")
-  public User getMe(HttpServletRequest request) {
-    return service.getMe(request);
-  }
+    @PostMapping("/token")
+    public ResponseEntity<AuthenticationResponse> getToken(
+            @RequestBody User user
+    ) {
+        return ResponseEntity.ok(service.getUserToken(user));
+    }
 
+    @PostMapping("/refresh-token")
+    public void refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        service.refreshToken(request, response);
+    }
 
+    @GetMapping("/me")
+    public ResponseEntity<User> getMe(HttpServletRequest request) {
+        return ResponseEntity.ok(service.getMe(request));
+    }
 }

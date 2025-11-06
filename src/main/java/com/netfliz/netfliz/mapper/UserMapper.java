@@ -26,7 +26,6 @@ public class UserMapper {
         User to = new User();
         to.setId(Long.valueOf(from.getId()));
         to.setUsername(from.getUsername());
-        to.setPassword(from.getPassword());
         to.setFirstName(from.getFirstName());
         to.setLastName(from.getLastName());
         to.setEmail(from.getEmail());

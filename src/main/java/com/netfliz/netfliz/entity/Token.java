@@ -1,5 +1,6 @@
 package com.netfliz.netfliz.entity;
 
+import com.netfliz.netfliz.entity.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,7 @@
 package com.netfliz.netfliz.mapper;
 
 import com.netfliz.netfliz.entity.ProfileEntity;
-import com.netfliz.netfliz.entity.ProfileType;
+import com.netfliz.netfliz.entity.enums.ProfileType;
 import com.netfliz.netfliz.model.Profile;
 import org.springframework.stereotype.Component;
 

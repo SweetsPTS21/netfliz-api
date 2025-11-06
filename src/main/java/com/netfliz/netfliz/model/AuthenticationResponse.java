@@ -1,7 +1,7 @@
 package com.netfliz.netfliz.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netfliz.netfliz.entity.TokenType;
+import com.netfliz.netfliz.entity.enums.TokenType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

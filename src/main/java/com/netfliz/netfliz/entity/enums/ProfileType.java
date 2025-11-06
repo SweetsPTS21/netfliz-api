@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.entity;
+package com.netfliz.netfliz.entity.enums;
 
 public enum ProfileType {
     DEFAULT,
