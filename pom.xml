@@ -151,6 +151,7 @@
 							<configOptions>
 								<delegatePattern>true</delegatePattern>
 								<serializableModel>true</serializableModel>
+                                <useJakartaEe>true</useJakartaEe>
 							</configOptions>
 							<generateApis>true</generateApis>
 							<generateModels>true</generateModels>

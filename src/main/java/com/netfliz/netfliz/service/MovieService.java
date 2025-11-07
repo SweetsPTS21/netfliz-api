@@ -4,6 +4,7 @@ import com.netfliz.netfliz.api.MoviesApiDelegate;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.mapper.MovieMapper;
 import com.netfliz.netfliz.model.Movie;
+import com.netfliz.netfliz.model.MoviePage;
 import com.netfliz.netfliz.repository.IMovieRepository;
 import com.netfliz.netfliz.validator.MovieValidator;
 import org.springframework.data.domain.Page;
@@ -33,10 +34,9 @@ public class MovieService implements MoviesApiDelegate {
     }
 
     @Override
-    public ResponseEntity<List<Movie>> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
+    public ResponseEntity<MoviePage> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
         Specification<MovieEntity> specification = null;
-
-        Pageable pageable = PageRequest.of(page != null ? page : 0, pageSize != null ? pageSize : 10, Sort.by(Sort.Direction.DESC, "imdbRating"));
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : page, pageSize, Sort.by(Sort.Direction.DESC, "updatedDate"));
 
         if (filter != null && !filter.isEmpty()) {
             String[] filterArray = filter.split(" ");
@@ -51,15 +51,11 @@ public class MovieService implements MoviesApiDelegate {
             };
 
             Page<MovieEntity> resultPage = movieRepository.findAllByFieldName(field, value, pageable);
-            List<Movie> result = movieMapper.mapMovieEntityListToMovieList(resultPage.getContent());
-
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(buildPage(resultPage));
         }
 
-        List<MovieEntity> resultPage = movieRepository.findAll();
-        List<Movie> result = movieMapper.mapMovieEntityListToMovieList(resultPage);
-
-        return ResponseEntity.ok(result);
+        Page<MovieEntity> resultPage = movieRepository.findAll(pageable);
+        return ResponseEntity.ok(buildPage(resultPage));
     }
 
     @Override
@@ -141,5 +137,17 @@ public class MovieService implements MoviesApiDelegate {
         }
 
         return query;
+    }
+
+    public MoviePage buildPage(Page<MovieEntity> resultPage) {
+        MoviePage moviePage = new MoviePage();
+
+        moviePage.setPage(resultPage.getNumber() + 1);
+        moviePage.setPageSize(resultPage.getSize());
+        moviePage.setTotalPages(resultPage.getTotalPages());
+        moviePage.setTotal((int) resultPage.getTotalElements());
+        moviePage.setItems(movieMapper.mapMovieEntityListToMovieList(resultPage.getContent()));
+
+        return  moviePage;
     }
 }
