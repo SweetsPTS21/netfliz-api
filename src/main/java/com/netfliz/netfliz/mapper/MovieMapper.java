@@ -41,7 +41,7 @@ public class MovieMapper {
         to.setLanguages(from.getLanguages());
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
-        to.setPosterId(ObjectUtils.isEmpty(from.getPosterId()) ? 0 : from.getPosterId());
+        to.setPosterId(ObjectUtils.isEmpty(from.getNfFileId()) ? 0 : from.getNfFileId());
         to.setMetaScore(ObjectUtils.isEmpty(from.getMetaScore()) ? 0 : from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
         to.setImdbVotes(ObjectUtils.isEmpty(from.getImdbVotes()) ? 0 : from.getImdbVotes());
@@ -74,7 +74,7 @@ public class MovieMapper {
         to.setCountry(from.getCountry());
         to.setAwards(from.getAwards());
         to.setPoster(getPosterLinkById(from.getPosterId()));
-        to.setPosterId(from.getPosterId());
+        to.setNfFileId(from.getPosterId());
         to.setMetaScore(from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
         to.setImdbVotes(from.getImdbVotes());

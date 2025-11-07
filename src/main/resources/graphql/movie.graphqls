@@ -15,7 +15,7 @@ type Movie {
     country: String
     awards: String
     poster: String
-    posterId: Int
+    nfFileId: Int
     metaScore: Int
     imdbRating: String
     imdbVotes: Int
@@ -41,7 +41,7 @@ input MovieInput {
     languages: String
     country: String
     awards: String
-    posterId: Int
+    nfFileId: Int
     metaScore: Int
     imdbRating: String
     imdbVotes: Int
@@ -49,6 +49,14 @@ input MovieInput {
     response: Boolean
     images: String
     categories: String
+}
+
+type MoviePage {
+    page: Int!
+    pageSize: Int!
+    total: Int!
+    totalPages: Int!
+    items: [Movie!]
 }
 
 type MovieByCategory {
@@ -79,7 +87,7 @@ input ProfileInput {
 }
 
 type Query {
-    getAllMovie(page: Int, pageSize: Int, filter: String, sort: String): [Movie]
+    getAllMovie(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = ""): MoviePage
     getMovieByCategory: [MovieByCategory]
     getMovieById(id: ID!): Movie
 

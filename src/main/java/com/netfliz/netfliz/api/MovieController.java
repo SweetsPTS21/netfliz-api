@@ -1,12 +1,15 @@
 package com.netfliz.netfliz.api;
 
 import com.netfliz.netfliz.model.Movie;
+import com.netfliz.netfliz.model.MoviePage;
 import com.netfliz.netfliz.service.MovieService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@RestController
 public class MovieController implements MoviesApi {
 
     private final MovieService movieService;
@@ -16,7 +19,7 @@ public class MovieController implements MoviesApi {
     }
 
     @Override
-    public ResponseEntity<List<Movie>> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
+    public ResponseEntity<MoviePage> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
         return movieService.getAllMovie(page, pageSize, filter, sort);
     }
 

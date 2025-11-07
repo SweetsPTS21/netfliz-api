@@ -476,7 +476,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MovieArray'
+                $ref: '#/components/schemas/MoviePage'
     post:
       tags:
         - movie
@@ -700,7 +700,7 @@ components:
         poster:
           type: string
           example: 'this is poster'
-        posterId:
+        nfFileId:
           type: integer
           format: int64
         metaScore:
@@ -731,6 +731,26 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Movie'
+
+    MoviePage:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
     ApiResponse:
       type: object
       properties:

@@ -2,17 +2,18 @@ package com.netfliz.netfliz.api.graphql;
 
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.model.MovieByCategory;
+import com.netfliz.netfliz.model.MoviePage;
 import com.netfliz.netfliz.service.MovieService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -24,18 +25,20 @@ public class MovieGraphql {
     }
 
     @QueryMapping
-    public List<Movie> getAllMovie(@Argument int page, @Argument int pageSize, @Argument String filter, @Argument String sort) {
-        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovie(page, pageSize, filter, sort);
+    public MoviePage getAllMovie(@Argument int page, @Argument int pageSize, @Argument String filter, @Argument String sort) {
+        ResponseEntity<MoviePage> responseEntity = movieService.getAllMovie(page, pageSize, filter, sort);
         return responseEntity.getBody();
     }
 
     @QueryMapping
     public List<MovieByCategory> getMovieByCategory() {
-        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovie(1, 20, null, null);
-        List<Movie> movies = responseEntity.getBody();
+        ResponseEntity<MoviePage> responseEntity = movieService.getAllMovie(1, 20, null, null);
+        List<Movie> movies = Optional.ofNullable(responseEntity.getBody())
+                .map(MoviePage::getItems)
+                .orElse(new ArrayList<>());
 
-        if (movies == null) {
-            return null;
+        if (CollectionUtils.isEmpty(movies)) {
+            return new ArrayList<>();
         }
 
         List<MovieByCategory> movieByCategories = movies.stream()
