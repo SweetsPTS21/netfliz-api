@@ -22,9 +22,11 @@ type Movie {
     type: String
     response: Boolean
     images: String
+    categories: String
 }
 
 input MovieInput {
+    id: ID
     title: String
     year: Int
     trailer: String
@@ -46,6 +48,7 @@ input MovieInput {
     type: String
     response: Boolean
     images: String
+    categories: String
 }
 
 type MovieByCategory {
@@ -87,6 +90,7 @@ type Query {
 
 type Mutation {
     createMovie(movie: MovieInput!): Movie
+    createListMovie(movies: [MovieInput!]!): [Movie]!
     updateMovie(id: ID!, movie: MovieInput!): Boolean
     deleteMovie(id: ID!): Boolean
 

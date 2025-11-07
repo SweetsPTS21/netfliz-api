@@ -114,10 +114,12 @@ public class MovieService implements MoviesApiDelegate {
     }
 
     public ResponseEntity<List<Movie>> bulkMovie(List<Movie> movies) {
+        List<MovieEntity> entityList = new ArrayList<>();
         movies.forEach(movie -> {
             MovieEntity movieEntity = movieMapper.mapMovieToMovieEntity(movie);
-            movieRepository.save(movieEntity);
+            entityList.add(movieEntity);
         });
+        movieRepository.saveAll(entityList);
 
         return ResponseEntity.ok(movies);
     }
