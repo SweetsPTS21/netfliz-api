@@ -68,6 +68,12 @@ public class MovieGraphql {
     }
 
     @MutationMapping
+    public List<Movie> createListMovie(@Argument List<Movie> movies) {
+        ResponseEntity<List<Movie>> responseEntity = movieService.bulkMovie(movies);
+        return responseEntity.getBody();
+    }
+
+    @MutationMapping
     public boolean updateMovie(@Argument Long id,@Argument Movie movie) {
         ResponseEntity<Void> responseEntity = movieService.updateMovie(id, movie);
         return responseEntity.getStatusCode().is2xxSuccessful();
