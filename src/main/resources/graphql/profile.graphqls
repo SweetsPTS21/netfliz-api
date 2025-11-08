@@ -1,0 +1,32 @@
+# Profile
+type Profile {
+    id: ID!
+    userId: ID!
+    name: String!
+    avatar: String
+    status: String!
+    type: String!
+    password: String
+    description: String
+}
+
+input ProfileInput {
+    name: String
+    avatar: String
+    status: String
+    type: String!
+    password: String
+    description: String
+}
+
+extend type Query {
+    getAllProfile: [Profile]
+    getProfileById(id: ID!): [Profile]
+    getAllProfileByUserId(id: ID!): [Profile]
+}
+
+extend type Mutation {
+    createProfile(profile: ProfileInput!): Profile
+    updateProfile(id: ID!, profile: ProfileInput!): Boolean
+    deleteProfile(id: ID!): Boolean
+}

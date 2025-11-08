@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface IProfileRepository extends JpaRepository<ProfileEntity, Long> {
 
-    Optional<List<ProfileEntity>> findByUserId(String userId);
+    Optional<List<ProfileEntity>> findByUserId(Integer userId);
 
     @Query(value = """
             select p from ProfileEntity p
-            where p.userId = :id and p.id = :profileId
+            where p.user.id = :id and p.id = :profileId
             """)
     Optional<ProfileEntity> findByUserIdAndProfileId(Long id, Long profileId);
 }

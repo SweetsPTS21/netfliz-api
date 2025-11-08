@@ -2,10 +2,12 @@ package com.netfliz.netfliz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.config.JwtService;
-import com.netfliz.netfliz.entity.*;
-import com.netfliz.netfliz.entity.enums.ProfileType;
-import com.netfliz.netfliz.entity.enums.TokenType;
+import com.netfliz.netfliz.entity.ProfileEntity;
+import com.netfliz.netfliz.entity.TokenEntity;
+import com.netfliz.netfliz.entity.UserEntity;
+import com.netfliz.netfliz.entity.enums.*;
 import com.netfliz.netfliz.exception.BadCredentialException;
+import com.netfliz.netfliz.exception.BadRequestException;
 import com.netfliz.netfliz.mapper.UserMapper;
 import com.netfliz.netfliz.model.AuthenticationRequest;
 import com.netfliz.netfliz.model.AuthenticationResponse;
@@ -14,9 +16,11 @@ import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
+import com.netfliz.netfliz.role.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,8 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,12 +41,20 @@ public class AuthenticationService implements UserDetailsChecker {
     private final UserMapper userMapper;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        request.validate();
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new BadRequestException("Email already in use");
+        }
+
         var user = UserEntity.builder()
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(String.valueOf(request.getRole()))
+                .role(Role.USER)
+                .status(UserStatus.ACTIVE)
+                .type(UserType.COMMON)
+                .username(generateUsername(request.getEmail()))
                 .build();
 
         var savedUser = userRepository.save(user);
@@ -54,10 +64,10 @@ public class AuthenticationService implements UserDetailsChecker {
 
         // create profile for user
         var profile = ProfileEntity.builder()
-                .userId(String.valueOf(savedUser.getId()))
+                .user(savedUser)
                 .name("Default")
                 .description("Default profile")
-                .status("active")
+                .status(ProfileStatus.ACTIVE)
                 .type(ProfileType.DEFAULT)
                 .build();
 
@@ -118,7 +128,7 @@ public class AuthenticationService implements UserDetailsChecker {
         var findUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new BadCredentialException("User not found"));
 
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(Long.valueOf(findUser.getId()));
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(findUser.getId());
         if (validUserTokens.isEmpty())
             return null;
 
@@ -133,7 +143,7 @@ public class AuthenticationService implements UserDetailsChecker {
     }
 
     private void saveUserToken(UserEntity user, String jwtToken) {
-        var token = Token.builder()
+        var token = TokenEntity.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
@@ -144,7 +154,7 @@ public class AuthenticationService implements UserDetailsChecker {
     }
 
     private void revokeAllUserTokens(UserEntity user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(Long.valueOf(user.getId()));
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
@@ -213,5 +223,12 @@ public class AuthenticationService implements UserDetailsChecker {
         if (!toCheck.isEnabled()) {
             throw new BadCredentialException("User is disabled");
         }
+    }
+
+    private static String generateUsername(String email) {
+        if (Strings.isBlank(email)) {
+            return null;
+        }
+        return email.split("@")[0];
     }
 }

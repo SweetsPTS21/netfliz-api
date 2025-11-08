@@ -90,7 +90,7 @@ public class MovieService implements MoviesApiDelegate {
         }
 
         MovieEntity movieEntity = movieMapper.mapMovieToMovieEntity(movie);
-        movieEntity.setId(Math.toIntExact(movieId));
+        movieEntity.setId(movieId);
         movieRepository.save(movieEntity);
         return ResponseEntity.ok().build();
     }

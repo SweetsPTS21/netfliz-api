@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.mapper;
 
 import com.netfliz.netfliz.entity.UserEntity;
+import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.model.User;
 import org.springframework.stereotype.Component;
 
@@ -10,27 +11,28 @@ import java.util.List;
 public class UserMapper {
     public UserEntity mapUserToUserEntity(User from) {
         UserEntity to = new UserEntity();
-        to.setId(Math.toIntExact(from.getId()));
+        to.setId(from.getId());
         to.setUsername(from.getUsername());
         to.setPassword(from.getPassword());
         to.setFirstName(from.getFirstName());
         to.setLastName(from.getLastName());
         to.setEmail(from.getEmail());
         to.setPhone(from.getPhone());
-        to.setStatus(from.getStatus());
+        to.setStatus(UserStatus.fromId(from.getStatus().getValue()));
 
         return to;
     }
 
     public User mapUserEntityToUser(UserEntity from) {
         User to = new User();
-        to.setId(Long.valueOf(from.getId()));
+        to.setId(from.getId());
         to.setUsername(from.getUsername());
         to.setFirstName(from.getFirstName());
         to.setLastName(from.getLastName());
         to.setEmail(from.getEmail());
         to.setPhone(from.getPhone());
-        to.setStatus(from.getStatus());
+        to.setStatus(User.StatusEnum.fromValue(from.getStatus().getId()));
+        to.setRole(User.RoleEnum.fromValue(from.getRole().getName()));
 
         return to;
     }

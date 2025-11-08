@@ -1,0 +1,34 @@
+type User {
+    id: ID
+    email: String
+    firstName: String
+    lastName: String
+    role: String
+    status: Int
+}
+
+input UserInput {
+    email: String
+    password: String
+    firstName: String
+    lastName: String
+}
+
+type UserPage {
+    page: Int!
+    pageSize: Int!
+    total: Int!
+    totalPages: Int!
+    items: [User!]
+}
+
+extend type Query {
+    getAllUser(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = "") : UserPage
+    getUserById(id: ID!): User
+}
+
+extend type Mutation {
+    createUser(user: UserInput!): User
+    updateUser(id: ID!, user: UserInput!): User
+    deleteUser(id: ID!): Boolean
+}

@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileModel {
-    private Integer id;
+    private Long id;
     private String fileName;
     private String fileType;
     private Long fileSize;
@@ -21,7 +21,7 @@ public class FileModel {
     private String fileDescription;
     private String fileCategory;
     private String fileTags;
-    private String fileStatus;
+    private Integer fileStatus;
     private String fileOwner;
     private String fileUploader;
     private Date createdDate;

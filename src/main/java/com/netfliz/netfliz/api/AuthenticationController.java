@@ -9,9 +9,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -60,5 +64,14 @@ public class AuthenticationController {
     @GetMapping("/me")
     public ResponseEntity<User> getMe(HttpServletRequest request) {
         return ResponseEntity.ok(service.getMe(request));
+    }
+
+    @GetMapping("/me/authorities")
+    public List<String> getAuthorities() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return List.of();
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
     }
 }
