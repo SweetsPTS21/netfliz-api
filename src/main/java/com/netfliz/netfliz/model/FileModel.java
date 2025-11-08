@@ -24,6 +24,6 @@ public class FileModel {
     private Integer fileStatus;
     private String fileOwner;
     private String fileUploader;
-    private Date createdDate;
-    private Date updatedDate;
+    private Date createdAt;
+    private Date updatedAt;
 }

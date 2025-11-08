@@ -3,6 +3,7 @@ package com.netfliz.netfliz.service;
 import com.netfliz.netfliz.api.UsersApiDelegate;
 import com.netfliz.netfliz.entity.ProfileEntity;
 import com.netfliz.netfliz.entity.UserEntity;
+import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.mapper.ProfileMapper;
 import com.netfliz.netfliz.mapper.UserMapper;
@@ -11,6 +12,7 @@ import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.model.UserPage;
 import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
+import com.netfliz.netfliz.role.Role;
 import com.netfliz.netfliz.validator.UserValidator;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
@@ -94,8 +96,8 @@ public class UserService implements UsersApiDelegate {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> createUser(User user) {
-        UserEntity userEntity = userMapper.mapUserToUserEntity(user);
-        userRepository.save(userEntity);
+        UserEntity userEntity = new UserEntity();
+        userRepository.save(userMapper.mapUserToUserEntity(user, userEntity));
 
         return ResponseEntity.ok(user);
     }
@@ -110,7 +112,13 @@ public class UserService implements UsersApiDelegate {
             throw new NotFoundException("User not found");
         }
 
-        UserEntity userEntity = userMapper.mapUserToUserEntity(user);
+        UserEntity userEntity = userOptional.get();
+        userEntity.setEmail(user.getEmail());
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setRole(Role.valueOf(user.getRole().getValue()));
+        userEntity.setStatus(UserStatus.valueOf(user.getStatus().getValue()));
+
         return ResponseEntity.ok(userMapper.mapUserEntityToUser(userRepository.save(userEntity)));
     }
 

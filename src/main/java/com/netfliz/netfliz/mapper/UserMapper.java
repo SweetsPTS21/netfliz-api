@@ -5,12 +5,12 @@ import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.model.User;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Component
 public class UserMapper {
-    public UserEntity mapUserToUserEntity(User from) {
-        UserEntity to = new UserEntity();
+    public UserEntity mapUserToUserEntity(User from, UserEntity to) {
         to.setId(from.getId());
         to.setUsername(from.getUsername());
         to.setPassword(from.getPassword());
@@ -18,7 +18,7 @@ public class UserMapper {
         to.setLastName(from.getLastName());
         to.setEmail(from.getEmail());
         to.setPhone(from.getPhone());
-        to.setStatus(UserStatus.fromId(from.getStatus().getValue()));
+        to.setStatus(UserStatus.valueOf(from.getStatus().getValue()));
 
         return to;
     }
@@ -31,17 +31,15 @@ public class UserMapper {
         to.setLastName(from.getLastName());
         to.setEmail(from.getEmail());
         to.setPhone(from.getPhone());
-        to.setStatus(User.StatusEnum.fromValue(from.getStatus().getId()));
+        to.setStatus(User.StatusEnum.fromValue(from.getStatus().getName()));
         to.setRole(User.RoleEnum.fromValue(from.getRole().getName()));
+        to.setCreatedAt(from.getCreatedAt().atOffset(ZoneOffset.UTC));
+        to.setUpdatedAt(from.getUpdatedAt().atOffset(ZoneOffset.UTC));
 
         return to;
     }
 
     public List<User> mapUserEntityListToUserList(List<UserEntity> from) {
         return from.stream().map(this::mapUserEntityToUser).toList();
-    }
-
-    public List<UserEntity> mapUserListToUserEntityList(List<User> from) {
-        return from.stream().map(this::mapUserToUserEntity).toList();
     }
 }

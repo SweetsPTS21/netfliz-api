@@ -36,7 +36,7 @@ public class MovieService implements MoviesApiDelegate {
     @Override
     public ResponseEntity<MoviePage> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
         Specification<MovieEntity> specification = null;
-        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : page, pageSize, Sort.by(Sort.Direction.DESC, "updatedDate"));
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : page, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         if (filter != null && !filter.isEmpty()) {
             String[] filterArray = filter.split(" ");

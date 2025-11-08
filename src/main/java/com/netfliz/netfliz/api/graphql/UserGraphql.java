@@ -45,13 +45,13 @@ public class UserGraphql {
     }
 
     @MutationMapping
-    public User updateUser(@Argument Long id, @Argument User user) {
+    public User updateUserById(@Argument Long id, @Argument User user) {
         ResponseEntity<User> responseEntity = userService.updateUser(id, user);
         return responseEntity.getBody();
     }
 
     @MutationMapping
-    public void deleteUser(@Argument Long id) {
+    public void deleteUserById(@Argument Long id) {
         userService.deleteUser(id);
     }
 }

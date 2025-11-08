@@ -635,13 +635,13 @@ components:
           type: string
           example: '12345'
         status:
-          type: integer
+          type: string
           description: User Status
           enum:
-            - 0
-            - 1
-            - 2
-          default: 1
+            - ACTIVE
+            - INACTIVE
+            - BANNED
+          default: ACTIVE
         role:
           type: string
           description: User Role
@@ -650,6 +650,14 @@ components:
             - MANAGER
             - ADMIN
           default: USER
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-01-01T00:00:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-01-01T00:00:00.000Z'
       xml:
         name: user
 
