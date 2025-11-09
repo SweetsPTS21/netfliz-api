@@ -1,49 +1,51 @@
 package com.netfliz.netfliz.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.netfliz.netfliz.entity.converter.ProfileStatusConverter;
-import com.netfliz.netfliz.entity.converter.ProfileTypeConverter;
-import com.netfliz.netfliz.entity.enums.ProfileStatus;
-import com.netfliz.netfliz.entity.enums.ProfileType;
+import com.netfliz.netfliz.entity.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "profiles")
-public class ProfileEntity {
+@Table(name = "tokens")
+@EntityListeners(AuditingEntityListener.class)
+public class TokenEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String avatar;
-    private String password;
-    private String description;
 
-    @Convert(converter = ProfileTypeConverter.class)
-    private ProfileType type;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String token;
 
-    @Convert(converter = ProfileStatusConverter.class)
-    private ProfileStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "token_type", length = 50, nullable = false)
+    private TokenType tokenType = TokenType.BEARER;
+
+    @Column(nullable = false)
+    private boolean revoked = false;
+
+    @Column(nullable = false)
+    private boolean expired = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_profile_user"))
+            foreignKey = @ForeignKey(name = "fk_token_user"))
     private UserEntity user;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
-    private Date createdAt;
+    private Instant createdAt;
 
     @Column(name = "updated_at", insertable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
-    private Date updatedAt;
+    private Instant updatedAt;
 }

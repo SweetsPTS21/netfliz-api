@@ -1,12 +1,13 @@
 package com.netfliz.netfliz.api;
 
 import com.netfliz.netfliz.model.User;
+import com.netfliz.netfliz.model.UserPage;
 import com.netfliz.netfliz.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-public class UserController implements UsersApi{
+@RestController
+public class UserController implements UsersApi {
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -19,7 +20,7 @@ public class UserController implements UsersApi{
     }
 
     @Override
-    public ResponseEntity<Void> updateUser(Long userId, User user) {
+    public ResponseEntity<User> updateUser(Long userId, User user) {
         return userService.updateUser(userId, user);
     }
 
@@ -29,8 +30,8 @@ public class UserController implements UsersApi{
     }
 
     @Override
-    public ResponseEntity<List<User>> getAllUser() {
-        return userService.getAllUser();
+    public ResponseEntity<UserPage> getAllUser(Integer page, Integer pageSize, String filter, String sort) {
+        return userService.getAllUser(page, pageSize, filter, sort);
     }
 
     @Override

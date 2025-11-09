@@ -64,36 +64,11 @@ type MovieByCategory {
     movies: [Movie]
 }
 
-# Profile
-type Profile {
-    id: ID!
-    userId: ID!
-    name: String!
-    avatar: String
-    status: String!
-    type: String!
-    password: String
-    description: String
-}
-
-input ProfileInput {
-    userId: ID!
-    name: String
-    avatar: String
-    status: String
-    type: String!
-    password: String
-    description: String
-}
 
 type Query {
     getAllMovie(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = ""): MoviePage
     getMovieByCategory: [MovieByCategory]
     getMovieById(id: ID!): Movie
-
-    getAllProfile: [Profile]
-    getProfileById(id: ID!): [Profile]
-    getAllProfileByUserId(id: ID!): [Profile]
 }
 
 type Mutation {
@@ -101,8 +76,4 @@ type Mutation {
     createListMovie(movies: [MovieInput!]!): [Movie]!
     updateMovie(id: ID!, movie: MovieInput!): Boolean
     deleteMovie(id: ID!): Boolean
-
-    createProfile(profile: ProfileInput!): Profile
-    updateProfile(id: ID!, profile: ProfileInput!): Boolean
-    deleteProfile(id: ID!): Boolean
 }

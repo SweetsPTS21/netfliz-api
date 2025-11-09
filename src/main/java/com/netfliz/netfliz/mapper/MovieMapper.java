@@ -9,7 +9,9 @@ import com.netfliz.netfliz.service.FileService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -48,9 +50,6 @@ public class MovieMapper {
         to.setType(from.getType());
         to.setResponse(from.getResponse());
         to.setImages(mapListToString(from.getImages()));
-
-        to.setCreatedDate(new Date());
-        to.setUpdatedDate(new Date());
 
         return to;
     }

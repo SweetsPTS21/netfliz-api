@@ -1,0 +1,52 @@
+type User {
+    id: ID!
+    email: String!
+    firstName: String
+    lastName: String
+    phone: String
+    role: Role!
+    status: Status!
+    createdAt: String
+    updatedAt: String
+}
+
+input UserInput {
+    email: String!
+    password: String
+    firstName: String!
+    lastName: String!
+    phone: String!
+    role: Role!
+    status: Status!
+}
+
+type UserPage {
+    page: Int!
+    pageSize: Int!
+    total: Int!
+    totalPages: Int!
+    items: [User!]
+}
+
+enum Status {
+    ACTIVE
+    INACTIVE
+    BANNED
+}
+
+enum Role {
+    USER
+    MANAGER
+    ADMIN
+}
+
+extend type Query {
+    getAllUser(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = "") : UserPage
+    getUserById(id: ID!): User
+}
+
+extend type Mutation {
+    createUser(user: UserInput!): User
+    updateUserById(id: ID!, user: UserInput!): User
+    deleteUserById(id: ID!): Boolean
+}

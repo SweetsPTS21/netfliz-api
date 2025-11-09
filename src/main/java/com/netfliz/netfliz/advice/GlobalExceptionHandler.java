@@ -1,8 +1,8 @@
 package com.netfliz.netfliz.advice;
 
 import com.netfliz.netfliz.exception.BadCredentialException;
+import com.netfliz.netfliz.exception.BadRequestException;
 import com.netfliz.netfliz.model.DefaultResponse;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public DefaultResponse<Object> handleBadRequestException(BadCredentialException e) {
+    public DefaultResponse<Object> handleBadRequestException(BadRequestException e) {
         return DefaultResponse.fail(e.getMessage());
     }
 

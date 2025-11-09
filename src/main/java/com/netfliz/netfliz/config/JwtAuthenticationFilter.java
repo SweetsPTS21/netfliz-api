@@ -1,9 +1,9 @@
 package com.netfliz.netfliz.config;
 
 import com.netfliz.netfliz.repository.ITokenRepository;
+import com.netfliz.netfliz.role.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,9 +21,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -62,7 +62,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            String roleStr = jwtService.extractRole(jwt);
+            Role role = Role.valueOf(roleStr);
+
+            Set<SimpleGrantedAuthority> authorities = role.getAuthorities();
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
             var isTokenValid = tokenRepository.findByToken(jwt)
                     .map(t -> !t.isExpired() && !t.isRevoked())
                     .orElse(false);
@@ -74,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
-                    userDetails.getAuthorities()
+                    authorities
             );
             authToken.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
@@ -92,7 +97,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String json = """
                 {
                   "code": 403,
-                  "message": "Phiên đăng nhập hết hạn"
+                  "message": "Token không hợp lệ hoặc đã hết hạn!"
                 }
                 """;
 
