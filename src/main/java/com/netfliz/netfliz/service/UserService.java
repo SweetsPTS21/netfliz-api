@@ -3,7 +3,6 @@ package com.netfliz.netfliz.service;
 import com.netfliz.netfliz.api.UsersApiDelegate;
 import com.netfliz.netfliz.entity.ProfileEntity;
 import com.netfliz.netfliz.entity.UserEntity;
-import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.mapper.ProfileMapper;
 import com.netfliz.netfliz.mapper.UserMapper;
@@ -11,9 +10,11 @@ import com.netfliz.netfliz.model.Profile;
 import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.model.UserPage;
 import com.netfliz.netfliz.repository.IProfileRepository;
+import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
-import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.util.CommonUtils;
 import com.netfliz.netfliz.validator.UserValidator;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,21 +30,15 @@ import java.util.Optional;
 
 @Service
 @Primary
+@AllArgsConstructor
 public class UserService implements UsersApiDelegate {
     IUserRepository userRepository;
     IProfileRepository profileRepository;
+    ITokenRepository tokenRepository;
 
     private final UserValidator userValidator;
     private final UserMapper userMapper;
     private final ProfileMapper profileMapper;
-
-    public UserService(IUserRepository userRepository , IProfileRepository profileRepository, UserValidator userValidator, UserMapper userMapper, ProfileMapper profileMapper) {
-        this.userRepository = userRepository;
-        this.profileRepository = profileRepository;
-        this.userValidator = userValidator;
-        this.userMapper = userMapper;
-        this.profileMapper = profileMapper;
-    }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
@@ -95,44 +91,45 @@ public class UserService implements UsersApiDelegate {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public ResponseEntity<User> createUser(User user) {
+        userValidator.validateUserEmail(user.getEmail());
+
         UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(CommonUtils.generateUsername(user.getEmail()));
         userRepository.save(userMapper.mapUserToUserEntity(user, userEntity));
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userMapper.mapUserEntityToUser(userEntity));
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public ResponseEntity<User> updateUser(Long userId, User user) {
-        userValidator.validateUserExist(userId);
         Optional<UserEntity> userOptional = userRepository.findById(userId);
-
         if (userOptional.isEmpty()) {
             throw new NotFoundException("User not found");
         }
+        userMapper.mapUserToUserEntity(user, userOptional.get());
 
-        UserEntity userEntity = userOptional.get();
-        userEntity.setEmail(user.getEmail());
-        userEntity.setFirstName(user.getFirstName());
-        userEntity.setLastName(user.getLastName());
-        userEntity.setRole(Role.valueOf(user.getRole().getValue()));
-        userEntity.setStatus(UserStatus.valueOf(user.getStatus().getValue()));
-
-        return ResponseEntity.ok(userMapper.mapUserEntityToUser(userRepository.save(userEntity)));
+        return ResponseEntity.ok(userMapper.mapUserEntityToUser(userRepository.save(userOptional.get())));
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public ResponseEntity<Void> deleteUser(Long userId) {
-        userValidator.validateUserExist(userId);
         Optional<UserEntity> userOptional = userRepository.findById(userId);
-
         if (userOptional.isEmpty()) {
             throw new NotFoundException("User not found");
         }
-
+        // delete all token
+        tokenRepository.deleteAllByUserId(userId);
+        // delete all profile
+        profileRepository.deleteAllByUserId(userId);
+        // delete user
         userRepository.deleteById(userId);
+
         return ResponseEntity.ok().build();
     }
 

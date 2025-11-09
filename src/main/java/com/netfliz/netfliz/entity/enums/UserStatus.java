@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum UserStatus {
     ACTIVE(1, "ACTIVE"),
     INACTIVE(0, "INACTIVE"),
-    BANNED(2, "BANNED");
+    BANNED(2, "BANNED"),
+    DELETED(3, "DELETED");
 
     private final Integer id;
     private final String name;

@@ -641,6 +641,7 @@ components:
             - ACTIVE
             - INACTIVE
             - BANNED
+            - DELETED
           default: ACTIVE
         role:
           type: string

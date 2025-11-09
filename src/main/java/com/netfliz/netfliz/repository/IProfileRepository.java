@@ -2,6 +2,7 @@ package com.netfliz.netfliz.repository;
 
 import com.netfliz.netfliz.entity.ProfileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -16,4 +17,8 @@ public interface IProfileRepository extends JpaRepository<ProfileEntity, Long> {
             where p.user.id = :id and p.id = :profileId
             """)
     Optional<ProfileEntity> findByUserIdAndProfileId(Long id, Long profileId);
+
+    @Modifying
+    @Query("DELETE FROM ProfileEntity p WHERE p.user.id = :userId")
+    void deleteAllByUserId(Long userId);
 }

@@ -17,13 +17,12 @@ import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
 import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.util.CommonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,13 +31,14 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService implements UserDetailsChecker {
+public class AuthenticationService {
     private final IUserRepository userRepository;
     private final ITokenRepository tokenRepository;
     private final IProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private UserDetailsChecker userDetailsChecker;
 
     public AuthenticationResponse register(RegisterRequest request) {
         request.validate();
@@ -54,7 +54,7 @@ public class AuthenticationService implements UserDetailsChecker {
                 .role(Role.USER)
                 .status(UserStatus.ACTIVE)
                 .type(UserType.COMMON)
-                .username(generateUsername(request.getEmail()))
+                .username(CommonUtils.generateUsername(request.getEmail()))
                 .build();
 
         var savedUser = userRepository.save(user);
@@ -83,7 +83,11 @@ public class AuthenticationService implements UserDetailsChecker {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialException("Invalid email/password"));
 
-        check(user);
+        // Check user lock status
+        userDetailsChecker.check(user);
+
+        // Check status
+        checkEntity(user);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialException("Invalid email/password");
@@ -209,26 +213,9 @@ public class AuthenticationService implements UserDetailsChecker {
         return null;
     }
 
-    @Override
-    public void check(UserDetails toCheck) {
-        if (!toCheck.isAccountNonLocked()) {
-            throw new BadCredentialException("User is locked");
+    public static void checkEntity(UserEntity entity) {
+        if (entity.getStatus() != UserStatus.ACTIVE) {
+            throw new BadCredentialException("User is temporary unavailable!");
         }
-        if (!toCheck.isAccountNonExpired()) {
-            throw new BadCredentialException("Account is expired");
-        }
-        if (!toCheck.isCredentialsNonExpired()) {
-            throw new BadCredentialException("Credentials are expired");
-        }
-        if (!toCheck.isEnabled()) {
-            throw new BadCredentialException("User is disabled");
-        }
-    }
-
-    private static String generateUsername(String email) {
-        if (Strings.isBlank(email)) {
-            return null;
-        }
-        return email.split("@")[0];
     }
 }

@@ -3,6 +3,9 @@ package com.netfliz.netfliz.mapper;
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.model.User;
+import com.netfliz.netfliz.role.Role;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneOffset;
@@ -10,15 +13,23 @@ import java.util.List;
 
 @Component
 public class UserMapper {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserMapper(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public UserEntity mapUserToUserEntity(User from, UserEntity to) {
-        to.setId(from.getId());
-        to.setUsername(from.getUsername());
-        to.setPassword(from.getPassword());
         to.setFirstName(from.getFirstName());
         to.setLastName(from.getLastName());
         to.setEmail(from.getEmail());
         to.setPhone(from.getPhone());
         to.setStatus(UserStatus.valueOf(from.getStatus().getValue()));
+        to.setRole(Role.valueOf(from.getRole().getValue()));
+
+        if (Strings.isNotBlank(from.getPassword())) {
+            to.setPassword(passwordEncoder.encode(from.getPassword()));
+        }
 
         return to;
     }
