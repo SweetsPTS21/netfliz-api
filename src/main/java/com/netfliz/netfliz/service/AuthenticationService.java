@@ -1,7 +1,6 @@
 package com.netfliz.netfliz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netfliz.netfliz.config.JwtService;
 import com.netfliz.netfliz.entity.ProfileEntity;
 import com.netfliz.netfliz.entity.TokenEntity;
 import com.netfliz.netfliz.entity.UserEntity;

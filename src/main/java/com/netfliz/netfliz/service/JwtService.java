@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.config;
+package com.netfliz.netfliz.service;
 
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.exception.BadCredentialException;

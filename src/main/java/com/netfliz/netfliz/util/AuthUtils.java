@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.util;
 
-import com.netfliz.netfliz.config.JwtService;
+import com.netfliz.netfliz.service.JwtService;
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.repository.IUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
