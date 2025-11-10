@@ -23,6 +23,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,14 +36,13 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationService implements UserDetailsChecker{
     private final IUserRepository userRepository;
     private final ITokenRepository tokenRepository;
     private final IProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
-    private UserDetailsChecker userDetailsChecker;
 
     public AuthenticationResponse register(RegisterRequest request) {
         request.validate();
@@ -84,7 +88,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new BadCredentialException("Invalid email/password"));
 
         // Check user lock status
-        userDetailsChecker.check(user);
+        check(user);
 
         // Check status
         checkEntity(user);
@@ -97,6 +101,7 @@ public class AuthenticationService {
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
+
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -174,14 +179,14 @@ public class AuthenticationService {
     ) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
-        final String userEmail;
+        final String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = this.userRepository.findByEmail(userEmail)
+        username = jwtService.extractUsername(refreshToken);
+        if (username != null) {
+            var user = this.userRepository.findByUsername(username)
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
@@ -199,13 +204,13 @@ public class AuthenticationService {
     public User getMe(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String accessToken;
-        final String userEmail;
+        final String username;
 
         accessToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(accessToken);
+        username = jwtService.extractUsername(accessToken);
 
-        if (userEmail != null) {
-            UserEntity userEntity = userRepository.findByEmail(userEmail).orElseThrow(
+        if (username != null) {
+            UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(
                     () -> new BadCredentialException("User not found")
             );
             return userMapper.mapUserEntityToUser(userEntity);
@@ -216,6 +221,22 @@ public class AuthenticationService {
     public static void checkEntity(UserEntity entity) {
         if (entity.getStatus() != UserStatus.ACTIVE) {
             throw new BadCredentialException("User is temporary unavailable!");
+        }
+    }
+
+    @Override
+    public void check(UserDetails toCheck) {
+        if (!toCheck.isAccountNonLocked()) {
+            throw new LockedException("User is locked");
+        }
+        if (!toCheck.isAccountNonExpired()) {
+            throw new AccountExpiredException("Account is expired");
+        }
+        if (!toCheck.isCredentialsNonExpired()) {
+            throw new CredentialsExpiredException("Credentials are expired");
+        }
+        if (!toCheck.isEnabled()) {
+            throw new DisabledException("User is disabled");
         }
     }
 }
