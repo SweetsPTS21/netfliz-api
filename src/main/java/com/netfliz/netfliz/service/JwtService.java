@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.config;
+package com.netfliz.netfliz.service;
 
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.exception.BadCredentialException;
@@ -72,7 +72,7 @@ public class JwtService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userEntity.getEmail())
+                .setSubject(userEntity.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

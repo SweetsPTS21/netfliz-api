@@ -2,6 +2,7 @@ package com.netfliz.netfliz.config;
 
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,14 +50,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        final String userEmail;
+        final String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             writeJsonForbidden(response);
             return;
         }
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
-        if (Strings.isBlank(userEmail)) {
+        username = jwtService.extractUsername(jwt);
+        if (Strings.isBlank(username)) {
             writeJsonForbidden(response);
             return;
         }
@@ -66,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Role role = Role.valueOf(roleStr);
 
             Set<SimpleGrantedAuthority> authorities = role.getAuthorities();
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             var isTokenValid = tokenRepository.findByToken(jwt)
                     .map(t -> !t.isExpired() && !t.isRevoked())

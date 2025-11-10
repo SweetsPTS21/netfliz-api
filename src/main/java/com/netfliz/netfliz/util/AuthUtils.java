@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.util;
 
-import com.netfliz.netfliz.config.JwtService;
+import com.netfliz.netfliz.service.JwtService;
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.repository.IUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,17 +23,17 @@ public class AuthUtils {
      */
     public UserEntity getCurrentUser() {
         // 1) thử lấy từ security context trước
-        String usernameOrEmail = getPrincipalFromSecurityContext();
-        if (usernameOrEmail == null) {
+        String username = getPrincipalFromSecurityContext();
+        if (username == null) {
             // 2) fallback: lấy từ JWT trong request
-            usernameOrEmail = getUsernameFromJwtInRequest();
+            username = getUsernameFromJwtInRequest();
         }
 
-        if (usernameOrEmail == null) {
+        if (username == null) {
             return null; // hoặc throw
         }
 
-        return userRepository.findByEmail(usernameOrEmail).orElse(null);
+        return userRepository.findByUsername(username).orElse(null);
     }
 
     /**

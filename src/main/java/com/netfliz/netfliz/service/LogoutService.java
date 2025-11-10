@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.config;
+package com.netfliz.netfliz.service;
 
 import com.netfliz.netfliz.repository.ITokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
