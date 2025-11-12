@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.advice;
 
-import com.netfliz.netfliz.model.DefaultResponse;
+import com.netfliz.netfliz.model.response.DefaultResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;

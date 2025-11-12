@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.model;
+package com.netfliz.netfliz.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

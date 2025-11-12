@@ -25,6 +25,39 @@ type Movie {
     categories: String
 }
 
+type MoviePage {
+    page: Int!
+    pageSize: Int!
+    total: Int!
+    totalPages: Int!
+    items: [Movie!]
+}
+
+type MovieByCategory {
+    category: String
+    movies: [Movie]
+}
+
+# Request
+input MovieByGenreRequest {
+    page: Int
+    pageSize: Int
+    genres: [String]
+}
+
+input MovieFilterRequest {
+    page: Int
+    pageSize: Int
+    genres: [String]
+    countries: [String]
+    languages: [String]
+    year: String
+    rating: String
+    rated: String
+    type: String
+    sort: String
+}
+
 input MovieInput {
     id: ID
     title: String
@@ -51,24 +84,13 @@ input MovieInput {
     categories: String
 }
 
-type MoviePage {
-    page: Int!
-    pageSize: Int!
-    total: Int!
-    totalPages: Int!
-    items: [Movie!]
-}
-
-type MovieByCategory {
-    category: String
-    movies: [Movie]
-}
-
 
 type Query {
     getAllMovie(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = ""): MoviePage
     getMovieByCategory: [MovieByCategory]
     getMovieById(id: ID!): Movie
+    getMoviesByGenres(request: MovieByGenreRequest!): MoviePage
+    getMoviesByFilter(request: MovieFilterRequest!): MoviePage
 }
 
 type Mutation {

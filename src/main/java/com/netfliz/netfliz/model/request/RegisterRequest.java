@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.model;
+package com.netfliz.netfliz.model.request;
 
 import com.netfliz.netfliz.exception.BadRequestException;
 import lombok.AllArgsConstructor;

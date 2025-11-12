@@ -5,8 +5,13 @@ import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.mapper.MovieMapper;
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.model.MoviePage;
+import com.netfliz.netfliz.model.request.MovieByGenreRequest;
+import com.netfliz.netfliz.model.request.MovieFilterRequest;
+import com.netfliz.netfliz.repository.CustomMovieRepository;
 import com.netfliz.netfliz.repository.IMovieRepository;
 import com.netfliz.netfliz.validator.MovieValidator;
+import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,17 +26,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class MovieService implements MoviesApiDelegate {
     IMovieRepository movieRepository;
-
     private final MovieMapper movieMapper;
     private final MovieValidator movieValidator;
-
-    public MovieService(IMovieRepository movieRepository,MovieMapper movieMapper, MovieValidator movieValidator) {
-        this.movieRepository = movieRepository;
-        this.movieMapper = movieMapper;
-        this.movieValidator = movieValidator;
-    }
+    private final CustomMovieRepository customMovieRepository;
 
     @Override
     public ResponseEntity<MoviePage> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
@@ -120,6 +120,21 @@ public class MovieService implements MoviesApiDelegate {
         return ResponseEntity.ok(movies);
     }
 
+    public ResponseEntity<MoviePage> getMoviesByGenres(MovieByGenreRequest request) {
+        request.validate();
+
+        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(), Sort.by(Sort.Direction.DESC, "updated_at"));
+        Page<MovieEntity> resultPage = customMovieRepository.findByGenres(request.getGenres().toArray(new String[0]), pageable);
+        return ResponseEntity.ok(buildPage(resultPage));
+    }
+
+    public ResponseEntity<MoviePage> getMoviesByFilter(MovieFilterRequest request) {
+        request.validate();
+
+        Page<MovieEntity> resultPage = customMovieRepository.findByFilter(request);
+        return ResponseEntity.ok(buildPage(resultPage));
+    }
+
     public String setFilterQuery(String filter) {
         String query = "";
 
@@ -148,6 +163,6 @@ public class MovieService implements MoviesApiDelegate {
         moviePage.setTotal((int) resultPage.getTotalElements());
         moviePage.setItems(movieMapper.mapMovieEntityListToMovieList(resultPage.getContent()));
 
-        return  moviePage;
+        return moviePage;
     }
 }

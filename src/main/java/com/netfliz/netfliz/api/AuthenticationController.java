@@ -1,9 +1,9 @@
 package com.netfliz.netfliz.api;
 
-import com.netfliz.netfliz.model.AuthenticationRequest;
-import com.netfliz.netfliz.model.AuthenticationResponse;
+import com.netfliz.netfliz.model.request.AuthenticationRequest;
+import com.netfliz.netfliz.model.response.AuthenticationResponse;
 import com.netfliz.netfliz.service.AuthenticationService;
-import com.netfliz.netfliz.model.RegisterRequest;
+import com.netfliz.netfliz.model.request.RegisterRequest;
 import com.netfliz.netfliz.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.model;
+package com.netfliz.netfliz.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
