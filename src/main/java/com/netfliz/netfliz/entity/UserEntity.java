@@ -6,7 +6,7 @@ import com.netfliz.netfliz.entity.converter.UserStatusConverter;
 import com.netfliz.netfliz.entity.converter.UserTypeConverter;
 import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.entity.enums.UserType;
-import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.entity.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

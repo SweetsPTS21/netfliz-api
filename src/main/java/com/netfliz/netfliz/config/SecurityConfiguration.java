@@ -16,9 +16,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static com.netfliz.netfliz.role.Permission.*;
-import static com.netfliz.netfliz.role.Role.ADMIN;
-import static  com.netfliz.netfliz.role.Role.MANAGER;
+import static com.netfliz.netfliz.entity.enums.Permission.*;
+import static com.netfliz.netfliz.entity.enums.Role.ADMIN;
+import static  com.netfliz.netfliz.entity.enums.Role.MANAGER;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 

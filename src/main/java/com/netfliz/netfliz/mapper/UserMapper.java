@@ -3,7 +3,7 @@ package com.netfliz.netfliz.mapper;
 import com.netfliz.netfliz.entity.UserEntity;
 import com.netfliz.netfliz.entity.enums.UserStatus;
 import com.netfliz.netfliz.model.User;
-import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.entity.enums.Role;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

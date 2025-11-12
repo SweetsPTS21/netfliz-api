@@ -1,7 +1,7 @@
 package com.netfliz.netfliz.config;
 
 import com.netfliz.netfliz.repository.ITokenRepository;
-import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.entity.enums.Role;
 import com.netfliz.netfliz.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

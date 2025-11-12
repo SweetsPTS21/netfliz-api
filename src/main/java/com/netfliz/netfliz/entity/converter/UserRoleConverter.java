@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.entity.converter;
 
-import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.entity.enums.Role;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import org.apache.logging.log4j.util.Strings;
