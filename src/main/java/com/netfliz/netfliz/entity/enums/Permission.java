@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.role;
+package com.netfliz.netfliz.entity.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

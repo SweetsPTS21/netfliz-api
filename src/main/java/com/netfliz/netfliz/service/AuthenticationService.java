@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netfliz.netfliz.constant.CacheKey;
 import com.netfliz.netfliz.entity.ProfileEntity;
 import com.netfliz.netfliz.entity.TokenEntity;
 import com.netfliz.netfliz.entity.UserEntity;
@@ -15,7 +16,7 @@ import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.repository.IUserRepository;
-import com.netfliz.netfliz.role.Role;
+import com.netfliz.netfliz.entity.enums.Role;
 import com.netfliz.netfliz.util.CommonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,6 +43,7 @@ public class AuthenticationService implements UserDetailsChecker{
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final RedisService redisService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         request.validate();
@@ -64,6 +66,10 @@ public class AuthenticationService implements UserDetailsChecker{
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+
+        // Cache user info
+        String cacheKey = CacheKey.buildKey(CacheKey.CACHE_USER_INFO, savedUser.getUsername());
+        redisService.set(cacheKey, savedUser);
 
         // create profile for user
         var profile = ProfileEntity.builder()
@@ -95,6 +101,10 @@ public class AuthenticationService implements UserDetailsChecker{
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialException("Invalid email/password");
         }
+
+        // Cache user info
+        String cacheKey = CacheKey.buildKey(CacheKey.CACHE_USER_INFO, user.getUsername());
+        redisService.set(cacheKey, user);
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -209,9 +219,16 @@ public class AuthenticationService implements UserDetailsChecker{
         username = jwtService.extractUsername(accessToken);
 
         if (username != null) {
+            String cacheKey = CacheKey.buildKey(CacheKey.CACHE_USER_INFO, username);
+            var user = redisService.get(cacheKey, UserEntity.class);
+            if (user != null) {
+                return userMapper.mapUserEntityToUser(user);
+            }
             UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(
                     () -> new BadCredentialException("User not found")
             );
+            redisService.set(cacheKey, userEntity);
+
             return userMapper.mapUserEntityToUser(userEntity);
         }
         return null;
