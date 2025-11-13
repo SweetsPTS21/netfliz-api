@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -89,18 +88,29 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         String countSql = "SELECT COUNT(*) FROM movies" + whereClause;
         Long total = Optional.ofNullable(namedParameterJdbcTemplate.queryForObject(countSql, params, Long.class)).orElse(0L);
 
-        // Search
+        whereClause.append(" ORDER BY ");
         if (Strings.isNotBlank(request.getSort())) {
-            whereClause.append(" ORDER BY :sort DESC");
-            params.addValue("sort", request.getSort());
+            switch (request.getSort().toLowerCase()) {
+                case "year":
+                case "imdb_rating":
+                case "released":
+                case "updated_at":
+                    whereClause.append(request.getSort().toLowerCase());
+                    break;
+                default:
+                    whereClause.append("updated_at");
+            }
+            whereClause.append(" DESC");
         } else {
-            whereClause.append(" ORDER BY updated_at DESC");
+            whereClause.append("updated_at DESC");
         }
 
+        // Add pagination
         whereClause.append(" LIMIT :limit OFFSET :offset");
         params.addValue("limit", request.getPageSize());
-        params.addValue("offset", request.getPage() * request.getPageSize());
+        params.addValue("offset", (long) request.getPage() * request.getPageSize());
 
+        // Build final query
         String searchSql = "SELECT * FROM movies" + whereClause;
         List<MovieEntity> result = namedParameterJdbcTemplate.query(searchSql, params, rowMapper);
 
