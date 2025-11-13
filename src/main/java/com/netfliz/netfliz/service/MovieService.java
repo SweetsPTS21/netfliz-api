@@ -120,12 +120,11 @@ public class MovieService implements MoviesApiDelegate {
         return ResponseEntity.ok(movies);
     }
 
-    public ResponseEntity<MoviePage> getMoviesByGenres(MovieByGenreRequest request) {
+    public ResponseEntity<List<Movie>> getMoviesByGenres(MovieByGenreRequest request) {
         request.validate();
 
-        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(), Sort.by(Sort.Direction.DESC, "updated_at"));
-        Page<MovieEntity> resultPage = customMovieRepository.findByGenres(request.getGenres().toArray(new String[0]), pageable);
-        return ResponseEntity.ok(buildPage(resultPage));
+        List<MovieEntity> resultPage = customMovieRepository.findByGenres(request.getGenres(), request.getLimit());
+        return ResponseEntity.ok(movieMapper.mapMovieEntityListToMovieList(resultPage));
     }
 
     public ResponseEntity<MoviePage> getMoviesByFilter(MovieFilterRequest request) {

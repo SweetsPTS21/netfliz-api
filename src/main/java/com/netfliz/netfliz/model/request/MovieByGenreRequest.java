@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class MovieByGenreRequest extends BaseRequest {
+public class MovieByGenreRequest {
     private List<String> genres;
+    private Integer limit;
 
     public void validate() {
         if (CollectionUtils.isEmpty(genres)) {
@@ -25,6 +25,8 @@ public class MovieByGenreRequest extends BaseRequest {
             genres = new ArrayList<>();
         }
 
-        super.normalize();
+        if (limit == null) {
+            limit = 10;
+        }
     }
 }

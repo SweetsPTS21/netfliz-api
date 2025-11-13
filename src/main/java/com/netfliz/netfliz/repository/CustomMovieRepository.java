@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface CustomMovieRepository {
-    Page<MovieEntity> findByGenres(String[] genres, Pageable pageable);
+    List<MovieEntity> findByGenres(List<String> genres, int limit);
 
     Page<MovieEntity> findByFilter(MovieFilterRequest request);
 }

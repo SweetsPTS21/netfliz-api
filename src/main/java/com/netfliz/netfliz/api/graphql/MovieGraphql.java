@@ -62,8 +62,8 @@ public class MovieGraphql {
     }
 
     @QueryMapping
-    public MoviePage getMoviesByGenres(@Argument MovieByGenreRequest request) {
-        ResponseEntity<MoviePage> responseEntity = movieService.getMoviesByGenres(request);
+    public List<Movie> getMoviesByGenres(@Argument MovieByGenreRequest request) {
+        ResponseEntity<List<Movie>> responseEntity = movieService.getMoviesByGenres(request);
         return responseEntity.getBody();
     }
 

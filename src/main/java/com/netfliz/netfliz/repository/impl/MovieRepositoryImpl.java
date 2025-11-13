@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -26,21 +27,22 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public Page<MovieEntity> findByGenres(String[] genres, Pageable pageable) {
+    public List<MovieEntity> findByGenres(List<String> genres, int limit) {
+        String sql = " "
+                + "SELECT * FROM ( "
+                + "  SELECT m.*, g.genre, ROW_NUMBER() OVER (PARTITION BY g.genre ORDER BY m.created_at DESC) AS row_num "
+                + "  FROM movies m "
+                + "  JOIN LATERAL jsonb_array_elements_text(m.genre) AS g(genre) ON true "
+                + "  WHERE g.genre IN (:genres) "
+                + ") tmp "
+                + "WHERE row_num <= :limit "
+                + "ORDER BY row_num";
+
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("genres", new SqlParameterValue(Types.ARRAY, "text", genres));
+        params.addValue("genres", genres);
+        params.addValue("limit", limit);
 
-        // Count
-        String countSql = "SELECT COUNT(*) FROM movies WHERE jsonb_exists_any(genre, :genres)";
-        Long total = Optional.ofNullable(namedParameterJdbcTemplate.queryForObject(countSql, params, Long.class)).orElse(0L);
-
-        // Search
-        String sql = "SELECT * FROM movies WHERE jsonb_exists_any(genre, :genres) ORDER BY updated_at DESC LIMIT :pageSize OFFSET :offset";
-        params.addValue("pageSize", pageable.getPageSize());
-        params.addValue("offset", pageable.getOffset());
-        List<MovieEntity> result = namedParameterJdbcTemplate.query(sql, params, rowMapper);
-
-        return new PageImpl<>(result, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), total);
+        return namedParameterJdbcTemplate.query(sql, params, rowMapper);
     }
 
     @Override
