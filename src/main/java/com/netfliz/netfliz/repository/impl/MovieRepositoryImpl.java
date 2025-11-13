@@ -28,8 +28,6 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
 
     @Override
     public Page<MovieEntity> findByGenres(String[] genres, Pageable pageable) {
-        String sql = "SELECT * FROM movies WHERE jsonb_exists_any(genre, :genres)";
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("genres", new SqlParameterValue(Types.ARRAY, "text", genres));
 
@@ -38,6 +36,7 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         Long total = Optional.ofNullable(namedParameterJdbcTemplate.queryForObject(countSql, params, Long.class)).orElse(0L);
 
         // Search
+        String sql = "SELECT * FROM movies WHERE jsonb_exists_any(genre, :genres) ORDER BY updated_at DESC LIMIT :pageSize OFFSET :offset";
         params.addValue("pageSize", pageable.getPageSize());
         params.addValue("offset", pageable.getOffset());
         List<MovieEntity> result = namedParameterJdbcTemplate.query(sql, params, rowMapper);

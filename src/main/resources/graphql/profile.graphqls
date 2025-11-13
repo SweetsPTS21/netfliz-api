@@ -1,20 +1,32 @@
 # Profile
 type Profile {
     id: ID!
-    userId: ID!
     name: String!
     avatar: String
-    status: String!
-    type: String!
+    status: StatusEnum!
+    type: TypeEnum!
     password: String
     description: String
 }
 
+enum StatusEnum {
+    ACTIVE
+    INACTIVE
+    LOCKED
+}
+
+enum TypeEnum {
+    DEFAULT
+    KIDS
+    ADULT
+}
+
+# Input
 input ProfileInput {
-    name: String
+    name: String!
     avatar: String
-    status: String
-    type: String!
+    status: StatusEnum!
+    type: TypeEnum!
     password: String
     description: String
 }
