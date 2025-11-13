@@ -2,7 +2,8 @@ package com.netfliz.netfliz.advice;
 
 import com.netfliz.netfliz.exception.BadCredentialException;
 import com.netfliz.netfliz.exception.BadRequestException;
-import com.netfliz.netfliz.model.DefaultResponse;
+import com.netfliz.netfliz.model.response.DefaultResponse;
+import jakarta.xml.bind.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,6 +27,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public DefaultResponse<Object> handleForbiddenException(BadCredentialException e) {
+        return DefaultResponse.fail(e.getMessage());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public DefaultResponse<Object> handleValidationException(ValidationException e) {
         return DefaultResponse.fail(e.getMessage());
     }
 }

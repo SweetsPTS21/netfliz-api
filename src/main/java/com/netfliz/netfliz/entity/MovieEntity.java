@@ -43,7 +43,7 @@ public class MovieEntity {
     @Column(name = "imdb_votes")
     private Long imdbVotes;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "jsonb")
     private String genre;
 
     @Column(columnDefinition = "TEXT")

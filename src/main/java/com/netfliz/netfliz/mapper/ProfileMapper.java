@@ -21,7 +21,7 @@ public class ProfileMapper {
         to.setName(from.getName());
         to.setAvatar(from.getAvatar());
         to.setStatus(ProfileStatus.valueOf(from.getStatus().getValue()));
-        to.setType(ProfileType.valueOf(from.getType()));
+        to.setType(ProfileType.valueOf(from.getType().getValue()));
         to.setPassword(from.getPassword());
         to.setDescription(from.getDescription());
         to.setUser(user);
@@ -34,10 +34,9 @@ public class ProfileMapper {
         to.setName(profileEntity.getName());
         to.setAvatar(profileEntity.getAvatar());
         to.setStatus(Profile.StatusEnum.valueOf(profileEntity.getStatus().getName()));
-        to.setType(String.valueOf(profileEntity.getType()));
+        to.setType(Profile.TypeEnum.valueOf(profileEntity.getType().getName()));
         to.setPassword(profileEntity.getPassword());
         to.setDescription(profileEntity.getDescription());
-        to.setUserId(profileEntity.getUser().getId());
         return to;
     }
 

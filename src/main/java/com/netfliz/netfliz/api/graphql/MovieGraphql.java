@@ -1,8 +1,11 @@
 package com.netfliz.netfliz.api.graphql;
 
 import com.netfliz.netfliz.model.Movie;
-import com.netfliz.netfliz.model.MovieByCategory;
+import com.netfliz.netfliz.model.request.MovieByGenreRequest;
+import com.netfliz.netfliz.model.request.MovieFilterRequest;
+import com.netfliz.netfliz.model.response.MovieByCategoryResponse;
 import com.netfliz.netfliz.model.MoviePage;
+import com.netfliz.netfliz.model.response.MovieByGenreResponse;
 import com.netfliz.netfliz.service.MovieService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -31,7 +34,7 @@ public class MovieGraphql {
     }
 
     @QueryMapping
-    public List<MovieByCategory> getMovieByCategory() {
+    public List<MovieByCategoryResponse> getMovieByCategory() {
         ResponseEntity<MoviePage> responseEntity = movieService.getAllMovie(1, 20, null, null);
         List<Movie> movies = Optional.ofNullable(responseEntity.getBody())
                 .map(MoviePage::getItems)
@@ -41,14 +44,14 @@ public class MovieGraphql {
             return new ArrayList<>();
         }
 
-        List<MovieByCategory> movieByCategories = movies.stream()
+        List<MovieByCategoryResponse> movieByCategories = movies.stream()
                 .flatMap(movie -> movie.getGenre().stream()) // Directly use genre stream
                 .distinct() // Remove duplicate genres (optional)
                 .map(genre -> {
                     List<Movie> movieList = movies.stream()
                             .filter(movie -> movie.getGenre().contains(genre))
                             .collect(Collectors.toList());
-                    return MovieByCategory.builder()
+                    return MovieByCategoryResponse.builder()
                             .category(genre)
                             .movies(movieList)
                             .build();
@@ -56,6 +59,18 @@ public class MovieGraphql {
 
 
         return movieByCategories;
+    }
+
+    @QueryMapping
+    public MoviePage getMoviesByGenres(@Argument MovieByGenreRequest request) {
+        ResponseEntity<MoviePage> responseEntity = movieService.getMoviesByGenres(request);
+        return responseEntity.getBody();
+    }
+
+    @QueryMapping
+    public MoviePage getMoviesByFilter(@Argument MovieFilterRequest request) {
+        ResponseEntity<MoviePage> responseEntity = movieService.getMoviesByFilter(request);
+        return responseEntity.getBody();
     }
 
     @QueryMapping
