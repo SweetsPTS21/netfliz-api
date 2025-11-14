@@ -7,6 +7,8 @@ import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.model.MovieByGenreDto;
 import com.netfliz.netfliz.service.FileService;
+import com.netfliz.netfliz.util.JsonUtils;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -17,14 +19,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 @Component
+@AllArgsConstructor
 public class MovieMapper {
-
     private final Logger logger = Logger.getLogger(MovieMapper.class.getName());
     private final FileService fileService;
-
-    public MovieMapper(FileService fileService) {
-        this.fileService = fileService;
-    }
 
 
     public MovieEntity mapMovieToMovieEntity(Movie from) {
@@ -36,7 +34,7 @@ public class MovieMapper {
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
-        to.setGenre(mapListToString(from.getGenre()));
+        to.setGenre(JsonUtils.parse(from.getGenre()));
         to.setDirector(from.getDirector());
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
@@ -58,14 +56,14 @@ public class MovieMapper {
     public Movie mapMovieEntityToMovie(MovieEntity from) {
         Movie to = new Movie();
 
-        to.setId(Long.valueOf(from.getId()));
+        to.setId(from.getId());
         to.setTitle(from.getTitle());
         to.setYear((long) from.getYear());
         to.setTrailer(from.getTrailer());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
-        to.setGenre(mapStringToList(from.getGenre()));
+        to.setGenre(JsonUtils.parseList(from.getGenre().toString(), String.class));
         to.setDirector(from.getDirector());
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());

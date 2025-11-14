@@ -10,6 +10,7 @@ import com.netfliz.netfliz.util.AuthUtils;
 import com.netfliz.netfliz.validator.ProfileValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,12 +25,14 @@ public class ProfileService implements ProfilesApiDelegate {
     private final AuthUtils authUtils;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Profile>> getAllProfile() {
         List<Profile> profiles = profileMapper.mapProfileEntityListToProfileList(profileRepository.findAll());
         return ResponseEntity.ok(profiles);
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Profile> getProfileById(Long profileId) {
         profileValidator.validateProfileExist(profileId);
 
@@ -45,6 +48,7 @@ public class ProfileService implements ProfilesApiDelegate {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Profile> createProfile(Profile profile) {
         UserEntity user = authUtils.getCurrentUser();
         ProfileEntity profileEntity = profileRepository.save(profileMapper.mapProfileToProfileEntity(profile, user));
@@ -52,6 +56,7 @@ public class ProfileService implements ProfilesApiDelegate {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateProfile(Long profileId, Profile profile) {
         profileValidator.validateProfileExist(profileId);
         UserEntity user = authUtils.getCurrentUser();
@@ -68,6 +73,7 @@ public class ProfileService implements ProfilesApiDelegate {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProfile(Long profileId) {
         profileValidator.validateProfileExist(profileId);
 

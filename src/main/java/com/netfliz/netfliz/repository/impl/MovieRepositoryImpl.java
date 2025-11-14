@@ -4,6 +4,7 @@ import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.MovieByGenreDto;
 import com.netfliz.netfliz.model.request.MovieFilterRequest;
 import com.netfliz.netfliz.repository.CustomMovieRepository;
+import com.netfliz.netfliz.util.JsonUtils;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Page;
@@ -124,7 +125,7 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         MovieEntity m = new MovieEntity();
         m.setId(rs.getLong("id"));
         m.setTitle(rs.getString("title"));
-        m.setGenre(rs.getString("genre"));
+        m.setGenre(JsonUtils.parse(rs.getString("genre")));
         m.setYear(rs.getInt("year"));
         m.setTrailer(rs.getString("trailer"));
         m.setRated(rs.getString("rated"));
@@ -156,7 +157,7 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
 
         dto.setId(rs.getLong("id"));
         dto.setTitle(rs.getString("title"));
-        dto.setGenre(rs.getString("genre"));
+        dto.setGenre(JsonUtils.parse(rs.getString("genre")));
         dto.setYear(rs.getInt("year"));
         dto.setTrailer(rs.getString("trailer"));
         dto.setRated(rs.getString("rated"));

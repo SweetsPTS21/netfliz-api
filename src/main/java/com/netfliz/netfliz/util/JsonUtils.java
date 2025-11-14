@@ -6,6 +6,8 @@ import jakarta.validation.ValidationException;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class JsonUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -22,11 +24,27 @@ public class JsonUtils {
         }
     }
 
+    public static JsonNode parse(List<String> listString) {
+        try {
+            return objectMapper.valueToTree(listString);
+        } catch (Exception e) {
+            throw new ValidationException("Json parse error: Config is invalid");
+        }
+    }
+
     public static String serialize(JsonNode jsonNode) {
         try {
             return objectMapper.writeValueAsString(jsonNode);
         } catch (Exception e) {
             throw new ValidationException("Json serialize error: Config is invalid");
+        }
+    }
+
+    public static <T> List<T> parseList(String jsonString, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(jsonString, objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
+        } catch (Exception e) {
+            throw new ValidationException("Json parse error: Config is invalid");
         }
     }
 

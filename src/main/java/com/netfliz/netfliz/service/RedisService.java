@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class RedisService {
         setObj(key, value, DEFAULT_TTL);
     }
 
-    public void setObj(String key, Object value, long ttlSeconds) {
+    private void setObj(String key, Object value, long ttlSeconds) {
         try {
             String json = objectMapper.writeValueAsString(value);
             redisTemplate.opsForValue().set(key, json, Duration.ofSeconds(ttlSeconds));
@@ -39,6 +40,16 @@ public class RedisService {
         if (json == null) return null;
         try {
             return objectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> List<T> getList(String key, Class<T> clazz) {
+        String json = redisTemplate.opsForValue().get(key);
+        if (json == null) return null;
+        try {
+            return objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

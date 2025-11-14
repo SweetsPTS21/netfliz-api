@@ -1,11 +1,14 @@
 package com.netfliz.netfliz.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Date;
 
@@ -43,8 +46,8 @@ public class MovieEntity {
     @Column(name = "imdb_votes")
     private Long imdbVotes;
 
-    @Column(columnDefinition = "jsonb")
-    private String genre;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode genre;
 
     @Column(columnDefinition = "TEXT")
     private String awards;

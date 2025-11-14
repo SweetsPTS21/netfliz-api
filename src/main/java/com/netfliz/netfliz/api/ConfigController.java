@@ -15,31 +15,31 @@ public class ConfigController implements ConfigsApi {
     public ResponseEntity<ConfigPage> getConfigs(Integer page,
                                                  Integer pageSize,
                                                  Boolean active) {
-        return ResponseEntity.ok(configService.getConfigs(page, pageSize, active).getBody());
+        return configService.getConfigs(page, pageSize, active);
     }
 
     @Override
     public ResponseEntity<Config> getActiveConfig() {
-        return ResponseEntity.ok(configService.getActiveConfig().getBody());
+        return configService.getActiveConfig();
     }
 
     @Override
     public ResponseEntity<Config> getConfigById(Integer id) {
-        return ResponseEntity.ok(configService.getConfigById(id).getBody());
+        return configService.getConfigById(id);
     }
 
     @Override
     public ResponseEntity<Config> createConfig(Config config) {
-        return ResponseEntity.ok(configService.createConfig(config).getBody());
+        return configService.createConfig(config);
     }
 
     @Override
     public ResponseEntity<Config> updateConfigById(Integer id, Config config) {
-        return ResponseEntity.ok(configService.updateConfigById(id, config).getBody());
+        return configService.updateConfigById(id, config);
     }
 
     @Override
     public ResponseEntity<Boolean> deleteConfigById(Integer id) {
-        return ResponseEntity.ok(configService.deleteConfigById(id).getBody());
+        return configService.deleteConfigById(id);
     }
 }
