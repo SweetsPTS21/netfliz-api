@@ -4,9 +4,11 @@ import com.netfliz.netfliz.api.MoviesApiDelegate;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.mapper.MovieMapper;
 import com.netfliz.netfliz.model.Movie;
+import com.netfliz.netfliz.model.MovieByGenreDto;
 import com.netfliz.netfliz.model.MoviePage;
 import com.netfliz.netfliz.model.request.MovieByGenreRequest;
 import com.netfliz.netfliz.model.request.MovieFilterRequest;
+import com.netfliz.netfliz.model.response.MovieByGenreResponse;
 import com.netfliz.netfliz.repository.CustomMovieRepository;
 import com.netfliz.netfliz.repository.IMovieRepository;
 import com.netfliz.netfliz.validator.MovieValidator;
@@ -20,10 +22,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -120,11 +120,21 @@ public class MovieService implements MoviesApiDelegate {
         return ResponseEntity.ok(movies);
     }
 
-    public ResponseEntity<List<Movie>> getMoviesByGenres(MovieByGenreRequest request) {
+    public ResponseEntity<List<MovieByGenreResponse>> getMoviesByGenres(MovieByGenreRequest request) {
         request.validate();
 
-        List<MovieEntity> resultPage = customMovieRepository.findByGenres(request.getGenres(), request.getLimit());
-        return ResponseEntity.ok(movieMapper.mapMovieEntityListToMovieList(resultPage));
+        List<MovieByGenreDto> listDto = customMovieRepository.findByGenres(request.getGenres(), request.getLimit());
+        Map<String, List<MovieByGenreDto>> map = listDto.stream().collect(Collectors.groupingBy(MovieByGenreDto::getName));
+        List<MovieByGenreResponse> responses = new ArrayList<>();
+
+        map.forEach((key, value) -> {
+            MovieByGenreResponse response = new MovieByGenreResponse();
+            response.setGenre(key);
+            response.setMovies(movieMapper.mapMovieByGenreDtoToMovieList(value));
+            responses.add(response);
+        });
+
+        return ResponseEntity.ok(responses);
     }
 
     public ResponseEntity<MoviePage> getMoviesByFilter(MovieFilterRequest request) {

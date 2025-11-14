@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.Movie;
+import com.netfliz.netfliz.model.MovieByGenreDto;
 import com.netfliz.netfliz.service.FileService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -88,8 +89,8 @@ public class MovieMapper {
         return from.stream().map(this::mapMovieEntityToMovie).toList();
     }
 
-    public List<MovieEntity> mapMovieListToMovieEntityList(List<Movie> from) {
-        return from.stream().map(this::mapMovieToMovieEntity).toList();
+    public List<Movie> mapMovieByGenreDtoToMovieList(List<MovieByGenreDto> from) {
+        return from.stream().map(this::mapMovieEntityToMovie).toList();
     }
 
     public List<String> mapStringToList(String genre) {

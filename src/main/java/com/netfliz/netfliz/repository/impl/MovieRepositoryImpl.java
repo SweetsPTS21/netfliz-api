@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.repository.impl;
 
 import com.netfliz.netfliz.entity.MovieEntity;
+import com.netfliz.netfliz.model.MovieByGenreDto;
 import com.netfliz.netfliz.model.request.MovieFilterRequest;
 import com.netfliz.netfliz.repository.CustomMovieRepository;
 import lombok.AllArgsConstructor;
@@ -27,13 +28,13 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public List<MovieEntity> findByGenres(List<String> genres, int limit) {
+    public List<MovieByGenreDto> findByGenres(List<String> genres, int limit) {
         String sql = " "
                 + "SELECT * FROM ( "
-                + "  SELECT m.*, g.genre, ROW_NUMBER() OVER (PARTITION BY g.genre ORDER BY m.created_at DESC) AS row_num "
+                + "  SELECT m.*, g.name, ROW_NUMBER() OVER (PARTITION BY g.name ORDER BY m.created_at DESC) AS row_num "
                 + "  FROM movies m "
-                + "  JOIN LATERAL jsonb_array_elements_text(m.genre) AS g(genre) ON true "
-                + "  WHERE g.genre IN (:genres) "
+                + "  JOIN LATERAL jsonb_array_elements_text(m.genre) AS g(name) ON true "
+                + "  WHERE g.name IN (:genres) "
                 + ") tmp "
                 + "WHERE row_num <= :limit "
                 + "ORDER BY row_num";
@@ -42,7 +43,7 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         params.addValue("genres", genres);
         params.addValue("limit", limit);
 
-        return namedParameterJdbcTemplate.query(sql, params, rowMapper);
+        return namedParameterJdbcTemplate.query(sql, params, dtoRowMapper);
     }
 
     @Override
@@ -146,5 +147,37 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         m.setCategories(rs.getString("categories"));
 
         return m;
+    };
+
+    private final RowMapper<MovieByGenreDto> dtoRowMapper = (rs, rowNum) -> {
+        MovieByGenreDto dto = new MovieByGenreDto();
+        dto.setName(rs.getString("name"));
+        dto.setRowNumber(rs.getInt("row_num"));
+
+        dto.setId(rs.getLong("id"));
+        dto.setTitle(rs.getString("title"));
+        dto.setGenre(rs.getString("genre"));
+        dto.setYear(rs.getInt("year"));
+        dto.setTrailer(rs.getString("trailer"));
+        dto.setRated(rs.getString("rated"));
+        dto.setReleased(rs.getString("released"));
+        dto.setRuntime(rs.getString("runtime"));
+        dto.setDirector(rs.getString("director"));
+        dto.setWriter(rs.getString("writer"));
+        dto.setActors(rs.getString("actors"));
+        dto.setPlot(rs.getString("plot"));
+        dto.setLanguages(rs.getString("languages"));
+        dto.setCountry(rs.getString("country"));
+        dto.setAwards(rs.getString("awards"));
+        dto.setPosterId(rs.getInt("poster_id"));
+        dto.setMetaScore(rs.getLong("meta_score"));
+        dto.setImdbRating(rs.getString("imdb_rating"));
+        dto.setImdbVotes(rs.getLong("imdb_votes"));
+        dto.setType(rs.getString("type"));
+        dto.setResponse(rs.getBoolean("response"));
+        dto.setImages(rs.getString("images"));
+        dto.setCategories(rs.getString("categories"));
+
+        return dto;
     };
 }
