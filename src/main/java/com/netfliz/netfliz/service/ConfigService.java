@@ -22,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -50,12 +49,11 @@ public class ConfigService implements ConfigsApiDelegate {
             return ResponseEntity.ok(configCache);
         }
 
-        Optional<ConfigEntity> configEntity = configRepository.findByActive(Boolean.TRUE);
-        if (configEntity.isEmpty()) {
-            throw new BadRequestException("No active config found");
-        }
+        ConfigEntity configEntity = configRepository.findByActive(Boolean.TRUE).orElseThrow(
+                () -> new BadRequestException("No active config found")
+        );
 
-        var config = configMapper.mapToConfig(configEntity.get());
+        var config = configMapper.mapToConfig(configEntity);
         redisService.set(CacheKey.CACHE_CONFIG_ACTIVE, config, CacheKey.CACHE_ONE_DAY);
 
         return ResponseEntity.ok(config);
@@ -65,7 +63,7 @@ public class ConfigService implements ConfigsApiDelegate {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Config> getConfigById(Integer id) {
         ConfigEntity entity = configRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Config not found")
+                () -> new ValidationException("Config not found")
         );
 
         return ResponseEntity.ok(configMapper.mapToConfig(entity));
@@ -86,7 +84,7 @@ public class ConfigService implements ConfigsApiDelegate {
         validateConfig(config);
 
         ConfigEntity entity = configRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Config not found")
+                () -> new ValidationException("Config not found")
         );
         entity.setConfig(JsonUtils.parse(config.getConfig()));
         entity.setActive(config.getActive());
@@ -98,7 +96,7 @@ public class ConfigService implements ConfigsApiDelegate {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> deleteConfigById(Integer id) {
         ConfigEntity entity = configRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Config not found")
+                () -> new ValidationException("Config not found")
         );
 
         configRepository.delete(entity);

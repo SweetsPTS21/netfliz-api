@@ -182,15 +182,12 @@ public class AuthenticationService implements UserDetailsChecker{
         tokenRepository.saveAll(validUserTokens);
     }
 
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
+    public AuthenticationResponse refreshToken(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
+            throw new BadCredentialException("Invalid token");
         }
         refreshToken = authHeader.substring(7);
         username = jwtService.extractUsername(refreshToken);
@@ -201,13 +198,14 @@ public class AuthenticationService implements UserDetailsChecker{
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponse.builder()
+                return AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+
+        throw new BadCredentialException("Invalid token");
     }
 
     public User getMe(HttpServletRequest request) {

@@ -28,6 +28,8 @@ tags:
     description: Operations about movie
   - name: config
     description: Operations about config
+  - name: movieGenre
+    description: Operations about movie genre
 
 
 paths:
@@ -752,6 +754,116 @@ paths:
               schema:
                 $ref: '#/components/schemas/Config'
 
+  /movie-genres:
+    get:
+      tags:
+        - movieGenre
+      summary: get all movie genres
+      description: Returns movie genres
+      operationId: getAllMovieGenres
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieGenre'
+
+    post:
+      tags:
+        - movieGenre
+      summary: create movie genre
+      description: Create a new movie genre
+      operationId: createMovieGenre
+      requestBody:
+        description: Movie genre object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieGenre'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieGenre'
+
+  /movie-genres/{id}:
+    get:
+      tags:
+        - movieGenre
+      summary: get movie genre by id
+      description: Returns movie genre
+      operationId: getMovieGenreById
+      parameters:
+        - name: id
+          in: path
+          description: ID of movie genre to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieGenre'
+
+    put:
+      tags:
+        - movieGenre
+      summary: update movie genre by id
+      description: Returns movie genre
+      operationId: updateMovieGenreById
+      parameters:
+        - name: id
+          in: path
+          description: ID of movie genre to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Movie genre object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieGenre'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieGenre'
+
+    delete:
+      tags:
+        - movieGenre
+      summary: delete movie genre by id
+      description: Delete movie genre
+      operationId: deleteMovieGenreById
+      parameters:
+        - name: id
+          in: path
+          description: ID of movie genre to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: boolean
+
 components:
   schemas:
     User:
@@ -1022,6 +1134,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Config'
+
+    MovieGenre:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        slug:
+          type: string
 
   securitySchemes:
     netfliz_auth:

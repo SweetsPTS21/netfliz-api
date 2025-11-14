@@ -63,6 +63,10 @@ public class UserService implements UsersApiDelegate {
         return ResponseEntity.ok(user);
     }
 
+    /**
+     * Lấy tất cả profile của user, dùng trên màn profile
+     * Không phân quyền
+     */
     @Override
     public ResponseEntity<List<Profile>> getAllProfileByUserId(Long userId) {
         userValidator.validateUserExist(userId);
@@ -77,6 +81,7 @@ public class UserService implements UsersApiDelegate {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Profile> getProfileByUserIdAndProfileId(Long userId, Long profileId) {
         userValidator.validateUserExist(userId);
         Optional<ProfileEntity> profileOptional = profileRepository.findByUserIdAndProfileId(userId, profileId);
