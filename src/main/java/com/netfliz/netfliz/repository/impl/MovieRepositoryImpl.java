@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.repository.impl;
 
 import com.netfliz.netfliz.entity.MovieEntity;
+import com.netfliz.netfliz.model.MovieByGenreDto;
 import com.netfliz.netfliz.model.request.MovieFilterRequest;
 import com.netfliz.netfliz.repository.CustomMovieRepository;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -26,21 +28,22 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public Page<MovieEntity> findByGenres(String[] genres, Pageable pageable) {
+    public List<MovieByGenreDto> findByGenres(List<String> genres, int limit) {
+        String sql = " "
+                + "SELECT * FROM ( "
+                + "  SELECT m.*, g.name, ROW_NUMBER() OVER (PARTITION BY g.name ORDER BY m.created_at DESC) AS row_num "
+                + "  FROM movies m "
+                + "  JOIN LATERAL jsonb_array_elements_text(m.genre) AS g(name) ON true "
+                + "  WHERE g.name IN (:genres) "
+                + ") tmp "
+                + "WHERE row_num <= :limit "
+                + "ORDER BY row_num";
+
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("genres", new SqlParameterValue(Types.ARRAY, "text", genres));
+        params.addValue("genres", genres);
+        params.addValue("limit", limit);
 
-        // Count
-        String countSql = "SELECT COUNT(*) FROM movies WHERE jsonb_exists_any(genre, :genres)";
-        Long total = Optional.ofNullable(namedParameterJdbcTemplate.queryForObject(countSql, params, Long.class)).orElse(0L);
-
-        // Search
-        String sql = "SELECT * FROM movies WHERE jsonb_exists_any(genre, :genres) ORDER BY updated_at DESC LIMIT :pageSize OFFSET :offset";
-        params.addValue("pageSize", pageable.getPageSize());
-        params.addValue("offset", pageable.getOffset());
-        List<MovieEntity> result = namedParameterJdbcTemplate.query(sql, params, rowMapper);
-
-        return new PageImpl<>(result, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), total);
+        return namedParameterJdbcTemplate.query(sql, params, dtoRowMapper);
     }
 
     @Override
@@ -144,5 +147,37 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         m.setCategories(rs.getString("categories"));
 
         return m;
+    };
+
+    private final RowMapper<MovieByGenreDto> dtoRowMapper = (rs, rowNum) -> {
+        MovieByGenreDto dto = new MovieByGenreDto();
+        dto.setName(rs.getString("name"));
+        dto.setRowNumber(rs.getInt("row_num"));
+
+        dto.setId(rs.getLong("id"));
+        dto.setTitle(rs.getString("title"));
+        dto.setGenre(rs.getString("genre"));
+        dto.setYear(rs.getInt("year"));
+        dto.setTrailer(rs.getString("trailer"));
+        dto.setRated(rs.getString("rated"));
+        dto.setReleased(rs.getString("released"));
+        dto.setRuntime(rs.getString("runtime"));
+        dto.setDirector(rs.getString("director"));
+        dto.setWriter(rs.getString("writer"));
+        dto.setActors(rs.getString("actors"));
+        dto.setPlot(rs.getString("plot"));
+        dto.setLanguages(rs.getString("languages"));
+        dto.setCountry(rs.getString("country"));
+        dto.setAwards(rs.getString("awards"));
+        dto.setPosterId(rs.getInt("poster_id"));
+        dto.setMetaScore(rs.getLong("meta_score"));
+        dto.setImdbRating(rs.getString("imdb_rating"));
+        dto.setImdbVotes(rs.getLong("imdb_votes"));
+        dto.setType(rs.getString("type"));
+        dto.setResponse(rs.getBoolean("response"));
+        dto.setImages(rs.getString("images"));
+        dto.setCategories(rs.getString("categories"));
+
+        return dto;
     };
 }

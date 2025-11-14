@@ -38,10 +38,14 @@ type MovieByCategory {
     movies: [Movie]
 }
 
+type MovieByGenre {
+    genre: String
+    movies: [Movie]
+}
+
 # Request
 input MovieByGenreRequest {
-    page: Int
-    pageSize: Int
+    limit: Int
     genres: [String]
 }
 
@@ -89,7 +93,7 @@ type Query {
     getAllMovie(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = ""): MoviePage
     getMovieByCategory: [MovieByCategory]
     getMovieById(id: ID!): Movie
-    getMoviesByGenres(request: MovieByGenreRequest!): MoviePage
+    getMoviesByGenres(request: MovieByGenreRequest!): [MovieByGenre]
     getMoviesByFilter(request: MovieFilterRequest!): MoviePage
 }
 
