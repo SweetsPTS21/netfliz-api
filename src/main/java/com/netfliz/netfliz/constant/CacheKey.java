@@ -8,6 +8,7 @@ public class CacheKey {
     public static final String CACHE_CONFIG_ACTIVE = "CACHE_CONFIG_ACTIVE";
     public static final String CACHE_MOVIE_GENRES = "CACHE_MOVIE_GENRES";
     public static final String CACHE_MOVIE_BY_GENRES = "CACHE_MOVIE_BY_GENRES";
+    public static final String CACHE_MOVIE_METADATA = "CACHE_MOVIE_METADATA";
 
     // Cache time
     public static final Integer CACHE_ONE_MINUTE = 60;
