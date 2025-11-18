@@ -13,10 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -29,10 +26,10 @@ public class MovieMetadataService implements MovieMetadataApiDelegate {
     @Override
     public ResponseEntity<MovieMetadata> getMovieMetadata() {
         String cacheKey = CacheKey.buildKey(CacheKey.CACHE_MOVIE_METADATA);
-//        var cachedMetadata = redisService.get(cacheKey, MovieMetadata.class);
-//        if (Objects.nonNull(cachedMetadata)) {
-//            return ResponseEntity.ok(cachedMetadata);
-//        }
+        var cachedMetadata = redisService.get(cacheKey, MovieMetadata.class);
+        if (Objects.nonNull(cachedMetadata)) {
+            return ResponseEntity.ok(cachedMetadata);
+        }
 
         MovieMetadata metadata = new MovieMetadata();
 
