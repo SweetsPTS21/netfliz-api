@@ -30,6 +30,8 @@ tags:
     description: Operations about config
   - name: movieGenre
     description: Operations about movie genre
+  - name: movieMetadata
+    description: Operations about movie metadata
 
 
 paths:
@@ -645,7 +647,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/ConfigPage'
+                $ref: '#/components/schemas/ConfigPage'
     post:
       tags:
         - config
@@ -687,7 +689,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/Config'
+                $ref: '#/components/schemas/Config'
 
     put:
       tags:
@@ -863,6 +865,21 @@ paths:
             application/json:
               schema:
                 type: boolean
+
+  /movie-metadata:
+    get:
+      tags:
+        - movieMetadata
+      summary: get movie metadata
+      description: Returns movie metadata
+      operationId: getMovieMetadata
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieMetadata'
 
 components:
   schemas:
@@ -1149,6 +1166,45 @@ components:
           type: string
         slug:
           type: string
+
+    Metadata:
+      type: object
+      description: Movie Country
+      properties:
+        value:
+          type: string
+        description:
+          type: string
+        slug:
+          type: string
+
+    MovieMetadata:
+      type: object
+      properties:
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metadata'
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metadata'
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metadata'
+        rated:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metadata'
+        type:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metadata'
+        year:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metadata'
 
   securitySchemes:
     netfliz_auth:
