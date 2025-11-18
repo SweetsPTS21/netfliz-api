@@ -4,6 +4,9 @@ import com.netfliz.netfliz.entity.FileEntity;
 import com.netfliz.netfliz.model.FileModel;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class FileMapper {
 
@@ -26,7 +29,6 @@ public class FileMapper {
 
     public FileEntity mapToEntity(FileModel model) {
         return FileEntity.builder()
-                .id(model.getId())
                 .fileName(model.getFileName())
                 .fileType(model.getFileType())
                 .fileSize(model.getFileSize())
@@ -39,5 +41,13 @@ public class FileMapper {
                 .fileUploader(model.getFileUploader())
                 .fileTags(model.getFileTags())
                 .build();
+    }
+
+    public List<FileEntity> mapToEntities(List<FileModel> modelList) {
+        return modelList.stream().map(this::mapToEntity).collect(Collectors.toList());
+    }
+
+    public List<FileModel> mapToModels(List<FileEntity> entityList) {
+        return entityList.stream().map(this::mapToModel).collect(Collectors.toList());
     }
 }

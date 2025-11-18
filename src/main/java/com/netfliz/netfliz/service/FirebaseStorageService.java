@@ -2,48 +2,37 @@ package com.netfliz.netfliz.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import com.netfliz.netfliz.util.FirebaseProperties;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Objects;
-import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class FirebaseStorageService {
-    private final Logger logger = LoggerFactory.getLogger(FirebaseStorageService.class);
+    private final FirebaseProperties firebaseProperties;
 
-    @Value("${firebase.storage.base-url}")
-    private String baseUrl;
+    /**
+     * Upload file to Firebase Storage
+     *
+     * @param bytes       data
+     * @param path        path
+     * @param contentType contentType
+     * @return public uri
+     */
+    public String uploadFile(byte[] bytes, String path, String contentType) {
+        Bucket bucket = StorageClient.getInstance().bucket();
+        bucket.create(path, bytes, contentType);
+        String fileUrl = firebaseProperties.getBaseUrl() + path;
 
-    public String uploadFile(MultipartFile file, String type, String objectId) {
-        String pathId = Objects.isNull(objectId) ? file.getOriginalFilename() : objectId;
-
-        try {
-            Bucket bucket = StorageClient.getInstance().bucket();
-            String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
-            String filePath = type + "/" + pathId + "/" + fileName;
-
-            bucket.create(filePath, file.getBytes(), file.getContentType());
-            String fileUrl = baseUrl + type + "%2F" + pathId + "%2F" + fileName;
-
-            return getDownloadUrl(fileUrl);
-        } catch (IOException e) {
-            logger.error("Failed to upload file to Firebase Storage");
-        }
-
-        return "";
+        return getDownloadUrl(fileUrl);
     }
 
     public String getDownloadUrl(String fileUrl) {
