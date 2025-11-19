@@ -57,7 +57,7 @@ public class FileService {
             String ext = fileType.split("/")[1]; // jpeg, png
             String outputFormat = ext.equals("jpeg") ? "jpg" : ext;
             String uuid = UUID.randomUUID().toString();
-            List<FileModel> fileModelList = new ArrayList<>();
+            List<FileEntity> fileEntitylList = new ArrayList<>();
 
             // Lưu file resize
             for (int width : TARGET_WIDTHS) {
@@ -65,8 +65,8 @@ public class FileService {
                 String filename = String.format("%s-%dw.%s", uuid, width, outputFormat);
 
                 String downloadUri = uploadPosterToFirebase(resized, filename, fileType);
-                fileModelList.add(
-                        buildFileModel(
+                fileEntitylList.add(
+                        buildFileEntity(
                                 file,
                                 filename,
                                 downloadUri,
@@ -79,8 +79,8 @@ public class FileService {
             // Thêm file original
             String originalFilename = String.format("%s-original.%s", uuid, outputFormat);
             String originalDownloadUri = uploadPosterToFirebase(fileBytes, originalFilename, fileType);
-            fileModelList.add(
-                    buildFileModel(
+            fileEntitylList.add(
+                    buildFileEntity(
                             file,
                             originalFilename,
                             originalDownloadUri,
@@ -89,11 +89,8 @@ public class FileService {
                     )
             );
 
-            // Lưu tất cả file
-            var fileEntities = fileRepository.saveAll(fileMapper.mapToEntities(fileModelList));
-
             // Save file to database
-            return fileMapper.mapToModels(fileEntities);
+            return fileMapper.mapToModels(fileRepository.saveAll(fileEntitylList));
         } catch (Exception e) {
             throw new ValidationException("Lỗi khi upload file: " + e.getMessage());
         }
@@ -127,12 +124,12 @@ public class FileService {
         }
     }
 
-    private FileModel buildFileModel(MultipartFile file,
-                                     String fileName,
-                                     String downloadUri,
-                                     String category,
-                                     String username) {
-        return FileModel.builder()
+    private FileEntity buildFileEntity(MultipartFile file,
+                                       String fileName,
+                                       String downloadUri,
+                                       String category,
+                                       String username) {
+        return FileEntity.builder()
                 .fileName(fileName)
                 .fileType(file.getContentType())
                 .fileSize(file.getSize())
