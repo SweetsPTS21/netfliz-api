@@ -1,18 +1,17 @@
 package com.netfliz.netfliz.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
+import com.netfliz.netfliz.exception.StorageException;
 import com.netfliz.netfliz.util.FirebaseProperties;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 @AllArgsConstructor
@@ -29,28 +28,58 @@ public class FirebaseStorageService {
      */
     public String uploadFile(byte[] bytes, String path, String contentType) {
         Bucket bucket = StorageClient.getInstance().bucket();
-        bucket.create(path, bytes, contentType);
-        String fileUrl = firebaseProperties.getBaseUrl() + path;
+        Blob blob = bucket.create(path, bytes, contentType);
+        blob = blob.toBuilder()
+                .setCacheControl("public, max-age=31536000, s-maxage=31536000, immutable") // max-age 1 year
+                .build().update();
 
-        return getDownloadUrl(fileUrl);
+        // make public (no token needed)
+        blob.createAcl(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
+
+        // Build public url with cdn
+        return firebaseProperties.getProxyCdnUrl() + path;
     }
 
-    public String getDownloadUrl(String fileUrl) {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(fileUrl))
-                .timeout(java.time.Duration.ofMinutes(1))
-                .build();
+    /**
+     * Constructs a public download URL with token for the given Firebase Storage file URL
+     * Include token in url
+     *
+     * @param filePath the path of the file in Firebase Storage
+     * @return the public download URL with access token
+     * @throws IllegalArgumentException if fileUrl is null or empty
+     */
+    public String getDownloadUrl(String filePath) {
+        if (Strings.isBlank(filePath)) {
+            throw new IllegalArgumentException("File URL cannot be null or empty");
+        }
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String jsonResponse = response.body();
+            Bucket bucket = StorageClient.getInstance().bucket();
 
-            JsonNode jsonNode = new ObjectMapper().readTree(jsonResponse);
+            // Extract the path from the full URL
+            if (filePath.startsWith("/")) {
+                filePath = filePath.substring(1); // Remove leading slash
+            }
 
-            return fileUrl + "?alt=media&token=" + jsonNode.get("downloadTokens").asText();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            // Get the blob metadata to retrieve the download token
+            Blob blob = bucket.get(filePath);
+            if (blob == null) {
+                throw new StorageException("File not found in storage");
+            }
+
+            // Get the download token
+            String token = blob.getBlobId().getGeneration().toString();
+
+            // Construct the public URL with token
+            return String.format(
+                    "%s%s?alt=media&token=%s",
+                    firebaseProperties.getBaseUrl(),
+                    URLEncoder.encode(filePath, StandardCharsets.UTF_8).replace("+", "%20"),
+                    token
+            );
+
+        } catch (Exception e) {
+            throw new StorageException("Error generating download URL: " + e.getMessage(), e);
         }
     }
 }

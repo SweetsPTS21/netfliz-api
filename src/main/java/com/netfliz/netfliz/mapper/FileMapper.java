@@ -24,6 +24,8 @@ public class FileMapper {
                 .fileOwner(entity.getFileOwner())
                 .fileUploader(entity.getFileUploader())
                 .fileTags(entity.getFileTags())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

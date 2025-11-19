@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "firebase.storage")
 public class FirebaseProperties {
-    private String baseUrl = "https://firebasestorage.googleapis.com/v0/b/";
+    private String baseUrl = "https://firebasestorage.googleapis.com/v0/b/netfliz-19a9c.appspot.com/o/";
     private String configPath = "/data/firebase-service-account.json";
     private String configBase64 = "";
+    private String bucketName = "netfliz-19a9c.appspot.com";
+    private String proxyCdnUrl = "https://cdn.swpts.cloud/images/";
 }

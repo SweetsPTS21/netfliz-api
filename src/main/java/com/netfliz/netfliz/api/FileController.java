@@ -19,8 +19,8 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<List<FileModel>> uploadFile(MultipartFile file) {
-        return ResponseEntity.ok(fileService.uploadFile(file));
+    @PostMapping("/upload-poster")
+    public ResponseEntity<List<FileModel>> uploadMoviePoster(MultipartFile file) {
+        return ResponseEntity.ok(fileService.uploadMoviePoster(file));
     }
 }
