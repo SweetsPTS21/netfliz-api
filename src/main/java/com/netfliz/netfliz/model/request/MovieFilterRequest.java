@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MovieFilterRequest extends BaseRequest{
+public class MovieFilterRequest extends BaseRequest {
     private List<String> genres;
     private List<String> countries;
     private List<String> languages;
@@ -18,6 +18,7 @@ public class MovieFilterRequest extends BaseRequest{
     private String rated;
     private String type;
     private String sort;
+    private String title;
 
     public void validate() {
         normalize();

@@ -10,7 +10,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,9 +17,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.sql.*;
+import java.sql.Types;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -86,6 +84,11 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         if (Strings.isNotBlank(request.getType())) {
             whereClause.append(" AND type = :type");
             params.addValue("type", request.getType());
+        }
+
+        if (Strings.isNotBlank(request.getTitle())) {
+            whereClause.append(" AND title ILIKE :title");
+            params.addValue("title", "%" + request.getTitle() + "%");
         }
 
         // Count

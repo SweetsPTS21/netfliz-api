@@ -23,4 +23,9 @@ public class FileController {
     public ResponseEntity<List<FileModel>> uploadMoviePoster(MultipartFile file) {
         return ResponseEntity.ok(fileService.uploadMoviePoster(file));
     }
+
+    @PostMapping("/upload-gallery")
+    public ResponseEntity<FileModel> uploadMovieGallery(MultipartFile file) {
+        return ResponseEntity.ok(fileService.uploadMovieGallery(file));
+    }
 }

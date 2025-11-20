@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,7 +26,7 @@ public class MovieMapper {
     private final FileService fileService;
 
 
-    public MovieEntity mapMovieToMovieEntity(Movie from) {
+    public MovieEntity mapToEntity(Movie from) {
         MovieEntity to = new MovieEntity();
 
         to.setTitle(from.getTitle());
@@ -48,12 +49,14 @@ public class MovieMapper {
         to.setImdbVotes(ObjectUtils.isEmpty(from.getImdbVotes()) ? 0 : from.getImdbVotes());
         to.setType(from.getType());
         to.setResponse(from.getResponse());
-        to.setImages(mapListToString(from.getImages()));
+
+        // update date
+        to.setUpdatedAt(new Date());
 
         return to;
     }
 
-    public Movie mapMovieEntityToMovie(MovieEntity from) {
+    public Movie mapFromEntity(MovieEntity from) {
         Movie to = new Movie();
 
         to.setId(from.getId());
@@ -78,17 +81,17 @@ public class MovieMapper {
         to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
         to.setResponse(from.isResponse());
-        to.setImages(mapStringToList(from.getImages()));
+//        to.setImages(mapStringToList(from.getImages()));
 
         return to;
     }
 
     public List<Movie> mapMovieEntityListToMovieList(List<MovieEntity> from) {
-        return from.stream().map(this::mapMovieEntityToMovie).toList();
+        return from.stream().map(this::mapFromEntity).toList();
     }
 
     public List<Movie> mapMovieByGenreDtoToMovieList(List<MovieByGenreDto> from) {
-        return from.stream().map(this::mapMovieEntityToMovie).toList();
+        return from.stream().map(this::mapFromEntity).toList();
     }
 
     public List<String> mapStringToList(String genre) {
@@ -99,7 +102,8 @@ public class MovieMapper {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            return mapper.readValue(genre, new TypeReference<List<String>>() {});
+            return mapper.readValue(genre, new TypeReference<List<String>>() {
+            });
         } catch (JsonProcessingException e) {
             logger.warning("Error parsing genre: " + genre);
         }
