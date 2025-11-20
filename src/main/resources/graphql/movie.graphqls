@@ -21,8 +21,14 @@ type Movie {
     imdbVotes: Int
     type: String
     response: Boolean
-    images: String
+    images: [MovieImage]
     categories: String
+}
+
+type MovieImage {
+    id: ID
+    type: Int
+    url: String
 }
 
 type MoviePage {
@@ -50,8 +56,6 @@ input MovieByGenreRequest {
 }
 
 input MovieFilterRequest {
-    page: Int
-    pageSize: Int
     genres: [String]
     countries: [String]
     languages: [String]
@@ -59,7 +63,10 @@ input MovieFilterRequest {
     rating: String
     rated: String
     type: String
+    title: String
     sort: String
+    page: Int
+    pageSize: Int
 }
 
 input MovieInput {
@@ -84,10 +91,15 @@ input MovieInput {
     imdbVotes: Int
     type: String
     response: Boolean
-    images: String
     categories: String
+    images: [MovieImageInput]
 }
 
+input MovieImageInput {
+    id: ID
+    type: Int
+    url: String
+}
 
 type Query {
     getAllMovie(page: Int = 0, pageSize: Int = 10, filter: String = "", sort: String = ""): MoviePage

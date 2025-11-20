@@ -1079,7 +1079,7 @@ components:
         images:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/MovieImage'
       xml:
         name: movie
 
@@ -1107,6 +1107,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Movie'
+
+    MovieImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          type: integer
+          format: int32
+        url:
+          type: string
+
     ApiResponse:
       type: object
       properties:

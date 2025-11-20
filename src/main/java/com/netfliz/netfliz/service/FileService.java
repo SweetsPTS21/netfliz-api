@@ -44,7 +44,7 @@ public class FileService {
      * @return List<FileModel>
      */
     public List<FileModel> uploadMoviePoster(MultipartFile file) {
-        validatePoster(file);
+        validate(file);
         var user = authUtils.getCurrentUser();
 
         try {
@@ -96,7 +96,44 @@ public class FileService {
         }
     }
 
-    private void validatePoster(MultipartFile file) {
+    /**
+     * Upload movie gallery
+     *
+     * @param file file
+     * @return FileModel
+     */
+    public FileModel uploadMovieGallery(MultipartFile file) {
+        validate(file);
+        var user = authUtils.getCurrentUser();
+
+        try {
+            String fileType = tika.detect(file.getInputStream());
+            byte[] fileBytes = file.getBytes();
+            String ext = fileType.split("/")[1]; // jpeg, png
+            String outputFormat = ext.equals("jpeg") ? "jpg" : ext;
+            String uuid = UUID.randomUUID().toString();
+
+            // resize về 1024
+            int width = 1024;
+            byte[] resized = resizer.resize(fileBytes, width, outputFormat);
+            String filename = String.format("%s-%dw.%s", uuid, width, outputFormat);
+            String downloadUri = uploadPosterToFirebase(resized, filename, fileType);
+
+            return fileMapper.mapToModel(fileRepository.save(
+                    buildFileEntity(
+                            file,
+                            filename,
+                            downloadUri,
+                            String.valueOf(width),
+                            user.getUsername()
+                    )
+            ));
+        } catch (Exception e) {
+            throw new ValidationException("Lỗi khi upload file: " + e.getMessage());
+        }
+    }
+
+    private void validate(MultipartFile file) {
         if (Objects.isNull(file) || file.isEmpty()) {
             throw new ValidationException("File không được để trống!");
         }
