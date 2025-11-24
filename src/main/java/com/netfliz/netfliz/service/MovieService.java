@@ -4,6 +4,7 @@ import com.netfliz.netfliz.api.MoviesApiDelegate;
 import com.netfliz.netfliz.constant.CacheKey;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.entity.MovieImageEntity;
+import com.netfliz.netfliz.entity.enums.MovieImageType;
 import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.mapper.MovieImageMapper;
 import com.netfliz.netfliz.mapper.MovieMapper;
@@ -27,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -84,6 +86,7 @@ public class MovieService implements MoviesApiDelegate {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public ResponseEntity<Movie> createMovie(Movie movie) {
         MovieEntity movieEntity = movieMapper.mapToEntity(movie);
         movieRepository.save(movieEntity);
@@ -91,6 +94,7 @@ public class MovieService implements MoviesApiDelegate {
         // save movie image
         List<MovieImage> movieImages = movie.getImages();
         if (!CollectionUtils.isEmpty(movieImages)) {
+            movieValidator.validateMovieImage(movieImages);
             movieImageRepository.saveAll(movieImageMapper.mapToEntities(movieImages, movieEntity.getId()));
         }
 
@@ -99,6 +103,7 @@ public class MovieService implements MoviesApiDelegate {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public ResponseEntity<Void> updateMovie(Long movieId, Movie movie) {
         movieValidator.validateMovieExist(movieId);
         if (!movieRepository.existsById(movieId)) {
@@ -113,8 +118,27 @@ public class MovieService implements MoviesApiDelegate {
             return ResponseEntity.ok().build();
         }
 
+        // validate image
+        movieValidator.validateMovieImage(movie.getImages());
+
         // update movie image
         List<MovieImage> movieImages = getUpdateImage(movie.getImages(), movieId);
+
+        // find and delete old image which has type in movieImages
+        List<Integer> imageTypes = movieImages.stream().map(MovieImage::getType).toList();
+        List<Long> oldImageIds = movieImageRepository
+                .findByMovieIdAndImageTypeIn(
+                        movieId,
+                        imageTypes.stream().map(MovieImageType::fromId).toList())
+                .stream()
+                .map(MovieImageEntity::getId)
+                .toList();
+
+        if (!CollectionUtils.isEmpty(oldImageIds)) {
+            movieImageRepository.deleteAllById(oldImageIds);
+        }
+
+        // save new image
         if (!CollectionUtils.isEmpty(movieImages)) {
             movieImageRepository.saveAll(movieImageMapper.mapToEntities(movieImages, movieEntity.getId()));
         }
@@ -221,6 +245,9 @@ public class MovieService implements MoviesApiDelegate {
         return query;
     }
 
+    /**
+     * Lấy ra các image cần update (chưa tồn tại trong db)
+     */
     public List<MovieImage> getUpdateImage(List<MovieImage> images, Long movieId) {
         Map<Long, List<MovieImageEntity>> map = movieImageRepository.findByMovieId(movieId)
                 .stream()
