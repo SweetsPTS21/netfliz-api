@@ -16,8 +16,8 @@ import com.netfliz.netfliz.model.request.MovieByGenreRequest;
 import com.netfliz.netfliz.model.request.MovieFilterRequest;
 import com.netfliz.netfliz.model.response.MovieByGenreResponse;
 import com.netfliz.netfliz.repository.CustomMovieRepository;
-import com.netfliz.netfliz.repository.IMovieRepository;
 import com.netfliz.netfliz.repository.MovieImageRepository;
+import com.netfliz.netfliz.repository.MovieRepository;
 import com.netfliz.netfliz.validator.MovieValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class MovieService implements MoviesApiDelegate {
-    IMovieRepository movieRepository;
+    private final MovieRepository movieRepository;
     private final MovieMapper movieMapper;
     private final MovieValidator movieValidator;
     private final CustomMovieRepository customMovieRepository;
@@ -72,7 +72,6 @@ public class MovieService implements MoviesApiDelegate {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Movie> getMovieById(Long movieId) {
         movieValidator.validateMovieExist(movieId);
 

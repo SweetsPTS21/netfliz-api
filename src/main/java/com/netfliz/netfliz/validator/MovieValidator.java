@@ -1,9 +1,11 @@
 package com.netfliz.netfliz.validator;
 
+import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
+import com.netfliz.netfliz.entity.enums.MovieType;
 import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.model.MovieImage;
-import com.netfliz.netfliz.repository.IMovieRepository;
+import com.netfliz.netfliz.repository.MovieRepository;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +16,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class MovieValidator {
-    IMovieRepository movieRepository;
+    MovieRepository movieRepository;
 
-    public MovieValidator(IMovieRepository movieRepository) {
+    public MovieValidator(MovieRepository movieRepository) {
         this.movieRepository = movieRepository;
     }
 
@@ -41,5 +43,15 @@ public class MovieValidator {
                 throw new ValidationException("Phim chỉ có thể có một " + MovieImageType.fromId(type));
             }
         });
+    }
+
+    public void validateSeriesMovie(Long movieId) {
+        MovieEntity movie = movieRepository.findById(movieId).orElseThrow(
+                () -> new NotFoundException("Phim không tồn tại")
+        );
+
+        if (!MovieType.SERIES.getValue().equalsIgnoreCase(movie.getType())) {
+            throw new ValidationException("Phim không phải là phim bộ");
+        }
     }
 }

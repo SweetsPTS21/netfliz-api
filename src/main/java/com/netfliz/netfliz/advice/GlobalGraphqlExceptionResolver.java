@@ -4,6 +4,7 @@ import com.netfliz.netfliz.exception.BadRequestException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
+import jakarta.validation.ValidationException;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,9 @@ public class GlobalGraphqlExceptionResolver extends DataFetcherExceptionResolver
 
     @Override
     protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
-        if (ex instanceof BadRequestException be) {
+        if (ex instanceof BadRequestException || ex instanceof ValidationException) {
             return GraphqlErrorBuilder.newError()
-                    .message(be.getMessage())
+                    .message(ex.getMessage())
                     .path(env.getExecutionStepInfo().getPath())
                     .location(env.getField().getSourceLocation())
                     .errorType(ErrorType.BAD_REQUEST)

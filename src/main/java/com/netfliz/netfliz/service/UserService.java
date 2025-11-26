@@ -11,7 +11,7 @@ import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.model.UserPage;
 import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
-import com.netfliz.netfliz.repository.IUserRepository;
+import com.netfliz.netfliz.repository.UserRepository;
 import com.netfliz.netfliz.util.CommonUtils;
 import com.netfliz.netfliz.validator.UserValidator;
 import lombok.AllArgsConstructor;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @Primary
 @AllArgsConstructor
 public class UserService implements UsersApiDelegate {
-    IUserRepository userRepository;
+    UserRepository userRepository;
     IProfileRepository profileRepository;
     ITokenRepository tokenRepository;
 

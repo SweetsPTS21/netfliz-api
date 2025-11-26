@@ -1,6 +1,5 @@
 package com.netfliz.netfliz.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netfliz.netfliz.constant.CacheKey;
 import com.netfliz.netfliz.entity.ProfileEntity;
 import com.netfliz.netfliz.entity.TokenEntity;
@@ -9,14 +8,13 @@ import com.netfliz.netfliz.entity.enums.*;
 import com.netfliz.netfliz.exception.BadCredentialException;
 import com.netfliz.netfliz.exception.BadRequestException;
 import com.netfliz.netfliz.mapper.UserMapper;
-import com.netfliz.netfliz.model.request.AuthenticationRequest;
-import com.netfliz.netfliz.model.response.AuthenticationResponse;
-import com.netfliz.netfliz.model.request.RegisterRequest;
 import com.netfliz.netfliz.model.User;
+import com.netfliz.netfliz.model.request.AuthenticationRequest;
+import com.netfliz.netfliz.model.request.RegisterRequest;
+import com.netfliz.netfliz.model.response.AuthenticationResponse;
 import com.netfliz.netfliz.repository.IProfileRepository;
 import com.netfliz.netfliz.repository.ITokenRepository;
-import com.netfliz.netfliz.repository.IUserRepository;
-import com.netfliz.netfliz.entity.enums.Role;
+import com.netfliz.netfliz.repository.UserRepository;
 import com.netfliz.netfliz.util.CommonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,12 +30,10 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService implements UserDetailsChecker{
-    private final IUserRepository userRepository;
+public class AuthenticationService implements UserDetailsChecker {
+    private final UserRepository userRepository;
     private final ITokenRepository tokenRepository;
     private final IProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
@@ -119,8 +115,8 @@ public class AuthenticationService implements UserDetailsChecker{
     }
 
     public ResponseEntity<AuthenticationResponse> logout(
-        HttpServletRequest request,
-        HttpServletResponse response
+            HttpServletRequest request,
+            HttpServletResponse response
     ) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -130,7 +126,7 @@ public class AuthenticationService implements UserDetailsChecker{
         final String refreshToken = authHeader.substring(7);
 
         var storedToken = tokenRepository.findByToken(refreshToken)
-            .orElseThrow(() -> new BadCredentialException("Invalid token"));
+                .orElseThrow(() -> new BadCredentialException("Invalid token"));
 
         if (storedToken != null) {
             storedToken.setExpired(true);

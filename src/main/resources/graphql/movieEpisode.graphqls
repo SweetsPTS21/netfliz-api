@@ -1,0 +1,50 @@
+type MovieEpisode {
+    id: ID!
+    episodeNumber: Int!
+    name: String!
+    description: String
+    runtime: Int!
+    metadata: String
+    assets: [MovieAsset]
+}
+
+type MovieEpisodePage {
+    page: Int!
+    pageSize: Int!
+    total: Int!
+    totalPages: Int!
+    items: [MovieEpisode]
+}
+
+type MovieAsset {
+    id: ID
+    url: String
+    assetType: Int
+    drm: String
+    renditions: String
+}
+
+input MovieEpisodeInput {
+    episodeNumber: Int!
+    name: String!
+    description: String
+    runtime: Int!
+    metadata: String
+    assets: [MovieAssetInput]
+}
+
+input MovieAssetInput {
+    url: String
+    assetType: Int
+    drm: String
+    renditions: String
+}
+
+extend type Query {
+    getMovieEpisodes(movieId: ID!, page: Int, pageSize: Int): MovieEpisodePage
+}
+
+extend type Mutation {
+    updateMovieEpisode(movieId: ID!, movieEpisode: MovieEpisodeInput): MovieEpisode
+    deleteMovieEpisode(movieId: ID!, movieEpisodeId: ID!): MovieEpisode
+}
