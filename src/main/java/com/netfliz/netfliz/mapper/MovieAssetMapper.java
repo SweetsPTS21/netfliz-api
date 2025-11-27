@@ -16,6 +16,7 @@ public class MovieAssetMapper {
         to.setId(from.getId());
         to.setUrl(from.getUrl());
         to.assetType(from.getAssetType().getId());
+        to.setFormat(from.getFormat());
         to.setDrm(JsonUtils.serialize(from.getDrm()));
         to.setRenditions(JsonUtils.serialize(from.getRendition()));
 
@@ -29,6 +30,7 @@ public class MovieAssetMapper {
         to.setId(from.getId());
         to.setUrl(from.getUrl());
         to.setAssetType(MovieAssetType.fromId(from.getAssetType()));
+        to.setFormat(from.getFormat());
         to.setDrm(JsonUtils.parse(from.getDrm()));
         to.setRendition(JsonUtils.parse(from.getRenditions()));
         return to;

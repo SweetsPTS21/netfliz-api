@@ -53,7 +53,8 @@ public class MovieEpisodeService {
         movieEpisodeValidator.validateEpisode(movieEpisode);
 
         // Lưu episode
-        MovieEpisodeEntity movieEpisodeEntity = movieEpisodeRepository.save(movieEpisodeMapper.mapToEntity(movieId, movieEpisode));
+        MovieEpisodeEntity movieEpisodeEntity = movieEpisodeMapper.mapToEntity(movieId, movieEpisode);
+        movieEpisodeRepository.save(movieEpisodeEntity);
 
         if (!CollectionUtils.isEmpty(movieEpisode.getAssets())) {
             List<MovieAssetEntity> movieAssetEntities = movieAssetMapper.mapToEntities(movieId, movieEpisodeEntity.getId(), movieEpisode.getAssets());

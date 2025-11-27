@@ -26,6 +26,7 @@ type MovieAsset {
 
 input MovieEpisodeInput {
     episodeNumber: Int!
+    episodeOrder: Int!
     name: String!
     description: String
     runtime: Int!

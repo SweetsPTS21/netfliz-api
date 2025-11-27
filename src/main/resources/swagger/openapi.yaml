@@ -1184,6 +1184,8 @@ components:
         assetType:
           type: integer
           format: int32
+        format:
+          type: string
         url:
           type: string
         drm:

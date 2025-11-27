@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -18,7 +19,9 @@ public class MovieEpisodeMapper {
         MovieEpisode to = new MovieEpisode();
 
         to.setId(from.getId());
+        to.setName(from.getName());
         to.setEpisodeNumber(from.getEpisodeNumber());
+        to.setEpisodeOrder(from.getEpisodeOrder());
         to.setDescription(from.getDescription());
         to.setIsPublished(from.getIsPublished());
         to.setRuntime(from.getRuntime());
@@ -31,9 +34,13 @@ public class MovieEpisodeMapper {
     public MovieEpisodeEntity mapToEntity(Long movieId, MovieEpisode from) {
         MovieEpisodeEntity to = new MovieEpisodeEntity();
 
-        to.setId(from.getId());
+        if (Objects.nonNull(from.getId())) {
+            to.setId(from.getId());
+        }
         to.setMovieId(movieId);
+        to.setName(from.getName());
         to.setEpisodeNumber(from.getEpisodeNumber());
+        to.setEpisodeOrder(from.getEpisodeOrder());
         to.setDescription(from.getDescription());
         to.setIsPublished(from.getIsPublished());
         to.setRuntime(from.getRuntime());

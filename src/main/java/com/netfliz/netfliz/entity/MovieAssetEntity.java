@@ -29,6 +29,9 @@ public class MovieAssetEntity {
     @Convert(converter = MovieAssetTypeConverter.class)
     private MovieAssetType assetType;
 
+    @Column(name = "format")
+    private String format;
+
     @Column(name = "url")
     private String url;
 
