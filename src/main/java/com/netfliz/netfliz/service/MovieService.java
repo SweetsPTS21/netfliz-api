@@ -80,6 +80,11 @@ public class MovieService implements MoviesApiDelegate {
         );
 
         Movie movie = movieMapper.mapFromEntity(movieEntity);
+
+        // mapImage
+        List<MovieImageEntity> movieImages = movieImageRepository.findByMovieId(movieEntity.getId());
+        movie.setImages(movieImageMapper.mapFromEntities(movieImages));
+
         return ResponseEntity.ok(movie);
     }
 

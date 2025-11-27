@@ -14,5 +14,5 @@ public class FirebaseProperties {
     private String configPath = "/data/firebase-service-account.json";
     private String configBase64 = "";
     private String bucketName = "netfliz-19a9c.appspot.com";
-    private String proxyCdnUrl = "https://cdn.swpts.cloud/images/";
+    private String proxyCdnUrl = "https://cdn.swpts.site/images/";
 }

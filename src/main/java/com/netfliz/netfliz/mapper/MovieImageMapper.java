@@ -17,15 +17,20 @@ public class MovieImageMapper {
         return to;
     }
 
-    public List<MovieImageEntity> mapToEntities(List<MovieImage> from, Long movieId) {
-        return from.stream().map(movieImage -> {
-            MovieImageEntity imageEntity = new MovieImageEntity();
-            imageEntity.setMovieId(movieId);
-            imageEntity.setFileId(movieImage.getId());
-            imageEntity.setImageType(MovieImageType.fromId(movieImage.getType()));
-            imageEntity.setImageUrl(movieImage.getUrl());
+    public MovieImageEntity mapToEntity(MovieImage from, Long movieId) {
+        MovieImageEntity to = new MovieImageEntity();
+        to.setMovieId(movieId);
+        to.setFileId(from.getId());
+        to.setImageType(MovieImageType.fromId(from.getType()));
+        to.setImageUrl(from.getUrl());
+        return to;
+    }
 
-            return imageEntity;
-        }).toList();
+    public List<MovieImage> mapFromEntities(List<MovieImageEntity> from) {
+        return from.stream().map(this::mapFromEntity).toList();
+    }
+
+    public List<MovieImageEntity> mapToEntities(List<MovieImage> from, Long movieId) {
+        return from.stream().map(movieImage -> mapToEntity(movieImage, movieId)).toList();
     }
 }
