@@ -6,6 +6,7 @@ type MovieEpisode {
     runtime: Int!
     metadata: String
     assets: [MovieAsset]
+    posters: [MovieImage]
 }
 
 type MovieEpisodePage {
@@ -25,20 +26,27 @@ type MovieAsset {
 }
 
 input MovieEpisodeInput {
+    id: ID
     episodeNumber: Int!
     episodeOrder: Int!
     name: String!
     description: String
     runtime: Int!
     metadata: String
+    posters: [MovieImageInput]
     assets: [MovieAssetInput]
 }
 
 input MovieAssetInput {
+    id: ID
     url: String
     assetType: Int
     drm: String
     renditions: String
+}
+
+extend input MovieImageInput {
+    poster: String
 }
 
 extend type Query {

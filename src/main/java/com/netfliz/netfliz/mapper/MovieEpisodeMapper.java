@@ -2,6 +2,7 @@ package com.netfliz.netfliz.mapper;
 
 import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.MovieEpisodeEntity;
+import com.netfliz.netfliz.entity.MovieImageEntity;
 import com.netfliz.netfliz.model.MovieEpisode;
 import com.netfliz.netfliz.util.JsonUtils;
 import lombok.AllArgsConstructor;
@@ -14,8 +15,11 @@ import java.util.Objects;
 @AllArgsConstructor
 public class MovieEpisodeMapper {
     private final MovieAssetMapper movieAssetMapper;
+    private final MovieImageMapper movieImageMapper;
 
-    public MovieEpisode mapFromEntity(MovieEpisodeEntity from, List<MovieAssetEntity> assetEntities) {
+    public MovieEpisode mapFromEntity(MovieEpisodeEntity from,
+                                      List<MovieAssetEntity> assetEntities,
+                                      List<MovieImageEntity> posterEntities) {
         MovieEpisode to = new MovieEpisode();
 
         to.setId(from.getId());
@@ -27,6 +31,7 @@ public class MovieEpisodeMapper {
         to.setRuntime(from.getRuntime());
         to.setMetadata(JsonUtils.serialize(from.getMetadata()));
         to.setAssets(movieAssetMapper.mapFromEntities(assetEntities));
+        to.setPosters(movieImageMapper.mapFromEntities(posterEntities));
 
         return to;
     }

@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.mapper;
 
 import com.netfliz.netfliz.entity.MovieImageEntity;
+import com.netfliz.netfliz.entity.enums.MovieImageObjectType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
 import com.netfliz.netfliz.model.MovieImage;
 import org.springframework.stereotype.Component;
@@ -17,9 +18,10 @@ public class MovieImageMapper {
         return to;
     }
 
-    public MovieImageEntity mapToEntity(MovieImage from, Long movieId) {
+    public MovieImageEntity mapToEntity(MovieImage from, Long objectId, MovieImageObjectType objectType) {
         MovieImageEntity to = new MovieImageEntity();
-        to.setMovieId(movieId);
+        to.setObjectId(objectId);
+        to.setObjectType(objectType);
         to.setFileId(from.getId());
         to.setImageType(MovieImageType.fromId(from.getType()));
         to.setImageUrl(from.getUrl());
@@ -30,7 +32,7 @@ public class MovieImageMapper {
         return from.stream().map(this::mapFromEntity).toList();
     }
 
-    public List<MovieImageEntity> mapToEntities(List<MovieImage> from, Long movieId) {
-        return from.stream().map(movieImage -> mapToEntity(movieImage, movieId)).toList();
+    public List<MovieImageEntity> mapToEntities(List<MovieImage> from, Long objectId, MovieImageObjectType objectType) {
+        return from.stream().map(movieImage -> mapToEntity(movieImage, objectId, objectType)).toList();
     }
 }

@@ -2,7 +2,9 @@ package com.netfliz.netfliz.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.netfliz.netfliz.entity.converter.MovieImageTypeConverter;
+import com.netfliz.netfliz.entity.enums.MovieImageObjectType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,8 +26,13 @@ public class MovieImageEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "movie_id")
-    private Long movieId;
+    @Column(name = "object_id")
+    @Schema(description = "Id của đối tượng")
+    private Long objectId;
+
+    @Column(name = "object_type")
+    @Schema(description = "Loại đối tượng (phim/tập phim/mùa")
+    private MovieImageObjectType objectType;
 
     @Column(name = "file_id")
     private Long fileId;
