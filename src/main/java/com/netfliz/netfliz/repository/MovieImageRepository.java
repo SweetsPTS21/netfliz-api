@@ -19,4 +19,8 @@ public interface MovieImageRepository extends JpaRepository<MovieImageEntity, Lo
 
     @Query("SELECT e FROM MovieImageEntity e WHERE e.objectId = :objectId AND e.objectType = :objectType AND e.imageType IN :imageTypes")
     List<MovieImageEntity> findByObjectIdAndObjectTypeAndImageTypeIn(Long objectId, MovieImageObjectType objectType, Collection<MovieImageType> imageTypes);
+
+    void deleteAllByObjectIdInAndObjectType(Collection<Long> objectIds, MovieImageObjectType objectType);
+
+    void deleteAllByObjectIdAndObjectTypeAndImageTypeIn(Long objectId, MovieImageObjectType objectType, Collection<MovieImageType> imageTypes);
 }

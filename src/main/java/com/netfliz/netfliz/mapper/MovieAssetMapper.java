@@ -4,6 +4,7 @@ import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.enums.MovieAssetType;
 import com.netfliz.netfliz.model.MovieAsset;
 import com.netfliz.netfliz.util.JsonUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,8 +32,15 @@ public class MovieAssetMapper {
         to.setUrl(from.getUrl());
         to.setAssetType(MovieAssetType.fromId(from.getAssetType()));
         to.setFormat(from.getFormat());
-        to.setDrm(JsonUtils.parse(from.getDrm()));
-        to.setRendition(JsonUtils.parse(from.getRenditions()));
+
+        if (Strings.isNotBlank(from.getDrm())) {
+            to.setDrm(JsonUtils.parse(from.getDrm()));
+        }
+
+        if (Strings.isNotBlank(from.getRenditions())) {
+            to.setRendition(JsonUtils.parse(from.getRenditions()));
+        }
+
         return to;
     }
 

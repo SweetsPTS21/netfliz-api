@@ -4,6 +4,7 @@ import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.MovieEpisodeEntity;
 import com.netfliz.netfliz.entity.MovieImageEntity;
 import com.netfliz.netfliz.entity.enums.MovieImageObjectType;
+import com.netfliz.netfliz.entity.enums.MovieImageType;
 import com.netfliz.netfliz.mapper.MovieAssetMapper;
 import com.netfliz.netfliz.mapper.MovieEpisodeMapper;
 import com.netfliz.netfliz.mapper.MovieImageMapper;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class MovieEpisodeService {
         return buildPage(movieEpisodesPage, movieEpisodes);
     }
 
+    @Transactional
     public MovieEpisode updateMovieEpisode(Long movieId, MovieEpisode movieEpisode) {
         movieValidator.validateSeriesMovie(movieId);
         movieEpisodeValidator.validateEpisode(movieEpisode);
@@ -69,6 +72,13 @@ public class MovieEpisodeService {
         // Lưu episode
         MovieEpisodeEntity movieEpisodeEntity = movieEpisodeMapper.mapToEntity(movieId, movieEpisode);
         movieEpisodeRepository.save(movieEpisodeEntity);
+
+        // Xóa toàn bộ poster/assets cũ
+        movieImageRepository.deleteAllByObjectIdAndObjectTypeAndImageTypeIn(
+                movieEpisodeEntity.getId(),
+                MovieImageObjectType.EPISODE,
+                List.of(MovieImageType.POSTER));
+        movieAssetRepository.deleteAllByEpisodeId(movieEpisodeEntity.getId());
 
         // Lưu posters
         List<MovieImageEntity> movieImageEntities = new ArrayList<>();

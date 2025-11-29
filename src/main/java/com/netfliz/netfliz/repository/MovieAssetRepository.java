@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface MovieAssetRepository extends JpaRepository<MovieAssetEntity, Long> {
     List<MovieAssetEntity> findByMovieId(Long movieId);
+
+    List<MovieAssetEntity> findByEpisodeId(Long episodeId);
+
+    void deleteAllByEpisodeId(Long episodeId);
 }

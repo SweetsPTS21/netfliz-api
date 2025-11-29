@@ -7,6 +7,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class JsonUtils {
@@ -33,6 +34,10 @@ public class JsonUtils {
     }
 
     public static String serialize(JsonNode jsonNode) {
+        if (Objects.isNull(jsonNode)) {
+            return StringPools.BLANK;
+        }
+
         try {
             return objectMapper.writeValueAsString(jsonNode);
         } catch (Exception e) {

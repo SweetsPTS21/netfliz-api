@@ -12,10 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * .
@@ -30,11 +28,14 @@ public class FileService {
     private final AuthUtils authUtils;
     private final ImageResizerService resizer;
     private final Tika tika = new Tika();
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final String UPLOAD_TYPE = "movies";
-    private static final String PATH_TYPE = "poster";
+    private static final String POSTER_PATH = "poster";
+    private static final String ASSET_PATH = "asset";
     private final int[] TARGET_WIDTHS = new int[]{320, 640, 1024};
-    private static final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+    private static final long MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+    private static final long MAX_ASSET_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
     private static final List<String> FILE_FORMAT_SUPPORT = List.of("jpeg", "jpg", "png");
 
     /**
@@ -44,7 +45,7 @@ public class FileService {
      * @return List<FileModel>
      */
     public List<FileModel> uploadMoviePoster(MultipartFile file) {
-        validate(file);
+        validateImage(file);
         var user = authUtils.getCurrentUser();
 
         try {
@@ -103,7 +104,7 @@ public class FileService {
      * @return FileModel
      */
     public FileModel uploadMovieGallery(MultipartFile file) {
-        validate(file);
+        validateImage(file);
         var user = authUtils.getCurrentUser();
 
         try {
@@ -133,13 +134,41 @@ public class FileService {
         }
     }
 
-    private void validate(MultipartFile file) {
+    public FileModel uploadMovieAsset(MultipartFile file) {
+        validateAsset(file);
+        var user = authUtils.getCurrentUser();
+
+        try {
+            String fileType = tika.detect(file.getInputStream());
+            byte[] fileBytes = file.getBytes();
+            String ext = fileType.split("/")[1];
+            String uuid = UUID.randomUUID().toString();
+
+            String date = sdf.format(new Date());
+            String filename = String.format("%s-asset-%s.%s", uuid, date, ext);
+            String downloadUri = uploadAssetToFirebase(fileBytes, filename, fileType);
+
+            return fileMapper.mapToModel(fileRepository.save(
+                    buildFileEntity(
+                            file,
+                            filename,
+                            downloadUri,
+                            ASSET_PATH,
+                            user.getUsername()
+                    )
+            ));
+        } catch (Exception e) {
+            throw new ValidationException("Lỗi khi upload file: " + e.getMessage());
+        }
+    }
+
+    private void validateImage(MultipartFile file) {
         if (Objects.isNull(file) || file.isEmpty()) {
             throw new ValidationException("File không được để trống!");
         }
 
         // Check file size
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (file.getSize() > MAX_IMAGE_FILE_SIZE) {
             throw new ValidationException("Kích thước file không được vượt quá 2MB");
         }
 
@@ -158,6 +187,17 @@ public class FileService {
         String ext = fileType.split("/")[1];
         if (!FILE_FORMAT_SUPPORT.contains(ext)) {
             throw new ValidationException("Chỉ hỗ trợ định dạng jpeg/jpg/png");
+        }
+    }
+
+    private void validateAsset(MultipartFile file) {
+        if (Objects.isNull(file) || file.isEmpty()) {
+            throw new ValidationException("File không được để trống!");
+        }
+
+        // Check file size
+        if (file.getSize() > MAX_ASSET_FILE_SIZE) {
+            throw new ValidationException("Kích thước file không được vượt quá 10MB");
         }
     }
 
@@ -181,7 +221,12 @@ public class FileService {
     }
 
     private String uploadPosterToFirebase(byte[] bytes, String fileName, String contentType) {
-        String path = String.format("%s/%s/%s", UPLOAD_TYPE, PATH_TYPE, fileName);
+        String path = String.format("%s/%s/%s", UPLOAD_TYPE, POSTER_PATH, fileName);
+        return firebaseStorageService.uploadFile(bytes, path, contentType);
+    }
+
+    private String uploadAssetToFirebase(byte[] bytes, String fileName, String contentType) {
+        String path = String.format("%s/%s/%s", UPLOAD_TYPE, ASSET_PATH, fileName);
         return firebaseStorageService.uploadFile(bytes, path, contentType);
     }
 
