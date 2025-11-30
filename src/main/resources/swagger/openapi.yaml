@@ -1118,6 +1118,10 @@ components:
         id:
           type: integer
           format: int64
+        name:
+          type: string
+        format:
+          type: string
         type:
           type: integer
           format: int32
@@ -1185,10 +1189,15 @@ components:
         id:
           type: integer
           format: int64
+        fileId:
+          type: integer
+          format: int64
         assetType:
           type: integer
           format: int32
         format:
+          type: string
+        name:
           type: string
         url:
           type: string

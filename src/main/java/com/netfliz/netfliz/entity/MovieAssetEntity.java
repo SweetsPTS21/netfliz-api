@@ -25,9 +25,15 @@ public class MovieAssetEntity {
     @Column(name = "episode_id")
     private Long episodeId;
 
+    @Column(name = "file_id")
+    private Long fileId;
+
     @Column(name = "asset_type")
     @Convert(converter = MovieAssetTypeConverter.class)
     private MovieAssetType assetType;
+
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "format")
     private String format;

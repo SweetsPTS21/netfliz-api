@@ -97,6 +97,8 @@ input MovieInput {
 
 input MovieImageInput {
     id: ID
+    name: String
+    format: String
     type: Int
     url: String
 }

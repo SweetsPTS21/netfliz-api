@@ -19,6 +19,12 @@ public class MovieImageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "format")
+    private String format;
+
     @Column(name = "image_type")
     @Convert(converter = MovieImageTypeConverter.class)
     private MovieImageType imageType;

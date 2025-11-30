@@ -14,6 +14,7 @@ public class FileMapper {
         return FileModel.builder()
                 .id(entity.getId())
                 .fileName(entity.getFileName())
+                .fileExtension(entity.getFileExtension())
                 .fileCategory(entity.getFileCategory())
                 .fileDownloadUri(entity.getFileDownloadUri())
                 .build();

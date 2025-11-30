@@ -8,6 +8,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class MovieAssetMapper {
@@ -15,6 +16,8 @@ public class MovieAssetMapper {
         MovieAsset to = new MovieAsset();
 
         to.setId(from.getId());
+        to.setFileId(from.getFileId());
+        to.setName(from.getName());
         to.setUrl(from.getUrl());
         to.assetType(from.getAssetType().getId());
         to.setFormat(from.getFormat());
@@ -26,12 +29,15 @@ public class MovieAssetMapper {
 
     public MovieAssetEntity mapToEntity(Long movieId, Long episodeId, MovieAsset from) {
         MovieAssetEntity to = new MovieAssetEntity();
+
+        to.setId(from.getId());
+        to.setName(from.getName());
         to.setMovieId(movieId);
         to.setEpisodeId(episodeId);
-        to.setId(from.getId());
         to.setUrl(from.getUrl());
         to.setAssetType(MovieAssetType.fromId(from.getAssetType()));
         to.setFormat(from.getFormat());
+        to.setFileId(Objects.isNull(from.getFileId()) ? 0L : from.getFileId());
 
         if (Strings.isNotBlank(from.getDrm())) {
             to.setDrm(JsonUtils.parse(from.getDrm()));
