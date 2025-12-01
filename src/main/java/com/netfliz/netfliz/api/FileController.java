@@ -2,7 +2,9 @@ package com.netfliz.netfliz.api;
 
 import com.netfliz.netfliz.model.FileModel;
 import com.netfliz.netfliz.service.FileService;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,14 +38,15 @@ public class FileController {
     }
 
     @GetMapping("/presign-url")
+    @Schema(description = "Trả về Presign URL để truy cập file từ BackBlaze B2")
     public ResponseEntity<Object> presignUrl(@RequestParam("key") String key,
                                              @RequestHeader(value = "X-Worker-Timestamp", required = false) String ts,
                                              @RequestHeader(value = "X-Worker-Signature", required = false) String signature) {
 
-        if (key == null || key.isBlank()) {
+        if (Strings.isBlank(key)) {
             return ResponseEntity.badRequest().body("missing key");
         }
-        if (ts == null || signature == null) {
+        if (Strings.isBlank(ts) || Strings.isBlank(signature)) {
             return ResponseEntity.status(401).body("missing authentication headers");
         }
 
