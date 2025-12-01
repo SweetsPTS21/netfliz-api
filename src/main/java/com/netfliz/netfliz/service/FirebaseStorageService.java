@@ -6,6 +6,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
 import com.netfliz.netfliz.exception.StorageException;
 import com.netfliz.netfliz.util.FirebaseProperties;
+import com.netfliz.netfliz.util.ProxyCndProperties;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,17 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class FirebaseStorageService {
     private final FirebaseProperties firebaseProperties;
+    private final ProxyCndProperties proxyCndProperties;
+
+    public String uploadPoster(byte[] bytes, String path, String contentType) {
+        uploadFile(bytes, path, contentType);
+        return proxyCndProperties.getImageUrl() + path;
+    }
+
+    public String uploadAsset(byte[] bytes, String path, String contentType) {
+        uploadFile(bytes, path, contentType);
+        return proxyCndProperties.getAssetUrl() + path;
+    }
 
     /**
      * Upload file to Firebase Storage
@@ -24,9 +36,8 @@ public class FirebaseStorageService {
      * @param bytes       data
      * @param path        path
      * @param contentType contentType
-     * @return public uri
      */
-    public String uploadFile(byte[] bytes, String path, String contentType) {
+    private void uploadFile(byte[] bytes, String path, String contentType) {
         Bucket bucket = StorageClient.getInstance().bucket();
         Blob blob = bucket.create(path, bytes, contentType);
         blob = blob.toBuilder()
@@ -35,9 +46,6 @@ public class FirebaseStorageService {
 
         // make public (no token needed)
         blob.createAcl(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
-
-        // Build public url with cdn
-        return firebaseProperties.getProxyCdnUrl() + path;
     }
 
     /**
