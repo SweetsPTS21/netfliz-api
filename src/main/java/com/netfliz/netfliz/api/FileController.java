@@ -15,6 +15,7 @@ import java.util.List;
 public class FileController {
     private final FileService fileService;
 
+
     public FileController(FileService fileService) {
         this.fileService = fileService;
     }
@@ -32,5 +33,10 @@ public class FileController {
     @PostMapping("/upload-asset")
     public ResponseEntity<FileModel> uploadMovieAsset(MultipartFile file) {
         return ResponseEntity.ok(fileService.uploadMovieAsset(file));
+    }
+
+    @PostMapping("/upload-movie")
+    public ResponseEntity<FileModel> uploadMovie(MultipartFile file, String type) {
+        return ResponseEntity.ok(fileService.uploadMovie(file, type));
     }
 }

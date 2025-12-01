@@ -7,6 +7,7 @@ import com.netfliz.netfliz.repository.IFileRepository;
 import com.netfliz.netfliz.util.AuthUtils;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ public class FileService {
     private final IFileRepository fileRepository;
     private final FileMapper fileMapper;
     private final FirebaseStorageService firebaseStorageService;
+    private final S3UploadService s3UploadService;
     private final AuthUtils authUtils;
     private final ImageResizerService resizer;
     private final Tika tika = new Tika();
@@ -37,6 +39,7 @@ public class FileService {
     private static final long MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
     private static final long MAX_ASSET_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
     private static final List<String> FILE_FORMAT_SUPPORT = List.of("jpeg", "jpg", "png");
+    private static final List<String> MOVIE_TYPE = List.of("movies", "trailers");
 
     /**
      * Upload movie poster
@@ -143,7 +146,7 @@ public class FileService {
             byte[] fileBytes = file.getBytes();
             String originalFilename = file.getOriginalFilename();
             String fileExtension = "";
-            
+
             // Lấy phần mở rộng từ tên file gốc
             if (originalFilename != null && originalFilename.contains(".")) {
                 fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
@@ -151,7 +154,7 @@ public class FileService {
                 // Nếu không có phần mở rộng, sử dụng từ MIME type
                 fileExtension = fileType.split("/")[1];
             }
-            
+
             String uuid = UUID.randomUUID().toString();
             String date = sdf.format(new Date());
             String filename = String.format("%s-asset-%s.%s", uuid, date, fileExtension);
@@ -168,6 +171,30 @@ public class FileService {
             ));
         } catch (Exception e) {
             throw new ValidationException("Lỗi khi upload file: " + e.getMessage());
+        }
+    }
+
+    public FileModel uploadMovie(MultipartFile file, String type) {
+        validateAsset(file);
+        validateType(type);
+        var user = authUtils.getCurrentUser();
+
+        try {
+            String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+            String filePath = type + "/" + fileName;
+            String presignedUrl = s3UploadService.uploadMovie(file, filePath);
+
+            return fileMapper.mapToModel(fileRepository.save(
+                    buildFileEntity(
+                            file,
+                            fileName,
+                            presignedUrl,
+                            "movies",
+                            user.getUsername()
+                    )
+            ));
+        } catch (Exception e) {
+            throw new ValidationException("Lỗi khi upload phim: " + e.getMessage());
         }
     }
 
@@ -207,6 +234,16 @@ public class FileService {
         // Check file size
         if (file.getSize() > MAX_ASSET_FILE_SIZE) {
             throw new ValidationException("Kích thước file không được vượt quá 10MB");
+        }
+    }
+
+    private void validateType(String type) {
+        if (Strings.isBlank(type)) {
+            throw new ValidationException("Type không được để trống!");
+        }
+
+        if (!MOVIE_TYPE.contains(type)) {
+            throw new ValidationException("Type không hợp lệ!");
         }
     }
 
