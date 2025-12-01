@@ -15,6 +15,7 @@ public class MovieImageMapper {
         MovieImage to = new MovieImage();
 
         to.setId(from.getId());
+        to.setFileId(from.getFileId());
         to.setName(from.getName());
         to.setFormat(from.getFormat());
         to.setType(from.getImageType().getId());

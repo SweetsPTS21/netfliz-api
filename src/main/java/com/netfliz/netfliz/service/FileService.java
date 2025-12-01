@@ -141,11 +141,20 @@ public class FileService {
         try {
             String fileType = tika.detect(file.getInputStream());
             byte[] fileBytes = file.getBytes();
-            String ext = fileType.split("/")[1];
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = "";
+            
+            // Lấy phần mở rộng từ tên file gốc
+            if (originalFilename != null && originalFilename.contains(".")) {
+                fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+            } else {
+                // Nếu không có phần mở rộng, sử dụng từ MIME type
+                fileExtension = fileType.split("/")[1];
+            }
+            
             String uuid = UUID.randomUUID().toString();
-
             String date = sdf.format(new Date());
-            String filename = String.format("%s-asset-%s.%s", uuid, date, ext);
+            String filename = String.format("%s-asset-%s.%s", uuid, date, fileExtension);
             String downloadUri = uploadAssetToFirebase(fileBytes, filename, fileType);
 
             return fileMapper.mapToModel(fileRepository.save(

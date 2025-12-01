@@ -27,6 +27,9 @@ type Movie {
 
 type MovieImage {
     id: ID
+    fileId: ID
+    name: String
+    format: String
     type: Int
     url: String
 }
@@ -97,6 +100,7 @@ input MovieInput {
 
 input MovieImageInput {
     id: ID
+    fileId: ID
     name: String
     format: String
     type: Int
