@@ -3,6 +3,7 @@ package com.netfliz.netfliz.service;
 import com.netfliz.netfliz.entity.FileEntity;
 import com.netfliz.netfliz.mapper.FileMapper;
 import com.netfliz.netfliz.model.FileModel;
+import com.netfliz.netfliz.model.response.PresignUrlResponse;
 import com.netfliz.netfliz.repository.IFileRepository;
 import com.netfliz.netfliz.util.AuthUtils;
 import jakarta.validation.ValidationException;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -29,6 +31,7 @@ public class FileService {
     private final S3UploadService s3UploadService;
     private final AuthUtils authUtils;
     private final ImageResizerService resizer;
+
     private final Tika tika = new Tika();
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -196,6 +199,24 @@ public class FileService {
         } catch (Exception e) {
             throw new ValidationException("Lỗi khi upload phim: " + e.getMessage());
         }
+    }
+
+    /**
+     * Get backblaze presigned URL
+     *
+     * @param key       path to object
+     * @param ts        timestamp
+     * @param signature signature
+     * @return PresignUrlResponse
+     */
+    public PresignUrlResponse presignUrl(String key, String ts, String signature) {
+        s3UploadService.checkSignature(key, ts, signature);
+        String url = s3UploadService.generatePresignedUrl(key, Duration.ofSeconds(1800));
+
+        return PresignUrlResponse.builder()
+                .url(url)
+                .expires(1800)
+                .build();
     }
 
     private void validateImage(MultipartFile file) {

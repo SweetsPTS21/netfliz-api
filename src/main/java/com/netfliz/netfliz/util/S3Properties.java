@@ -15,4 +15,5 @@ public class S3Properties {
     private String accessKeyId = "";
     private String secretAccessKey = " ";
     private String bucketName = "";
+    private String workerSharedSecret = "";
 }
