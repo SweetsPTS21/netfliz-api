@@ -24,7 +24,7 @@ public class S3UploadService {
 
     private static final long ALLOWED_SKEW_SECONDS = 300;
 
-    public String uploadMovie(MultipartFile file, String filePath) {
+    public void uploadMovie(MultipartFile file, String filePath) {
         PutObjectRequest putReq = PutObjectRequest.builder()
                 .bucket(s3Properties.getBucketName())
                 .key(filePath)
@@ -37,9 +37,6 @@ public class S3UploadService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-
-
-        return generatePresignedUrl(filePath, Duration.ofHours(1));
     }
 
     public String generatePresignedUrl(String key, Duration validFor) {
