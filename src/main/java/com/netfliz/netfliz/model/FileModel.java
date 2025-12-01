@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class FileModel {
     private Long id;
     private String fileName;
+    private String fileExtension;
     private String fileCategory;
     private String fileDownloadUri;
 }

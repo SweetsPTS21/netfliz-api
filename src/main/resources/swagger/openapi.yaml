@@ -1080,6 +1080,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MovieImage'
+        episodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieEpisode'
       xml:
         name: movie
 
@@ -1114,11 +1118,98 @@ components:
         id:
           type: integer
           format: int64
+        fileId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        format:
+          type: string
         type:
           type: integer
           format: int32
         url:
           type: string
+
+    MovieEpisode:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        episodeNumber:
+          type: integer
+          format: int32
+        episodeOrder:
+          type: integer
+          format: int32
+        name:
+          type: string
+        description:
+          type: string
+        runtime:
+          type: integer
+          format: int32
+        isPublished:
+          type: boolean
+        metadata:
+          type: string
+          format: json
+        posters:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieImage'
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieAsset'
+
+    MovieEpisodePage:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          default: 0
+        pageSize:
+          type: integer
+          format: int32
+          default: 20
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieEpisode'
+
+    MovieAsset:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        fileId:
+          type: integer
+          format: int64
+        assetType:
+          type: integer
+          format: int32
+        format:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        drm:
+          type: string
+          format: json
+        renditions:
+          type: string
+          format: json
 
     ApiResponse:
       type: object

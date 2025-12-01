@@ -1,8 +1,8 @@
 package com.netfliz.netfliz.util;
 
-import com.netfliz.netfliz.service.JwtService;
 import com.netfliz.netfliz.entity.UserEntity;
-import com.netfliz.netfliz.repository.IUserRepository;
+import com.netfliz.netfliz.repository.UserRepository;
+import com.netfliz.netfliz.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -15,7 +15,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 @AllArgsConstructor
 public class AuthUtils {
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
     private final JwtService jwtService;
 
     /**

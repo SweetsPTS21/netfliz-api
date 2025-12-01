@@ -2,7 +2,7 @@ package com.netfliz.netfliz.config;
 
 import com.netfliz.netfliz.auditing.ApplicationAuditAware;
 import com.netfliz.netfliz.exception.NotFoundException;
-import com.netfliz.netfliz.repository.IUserRepository;
+import com.netfliz.netfliz.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApplicationConfig {
-    private final IUserRepository repository;
+    private final UserRepository repository;
 
     @Bean
     public UserDetailsService userDetailsService() {

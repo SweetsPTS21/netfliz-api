@@ -1,0 +1,24 @@
+package com.netfliz.netfliz.entity.enums;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum MovieImageObjectType {
+    MOVIE(1, "Movie"),
+    EPISODE(2, "Episode"),
+    SEASON(3, "Season");
+
+    private final Integer id;
+    private final String name;
+
+    public static MovieImageObjectType fromId(Integer id) {
+        for (MovieImageObjectType type : MovieImageObjectType.values()) {
+            if (type.getId().equals(id)) {
+                return type;
+            }
+        }
+        return null;
+    }
+}

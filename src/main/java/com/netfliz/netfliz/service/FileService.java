@@ -3,19 +3,20 @@ package com.netfliz.netfliz.service;
 import com.netfliz.netfliz.entity.FileEntity;
 import com.netfliz.netfliz.mapper.FileMapper;
 import com.netfliz.netfliz.model.FileModel;
+import com.netfliz.netfliz.model.response.PresignUrlResponse;
 import com.netfliz.netfliz.repository.IFileRepository;
 import com.netfliz.netfliz.util.AuthUtils;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.*;
 
 /**
  * .
@@ -27,15 +28,21 @@ public class FileService {
     private final IFileRepository fileRepository;
     private final FileMapper fileMapper;
     private final FirebaseStorageService firebaseStorageService;
+    private final S3UploadService s3UploadService;
     private final AuthUtils authUtils;
     private final ImageResizerService resizer;
+
     private final Tika tika = new Tika();
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final String UPLOAD_TYPE = "movies";
-    private static final String PATH_TYPE = "poster";
+    private static final String POSTER_PATH = "poster";
+    private static final String ASSET_PATH = "asset";
     private final int[] TARGET_WIDTHS = new int[]{320, 640, 1024};
-    private static final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+    private static final long MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+    private static final long MAX_ASSET_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
     private static final List<String> FILE_FORMAT_SUPPORT = List.of("jpeg", "jpg", "png");
+    private static final List<String> MOVIE_TYPE = List.of("movies", "trailers");
 
     /**
      * Upload movie poster
@@ -44,7 +51,7 @@ public class FileService {
      * @return List<FileModel>
      */
     public List<FileModel> uploadMoviePoster(MultipartFile file) {
-        validate(file);
+        validateImage(file);
         var user = authUtils.getCurrentUser();
 
         try {
@@ -103,7 +110,7 @@ public class FileService {
      * @return FileModel
      */
     public FileModel uploadMovieGallery(MultipartFile file) {
-        validate(file);
+        validateImage(file);
         var user = authUtils.getCurrentUser();
 
         try {
@@ -133,13 +140,92 @@ public class FileService {
         }
     }
 
-    private void validate(MultipartFile file) {
+    public FileModel uploadMovieAsset(MultipartFile file) {
+        validateAsset(file);
+        var user = authUtils.getCurrentUser();
+
+        try {
+            String fileType = tika.detect(file.getInputStream());
+            byte[] fileBytes = file.getBytes();
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = "";
+
+            // Lấy phần mở rộng từ tên file gốc
+            if (originalFilename != null && originalFilename.contains(".")) {
+                fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+            } else {
+                // Nếu không có phần mở rộng, sử dụng từ MIME type
+                fileExtension = fileType.split("/")[1];
+            }
+
+            String uuid = UUID.randomUUID().toString();
+            String date = sdf.format(new Date());
+            String filename = String.format("%s-asset-%s.%s", uuid, date, fileExtension);
+            String downloadUri = uploadAssetToFirebase(fileBytes, filename, fileType);
+
+            return fileMapper.mapToModel(fileRepository.save(
+                    buildFileEntity(
+                            file,
+                            filename,
+                            downloadUri,
+                            ASSET_PATH,
+                            user.getUsername()
+                    )
+            ));
+        } catch (Exception e) {
+            throw new ValidationException("Lỗi khi upload file: " + e.getMessage());
+        }
+    }
+
+    public FileModel uploadMovie(MultipartFile file, String type) {
+        validateAsset(file);
+        validateType(type);
+        var user = authUtils.getCurrentUser();
+
+        try {
+            String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+            String filePath = type + "/" + fileName;
+            String presignedUrl = s3UploadService.uploadMovie(file, filePath);
+
+            return fileMapper.mapToModel(fileRepository.save(
+                    buildFileEntity(
+                            file,
+                            fileName,
+                            presignedUrl,
+                            "movies",
+                            user.getUsername()
+                    )
+            ));
+        } catch (Exception e) {
+            throw new ValidationException("Lỗi khi upload phim: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get backblaze presigned URL
+     *
+     * @param key       path to object
+     * @param ts        timestamp
+     * @param signature signature
+     * @return PresignUrlResponse
+     */
+    public PresignUrlResponse presignUrl(String key, String ts, String signature) {
+        s3UploadService.checkSignature(key, ts, signature);
+        String url = s3UploadService.generatePresignedUrl(key, Duration.ofSeconds(1800));
+
+        return PresignUrlResponse.builder()
+                .url(url)
+                .expires(1800)
+                .build();
+    }
+
+    private void validateImage(MultipartFile file) {
         if (Objects.isNull(file) || file.isEmpty()) {
             throw new ValidationException("File không được để trống!");
         }
 
         // Check file size
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (file.getSize() > MAX_IMAGE_FILE_SIZE) {
             throw new ValidationException("Kích thước file không được vượt quá 2MB");
         }
 
@@ -158,6 +244,27 @@ public class FileService {
         String ext = fileType.split("/")[1];
         if (!FILE_FORMAT_SUPPORT.contains(ext)) {
             throw new ValidationException("Chỉ hỗ trợ định dạng jpeg/jpg/png");
+        }
+    }
+
+    private void validateAsset(MultipartFile file) {
+        if (Objects.isNull(file) || file.isEmpty()) {
+            throw new ValidationException("File không được để trống!");
+        }
+
+        // Check file size
+        if (file.getSize() > MAX_ASSET_FILE_SIZE) {
+            throw new ValidationException("Kích thước file không được vượt quá 10MB");
+        }
+    }
+
+    private void validateType(String type) {
+        if (Strings.isBlank(type)) {
+            throw new ValidationException("Type không được để trống!");
+        }
+
+        if (!MOVIE_TYPE.contains(type)) {
+            throw new ValidationException("Type không hợp lệ!");
         }
     }
 
@@ -181,7 +288,12 @@ public class FileService {
     }
 
     private String uploadPosterToFirebase(byte[] bytes, String fileName, String contentType) {
-        String path = String.format("%s/%s/%s", UPLOAD_TYPE, PATH_TYPE, fileName);
+        String path = String.format("%s/%s/%s", UPLOAD_TYPE, POSTER_PATH, fileName);
+        return firebaseStorageService.uploadFile(bytes, path, contentType);
+    }
+
+    private String uploadAssetToFirebase(byte[] bytes, String fileName, String contentType) {
+        String path = String.format("%s/%s/%s", UPLOAD_TYPE, ASSET_PATH, fileName);
         return firebaseStorageService.uploadFile(bytes, path, contentType);
     }
 

@@ -18,7 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static com.netfliz.netfliz.entity.enums.Permission.*;
 import static com.netfliz.netfliz.entity.enums.Role.ADMIN;
-import static  com.netfliz.netfliz.entity.enums.Role.MANAGER;
+import static com.netfliz.netfliz.entity.enums.Role.MANAGER;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -43,6 +43,7 @@ public class SecurityConfiguration {
             "/swagger-ui.html",
             "/graphiql/**",
             "/graphql",
+            "/api/v1/file/presign-url",
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;

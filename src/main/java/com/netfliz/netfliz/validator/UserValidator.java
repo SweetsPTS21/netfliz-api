@@ -2,7 +2,7 @@ package com.netfliz.netfliz.validator;
 
 import com.netfliz.netfliz.exception.BadRequestException;
 import com.netfliz.netfliz.exception.NotFoundException;
-import com.netfliz.netfliz.repository.IUserRepository;
+import com.netfliz.netfliz.repository.UserRepository;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +10,9 @@ import java.util.Objects;
 
 @Component
 public class UserValidator {
-    IUserRepository userRepository;
+    UserRepository userRepository;
 
-    public UserValidator(IUserRepository userRepository) {
+    public UserValidator(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
