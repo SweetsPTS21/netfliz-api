@@ -1,7 +1,7 @@
 package com.netfliz.netfliz.config;
 
-import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.entity.enums.Role;
+import com.netfliz.netfliz.repository.ITokenRepository;
 import com.netfliz.netfliz.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final List<String> WHITE_LIST_URL = List.of(
             "/api/v1/auth/register",
             "/api/v1/auth/authenticate",
-            "/api/v1/auth/refresh-token"
+            "/api/v1/auth/refresh-token",
+            "/api/v1/file/presign-url"
     );
 
     @Override
