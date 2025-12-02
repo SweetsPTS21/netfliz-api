@@ -1186,6 +1186,16 @@ components:
           items:
             $ref: '#/components/schemas/MovieEpisode'
 
+    SuggestEpisodeNumber:
+      type: object
+      properties:
+        episodeNumber:
+          type: integer
+          format: int32
+        episodeOrder:
+          type: integer
+          format: int32
+
     MovieAsset:
       type: object
       properties:

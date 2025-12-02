@@ -10,6 +10,7 @@ import com.netfliz.netfliz.mapper.MovieEpisodeMapper;
 import com.netfliz.netfliz.mapper.MovieImageMapper;
 import com.netfliz.netfliz.model.MovieEpisode;
 import com.netfliz.netfliz.model.MovieEpisodePage;
+import com.netfliz.netfliz.model.SuggestEpisodeNumber;
 import com.netfliz.netfliz.repository.MovieAssetRepository;
 import com.netfliz.netfliz.repository.MovieEpisodeRepository;
 import com.netfliz.netfliz.repository.MovieImageRepository;
@@ -67,7 +68,7 @@ public class MovieEpisodeService {
     @Transactional
     public MovieEpisode updateMovieEpisode(Long movieId, MovieEpisode movieEpisode) {
         movieValidator.validateSeriesMovie(movieId);
-        movieEpisodeValidator.validateEpisode(movieEpisode);
+        movieEpisodeValidator.validateEpisode(movieId, movieEpisode);
 
         // Lưu episode
         MovieEpisodeEntity movieEpisodeEntity = movieEpisodeMapper.mapToEntity(movieId, movieEpisode);
@@ -104,6 +105,23 @@ public class MovieEpisodeService {
                 movieEpisodeEntity,
                 movieAssetEntities,
                 movieImageEntities);
+    }
+
+    /**
+     * Suggest episode number and order
+     *
+     * @param movieId movieId
+     * @return SuggestEpisodeNumber
+     */
+    public SuggestEpisodeNumber suggestEpisodeNumber(Long movieId) {
+        Integer maxEpisodeNumber = movieEpisodeRepository.findMaxEpisodeNumberByMovieId(movieId);
+        Integer maxEpisodeOrder = movieEpisodeRepository.findMaxEpisodeOrderByMovieId(movieId);
+
+        SuggestEpisodeNumber suggest = new SuggestEpisodeNumber();
+        suggest.setEpisodeNumber(maxEpisodeNumber + 1);
+        suggest.setEpisodeOrder(maxEpisodeOrder + 1);
+
+        return suggest;
     }
 
     private MovieEpisodePage buildPage(Page<MovieEpisodeEntity> entityPage,

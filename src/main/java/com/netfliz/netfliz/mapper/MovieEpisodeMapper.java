@@ -6,6 +6,7 @@ import com.netfliz.netfliz.entity.MovieImageEntity;
 import com.netfliz.netfliz.model.MovieEpisode;
 import com.netfliz.netfliz.util.JsonUtils;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -49,7 +50,9 @@ public class MovieEpisodeMapper {
         to.setDescription(from.getDescription());
         to.setIsPublished(from.getIsPublished());
         to.setRuntime(from.getRuntime());
-        to.setMetadata(JsonUtils.parse(from.getMetadata()));
+        if (Strings.isNotBlank(from.getMetadata())) {
+            to.setMetadata(JsonUtils.parse(from.getMetadata()));
+        }
 
         return to;
     }
