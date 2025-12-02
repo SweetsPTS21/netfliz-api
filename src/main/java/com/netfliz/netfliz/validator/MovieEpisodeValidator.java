@@ -1,20 +1,16 @@
 package com.netfliz.netfliz.validator;
 
-import com.netfliz.netfliz.model.MovieAsset;
 import com.netfliz.netfliz.model.MovieEpisode;
 import com.netfliz.netfliz.repository.MovieEpisodeRepository;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 @Component
 @AllArgsConstructor
 public class MovieEpisodeValidator {
     private final MovieEpisodeRepository movieEpisodeRepository;
+    private final MovieAssetValidator movieAssetValidator;
 
     public void validateEpisode(Long movieId, MovieEpisode episode) {
         if (episode.getEpisodeNumber() == null) {
@@ -41,22 +37,6 @@ public class MovieEpisodeValidator {
             throw new ValidationException("Tên tập phim không được để trống");
         }
 
-        validateAssets(episode.getAssets());
-    }
-
-    private void validateAssets(List<MovieAsset> assets) {
-        if (CollectionUtils.isEmpty(assets)) {
-            throw new ValidationException("Assets không được để trống");
-        }
-
-        assets.forEach(asset -> {
-            if (Strings.isBlank(asset.getUrl())) {
-                throw new ValidationException("URL không được để trống");
-            }
-
-            if (asset.getAssetType() == null) {
-                throw new ValidationException("Loại asset không được để trống");
-            }
-        });
+        movieAssetValidator.validateAssets(episode.getAssets());
     }
 }

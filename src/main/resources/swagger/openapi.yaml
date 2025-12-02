@@ -1080,10 +1080,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MovieImage'
-        episodes:
+        assets:
           type: array
           items:
-            $ref: '#/components/schemas/MovieEpisode'
+            $ref: '#/components/schemas/MovieAsset'
       xml:
         name: movie
 

@@ -23,6 +23,7 @@ type Movie {
     response: Boolean
     images: [MovieImage]
     categories: String
+    assets: [MovieAsset]
 }
 
 type MovieImage {
@@ -96,6 +97,7 @@ input MovieInput {
     response: Boolean
     categories: String
     images: [MovieImageInput]
+    assets: [MovieAssetInput]
 }
 
 input MovieImageInput {
