@@ -22,12 +22,12 @@ public class FirebaseStorageService {
 
     public String uploadPoster(byte[] bytes, String path, String contentType) {
         uploadFile(bytes, path, contentType);
-        return proxyCndProperties.getImageUrl() + path;
+        return String.format("%s/%s", proxyCndProperties.getImageUrl(), path);
     }
 
     public String uploadAsset(byte[] bytes, String path, String contentType) {
         uploadFile(bytes, path, contentType);
-        return proxyCndProperties.getAssetUrl() + path;
+        return String.format("%s/%s", proxyCndProperties.getAssetUrl(), path);
     }
 
     /**

@@ -6,6 +6,8 @@ import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 @AllArgsConstructor
 public class MovieEpisodeValidator {
@@ -13,6 +15,10 @@ public class MovieEpisodeValidator {
     private final MovieAssetValidator movieAssetValidator;
 
     public void validateEpisode(Long movieId, MovieEpisode episode) {
+        if (Objects.isNull(movieId)) {
+            throw new ValidationException("ID phim không được để trống");
+        }
+
         if (episode.getEpisodeNumber() == null) {
             throw new ValidationException("Số tập phim không được để trống");
         }
@@ -21,11 +27,12 @@ public class MovieEpisodeValidator {
             throw new ValidationException("Số tập phim phải lớn hơn 0");
         }
 
-        if (movieEpisodeRepository.existsByMovieIdAndEpisodeNumber(movieId, episode.getEpisodeNumber())) {
+
+        if (movieEpisodeRepository.existsEpisodeNumber(movieId, episode.getId(), episode.getEpisodeNumber())) {
             throw new ValidationException("Số tập phim đã tồn tại");
         }
 
-        if (movieEpisodeRepository.existsByMovieIdAndEpisodeOrder(movieId, episode.getEpisodeOrder())) {
+        if (movieEpisodeRepository.existsEpisodeOrder(movieId, episode.getId(), episode.getEpisodeOrder())) {
             throw new ValidationException("Thứ tự tập phim đã tồn tại");
         }
 

@@ -15,7 +15,11 @@ public interface MovieEpisodeRepository extends JpaRepository<MovieEpisodeEntity
     @Query("SELECT MAX(e.episodeOrder) FROM MovieEpisodeEntity e WHERE e.movieId = :movieId")
     Integer findMaxEpisodeOrderByMovieId(Long movieId);
 
-    Boolean existsByMovieIdAndEpisodeNumber(Long movieId, Integer episodeNumber);
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM MovieEpisodeEntity e " +
+            "WHERE e.movieId = :movieId AND e.episodeNumber = :episodeNumber AND e.id != :episodeId")
+    Boolean existsEpisodeNumber(Long movieId, Long episodeId, Integer episodeNumber);
 
-    Boolean existsByMovieIdAndEpisodeOrder(Long movieId, Integer episodeOrder);
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM MovieEpisodeEntity e " +
+            "WHERE e.movieId = :movieId AND e.episodeOrder = :episodeOrder AND e.id != :episodeId")
+    Boolean existsEpisodeOrder(Long movieId, Long episodeId, Integer episodeOrder);
 }

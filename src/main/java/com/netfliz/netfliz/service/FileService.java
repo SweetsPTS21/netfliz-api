@@ -209,7 +209,7 @@ public class FileService {
 
             // upload video to backblaze b2 storage
             s3UploadService.uploadMovie(file, filePath);
-            String downloadUri = proxyCndProperties.getVideoUrl() + filePath;
+            String downloadUri = String.format("%s/%s", proxyCndProperties.getVideoUrl(), filePath);
 
             return fileMapper.mapToModel(fileRepository.save(
                     buildFileEntity(
