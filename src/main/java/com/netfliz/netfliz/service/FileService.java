@@ -187,7 +187,7 @@ public class FileService {
      * @return FileModel
      */
     public FileModel uploadMovie(MultipartFile file, String type) {
-        fileValidator.validateAsset(file);
+        fileValidator.validateVideo(file);
         fileValidator.validateType(type);
         var user = authUtils.getCurrentUser();
 
