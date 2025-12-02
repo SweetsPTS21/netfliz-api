@@ -1,12 +1,14 @@
 package com.netfliz.netfliz.service;
 
+import com.netfliz.netfliz.constant.CacheKey;
+import com.netfliz.netfliz.constant.ProxyCndProperties;
+import com.netfliz.netfliz.constant.UploadKey;
 import com.netfliz.netfliz.entity.FileEntity;
 import com.netfliz.netfliz.mapper.FileMapper;
 import com.netfliz.netfliz.model.FileModel;
 import com.netfliz.netfliz.model.response.PresignUrlResponse;
 import com.netfliz.netfliz.repository.IFileRepository;
 import com.netfliz.netfliz.util.AuthUtils;
-import com.netfliz.netfliz.util.ProxyCndProperties;
 import com.netfliz.netfliz.validator.FileValidator;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -33,14 +35,10 @@ public class FileService {
     private final ImageResizerService resizer;
     private final ProxyCndProperties proxyCndProperties;
     private final FileValidator fileValidator;
+    private final RedisService redisService;
 
     private final Tika tika = new Tika();
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-    private static final String MOVIE_PATH = "movies";
-    private static final String POSTER_PATH = "posters";
-    private static final String ASSET_PATH = "assets";
-    private final int[] TARGET_WIDTHS = new int[]{320, 640, 1024};
 
     /**
      * Upload movie poster
@@ -65,7 +63,7 @@ public class FileService {
             List<FileEntity> fileEntitylList = new ArrayList<>();
 
             // Lưu file resize
-            for (int width : TARGET_WIDTHS) {
+            for (int width : UploadKey.TARGET_WIDTHS) {
                 byte[] resized = resizer.resize(fileBytes, width, outputFormat);
                 String filename = String.format("%s-%dw.%s", uuid, width, outputFormat);
 
@@ -172,7 +170,7 @@ public class FileService {
                             file,
                             filename,
                             downloadUri,
-                            ASSET_PATH,
+                            UploadKey.ASSET_PATH,
                             user.getUsername()
                     )
             ));
@@ -206,8 +204,11 @@ public class FileService {
                 fileExtension = fileType.split("/")[1];
             }
 
-            String fileName = String.format("%s-%s.%s", UUID.randomUUID(), MOVIE_PATH, fileExtension);
+            String fileName = String.format("%s-%s.%s", UUID.randomUUID(), UploadKey.MOVIE_PATH, fileExtension);
             String filePath = type + "/" + fileName;
+
+            // upload video to backblaze b2 storage
+            s3UploadService.uploadMovie(file, filePath);
             String downloadUri = proxyCndProperties.getVideoUrl() + filePath;
 
             return fileMapper.mapToModel(fileRepository.save(
@@ -215,7 +216,7 @@ public class FileService {
                             file,
                             fileName,
                             downloadUri,
-                            MOVIE_PATH,
+                            UploadKey.MOVIE_PATH,
                             user.getUsername()
                     )
             ));
@@ -234,12 +235,21 @@ public class FileService {
      */
     public PresignUrlResponse presignUrl(String key, String ts, String signature) {
         s3UploadService.checkSignature(key, ts, signature);
-        String url = s3UploadService.generatePresignedUrl(key, Duration.ofSeconds(1800));
+        Integer time = UploadKey.PRESIGN_URL_TIME;
+        String cacheKey = CacheKey.buildKey(CacheKey.CACHE_PRESIGN_URL, key);
+        var cacheData = redisService.get(cacheKey, PresignUrlResponse.class);
+        if (Objects.nonNull(cacheData)) {
+            return cacheData;
+        }
 
-        return PresignUrlResponse.builder()
+        String url = s3UploadService.generatePresignedUrl(key, Duration.ofSeconds(time));
+        PresignUrlResponse response = PresignUrlResponse.builder()
                 .url(url)
-                .expires(1800)
+                .expires(time)
                 .build();
+
+        redisService.set(cacheKey, response); // cache 30m
+        return response;
     }
 
 
@@ -263,12 +273,12 @@ public class FileService {
     }
 
     private String uploadPosterToFirebase(byte[] bytes, String fileName, String contentType) {
-        String path = String.format("%s/%s/%s", MOVIE_PATH, POSTER_PATH, fileName);
+        String path = String.format("%s/%s/%s", UploadKey.MOVIE_PATH, UploadKey.POSTER_PATH, fileName);
         return firebaseStorageService.uploadPoster(bytes, path, contentType);
     }
 
     private String uploadAssetToFirebase(byte[] bytes, String fileName, String contentType) {
-        String path = String.format("%s/%s/%s", MOVIE_PATH, ASSET_PATH, fileName);
+        String path = String.format("%s/%s/%s", UploadKey.MOVIE_PATH, UploadKey.ASSET_PATH, fileName);
         return firebaseStorageService.uploadAsset(bytes, path, contentType);
     }
 

@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.util;
+package com.netfliz.netfliz.constant;
 
 public class StringPools {
     public static final String EMPTY = " ";

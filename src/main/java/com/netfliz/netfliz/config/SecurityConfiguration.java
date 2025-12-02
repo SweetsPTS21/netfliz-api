@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.config;
 
-import com.netfliz.netfliz.util.CommonProperties;
+import com.netfliz.netfliz.constant.CommonProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

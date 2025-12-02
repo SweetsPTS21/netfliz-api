@@ -1,4 +1,4 @@
-package com.netfliz.netfliz.util;
+package com.netfliz.netfliz.constant;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
