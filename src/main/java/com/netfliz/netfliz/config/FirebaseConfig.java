@@ -3,7 +3,7 @@ package com.netfliz.netfliz.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.netfliz.netfliz.util.FirebaseProperties;
+import com.netfliz.netfliz.constant.FirebaseProperties;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.config;
 
-import com.netfliz.netfliz.util.S3Properties;
+import com.netfliz.netfliz.constant.S3Properties;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

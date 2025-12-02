@@ -10,6 +10,8 @@ public class CacheKey {
     public static final String CACHE_MOVIE_BY_GENRES = "CACHE_MOVIE_BY_GENRES";
     public static final String CACHE_MOVIE_METADATA = "CACHE_MOVIE_METADATA";
 
+    public static final String CACHE_PRESIGN_URL = "CACHE_PRESIGN_URL";
+
     // Cache time
     public static final Integer CACHE_ONE_MINUTE = 60;
     public static final Integer CACHE_HAFT_HOUR = 60 * 30;

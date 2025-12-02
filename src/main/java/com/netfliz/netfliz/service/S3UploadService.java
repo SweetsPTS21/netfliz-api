@@ -1,6 +1,6 @@
 package com.netfliz.netfliz.service;
 
-import com.netfliz.netfliz.util.S3Properties;
+import com.netfliz.netfliz.constant.S3Properties;
 import com.netfliz.netfliz.util.WorkerSignatureUtil;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
