@@ -15,6 +15,7 @@ public class FileValidator {
     private final Tika tika = new Tika();
     private static final long MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
     private static final long MAX_ASSET_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+    private static final long MAX_VIDEO_FILE_SIZE = 500 * 1024 * 1024; // 500MB in bytes
     private static final List<String> FILE_FORMAT_SUPPORT = List.of("jpeg", "jpg", "png");
     private static final List<String> MOVIE_TYPE = List.of("movies", "trailers");
 
@@ -53,6 +54,17 @@ public class FileValidator {
 
         // Check file size
         if (file.getSize() > MAX_ASSET_FILE_SIZE) {
+            throw new ValidationException("Kích thước file không được vượt quá 10MB");
+        }
+    }
+
+    public void validateVideo(MultipartFile file) {
+        if (Objects.isNull(file) || file.isEmpty()) {
+            throw new ValidationException("File không được để trống!");
+        }
+
+        // Check file size
+        if (file.getSize() > MAX_VIDEO_FILE_SIZE) {
             throw new ValidationException("Kích thước file không được vượt quá 10MB");
         }
     }

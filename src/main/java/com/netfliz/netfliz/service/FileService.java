@@ -187,7 +187,7 @@ public class FileService {
      * @return FileModel
      */
     public FileModel uploadMovie(MultipartFile file, String type) {
-        fileValidator.validateAsset(file);
+        fileValidator.validateVideo(file);
         fileValidator.validateType(type);
         var user = authUtils.getCurrentUser();
 
@@ -209,7 +209,7 @@ public class FileService {
 
             // upload video to backblaze b2 storage
             s3UploadService.uploadMovie(file, filePath);
-            String downloadUri = proxyCndProperties.getVideoUrl() + filePath;
+            String downloadUri = String.format("%s/%s", proxyCndProperties.getVideoUrl(), filePath);
 
             return fileMapper.mapToModel(fileRepository.save(
                     buildFileEntity(

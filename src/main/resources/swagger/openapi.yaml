@@ -1080,10 +1080,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MovieImage'
-        episodes:
+        assets:
           type: array
           items:
-            $ref: '#/components/schemas/MovieEpisode'
+            $ref: '#/components/schemas/MovieAsset'
       xml:
         name: movie
 
@@ -1185,6 +1185,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MovieEpisode'
+
+    SuggestEpisodeNumber:
+      type: object
+      properties:
+        episodeNumber:
+          type: integer
+          format: int32
+        episodeOrder:
+          type: integer
+          format: int32
 
     MovieAsset:
       type: object

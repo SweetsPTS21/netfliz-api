@@ -17,6 +17,11 @@ type MovieEpisodePage {
     items: [MovieEpisode]
 }
 
+type SuggestEpisodeNumber {
+    episodeNumber: Int!
+    episodeOrder: Int!
+}
+
 type MovieAsset {
     id: ID
     fileId: ID
@@ -57,6 +62,7 @@ extend input MovieImageInput {
 
 extend type Query {
     getMovieEpisodes(movieId: ID!, page: Int, pageSize: Int): MovieEpisodePage
+    suggestEpisodeNumber(movieId: ID!): SuggestEpisodeNumber
 }
 
 extend type Mutation {
