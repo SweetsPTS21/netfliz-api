@@ -5,8 +5,8 @@ import com.netfliz.netfliz.constant.CacheKey;
 import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.entity.MovieImageEntity;
-import com.netfliz.netfliz.entity.enums.MovieImageObjectType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
+import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.mapper.MovieAssetMapper;
 import com.netfliz.netfliz.mapper.MovieImageMapper;
@@ -88,7 +88,7 @@ public class MovieService implements MoviesApiDelegate {
 
         // mapImage
         List<MovieImageEntity> movieImages = movieImageRepository.findByObjectIdAndObjectType(
-                movieEntity.getId(), MovieImageObjectType.MOVIE);
+                movieEntity.getId(), MovieObjectType.MOVIE);
         movie.setImages(movieImageMapper.mapFromEntities(movieImages));
 
         return ResponseEntity.ok(movie);
@@ -106,7 +106,7 @@ public class MovieService implements MoviesApiDelegate {
         if (!CollectionUtils.isEmpty(movieImages)) {
             movieValidator.validateMovieImage(movieImages);
             movieImageRepository.saveAll(movieImageMapper.mapToEntities(
-                    movieImages, movieEntity.getId(), MovieImageObjectType.MOVIE));
+                    movieImages, movieEntity.getId(), MovieObjectType.MOVIE));
         }
 
         // save movie assets
@@ -114,7 +114,7 @@ public class MovieService implements MoviesApiDelegate {
         if (!CollectionUtils.isEmpty(movieAssets)) {
             movieAssetValidator.validateAssets(movieAssets);
             movieAssetRepository.saveAll(movieAssetMapper.mapToEntities(
-                    movieEntity.getId(), 0L, movieAssets));
+                    movieEntity.getId(), MovieObjectType.MOVIE, movieAssets));
         }
 
         return ResponseEntity.ok(movie);
@@ -184,7 +184,7 @@ public class MovieService implements MoviesApiDelegate {
         Map<String, List<MovieByGenreDto>> map = listDto.stream().collect(Collectors.groupingBy(MovieByGenreDto::getName));
         // map movie image
         Map<Long, List<MovieImageEntity>> mapImage = movieImageRepository
-                .findByObjectIdsAndObjectType(listDto.stream().map(MovieByGenreDto::getId).toList(), MovieImageObjectType.MOVIE)
+                .findByObjectIdsAndObjectType(listDto.stream().map(MovieByGenreDto::getId).toList(), MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getObjectId));
 
@@ -257,7 +257,7 @@ public class MovieService implements MoviesApiDelegate {
         List<Long> oldImageIds = movieImageRepository
                 .findByObjectIdAndObjectTypeAndImageTypeIn(
                         movieId,
-                        MovieImageObjectType.MOVIE,
+                        MovieObjectType.MOVIE,
                         imageTypes.stream().map(MovieImageType::fromId).toList())
                 .stream()
                 .map(MovieImageEntity::getId)
@@ -270,7 +270,7 @@ public class MovieService implements MoviesApiDelegate {
         // save new image
         if (!CollectionUtils.isEmpty(movieImages)) {
             movieImageRepository.saveAll(movieImageMapper.mapToEntities(
-                    movieImages, movieId, MovieImageObjectType.MOVIE));
+                    movieImages, movieId, MovieObjectType.MOVIE));
         }
     }
 
@@ -282,10 +282,10 @@ public class MovieService implements MoviesApiDelegate {
         List<MovieAsset> updatedAssets = getUpdateAssets(movieId, movie.getAssets());
 
         // Xóa tất cả assets
-        movieAssetRepository.deleteAllByMovieId(movieId);
+        movieAssetRepository.deleteAllByObjectId(movieId, MovieObjectType.MOVIE);
 
         if (!CollectionUtils.isEmpty(updatedAssets)) {
-            movieAssetRepository.saveAll(movieAssetMapper.mapToEntities(movieId, 0L, updatedAssets));
+            movieAssetRepository.saveAll(movieAssetMapper.mapToEntities(movieId, MovieObjectType.MOVIE, updatedAssets));
         }
     }
 
@@ -293,7 +293,7 @@ public class MovieService implements MoviesApiDelegate {
      * Lấy ra các image cần update (chưa tồn tại trong db)
      */
     public List<MovieImage> getUpdateImage(List<MovieImage> images, Long movieId) {
-        Map<Long, List<MovieImageEntity>> map = movieImageRepository.findByObjectIdAndObjectType(movieId, MovieImageObjectType.MOVIE)
+        Map<Long, List<MovieImageEntity>> map = movieImageRepository.findByObjectIdAndObjectType(movieId, MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getFileId));
 
@@ -309,7 +309,7 @@ public class MovieService implements MoviesApiDelegate {
     }
 
     public List<MovieAsset> getUpdateAssets(Long movieId, List<MovieAsset> assets) {
-        Map<Long, List<MovieAssetEntity>> map = movieAssetRepository.findByMovieId(movieId)
+        Map<Long, List<MovieAssetEntity>> map = movieAssetRepository.findByObjectId(movieId, MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieAssetEntity::getFileId));
 
@@ -336,15 +336,15 @@ public class MovieService implements MoviesApiDelegate {
 
         // map movie image
         Map<Long, List<MovieImageEntity>> mapImage = movieImageRepository
-                .findByObjectIdsAndObjectType(movies.stream().map(Movie::getId).toList(), MovieImageObjectType.MOVIE)
+                .findByObjectIdsAndObjectType(movies.stream().map(Movie::getId).toList(), MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getObjectId));
 
         // map movie asset
         Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository
-                .findByMovieIds(movies.stream().map(Movie::getId).toList())
+                .findByObjectIds(movies.stream().map(Movie::getId).toList(), MovieObjectType.MOVIE)
                 .stream()
-                .collect(Collectors.groupingBy(MovieAssetEntity::getMovieId));
+                .collect(Collectors.groupingBy(MovieAssetEntity::getObjectId));
 
         movies.forEach(movie -> {
             Optional.ofNullable(mapImage.get(movie.getId()))

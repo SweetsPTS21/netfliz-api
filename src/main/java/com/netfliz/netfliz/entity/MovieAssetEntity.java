@@ -3,7 +3,9 @@ package com.netfliz.netfliz.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.netfliz.netfliz.entity.converter.MovieAssetTypeConverter;
+import com.netfliz.netfliz.entity.converter.MovieObjectTypeConverter;
 import com.netfliz.netfliz.entity.enums.MovieAssetType;
+import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -19,11 +21,12 @@ public class MovieAssetEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "movie_id")
-    private Long movieId;
+    @Column(name = "object_id")
+    private Long objectId;
 
-    @Column(name = "episode_id")
-    private Long episodeId;
+    @Column(name = "object_type")
+    @Convert(converter = MovieObjectTypeConverter.class)
+    private MovieObjectType objectType;
 
     @Column(name = "file_id")
     private Long fileId;

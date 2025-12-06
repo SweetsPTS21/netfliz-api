@@ -3,8 +3,8 @@ package com.netfliz.netfliz.service;
 import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.MovieEpisodeEntity;
 import com.netfliz.netfliz.entity.MovieImageEntity;
-import com.netfliz.netfliz.entity.enums.MovieImageObjectType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
+import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import com.netfliz.netfliz.mapper.MovieAssetMapper;
 import com.netfliz.netfliz.mapper.MovieEpisodeMapper;
 import com.netfliz.netfliz.mapper.MovieImageMapper;
@@ -48,10 +48,11 @@ public class MovieEpisodeService {
         Page<MovieEpisodeEntity> movieEpisodesPage = movieEpisodeRepository.findByMovieId(movieId, pageable);
         List<Long> episodeIds = movieEpisodesPage.getContent().stream().map(MovieEpisodeEntity::getId).toList();
 
-        Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository.findByMovieId(movieId).stream()
-                .collect(Collectors.groupingBy(MovieAssetEntity::getEpisodeId));
+        Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository.findByObjectIds(episodeIds, MovieObjectType.EPISODE)
+                .stream()
+                .collect(Collectors.groupingBy(MovieAssetEntity::getObjectId));
         Map<Long, List<MovieImageEntity>> mapPoster = movieImageRepository
-                .findByObjectIdsAndObjectType(episodeIds, MovieImageObjectType.EPISODE)
+                .findByObjectIdsAndObjectType(episodeIds, MovieObjectType.EPISODE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getObjectId));
 
@@ -77,9 +78,9 @@ public class MovieEpisodeService {
         // Xóa toàn bộ poster/assets cũ
         movieImageRepository.deleteAllByObjectIdAndObjectTypeAndImageTypeIn(
                 movieEpisodeEntity.getId(),
-                MovieImageObjectType.EPISODE,
+                MovieObjectType.EPISODE,
                 List.of(MovieImageType.POSTER));
-        movieAssetRepository.deleteAllByEpisodeId(movieEpisodeEntity.getId());
+        movieAssetRepository.deleteAllByObjectId(movieEpisodeEntity.getId(), MovieObjectType.EPISODE);
 
         // Lưu posters
         List<MovieImageEntity> movieImageEntities = new ArrayList<>();
@@ -87,7 +88,7 @@ public class MovieEpisodeService {
             movieImageEntities.addAll(movieImageMapper.mapToEntities(
                     movieEpisode.getPosters(),
                     movieEpisodeEntity.getId(),
-                    MovieImageObjectType.EPISODE));
+                    MovieObjectType.EPISODE));
             movieImageRepository.saveAll(movieImageEntities);
         }
 
@@ -95,8 +96,8 @@ public class MovieEpisodeService {
         List<MovieAssetEntity> movieAssetEntities = new ArrayList<>();
         if (!CollectionUtils.isEmpty(movieEpisode.getAssets())) {
             movieAssetEntities.addAll(movieAssetMapper.mapToEntities(
-                    movieId,
                     movieEpisodeEntity.getId(),
+                    MovieObjectType.EPISODE,
                     movieEpisode.getAssets()));
             movieAssetRepository.saveAll(movieAssetEntities);
         }

@@ -2,6 +2,7 @@ package com.netfliz.netfliz.mapper;
 
 import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.enums.MovieAssetType;
+import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import com.netfliz.netfliz.model.MovieAsset;
 import com.netfliz.netfliz.util.JsonUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -27,13 +28,13 @@ public class MovieAssetMapper {
         return to;
     }
 
-    public MovieAssetEntity mapToEntity(Long movieId, Long episodeId, MovieAsset from) {
+    public MovieAssetEntity mapToEntity(Long objectId, MovieObjectType objectType, MovieAsset from) {
         MovieAssetEntity to = new MovieAssetEntity();
 
         to.setId(from.getId());
         to.setName(from.getName());
-        to.setMovieId(movieId);
-        to.setEpisodeId(episodeId);
+        to.setObjectId(objectId);
+        to.setObjectType(objectType);
         to.setUrl(from.getUrl());
         to.setAssetType(MovieAssetType.fromId(from.getAssetType()));
         to.setFormat(from.getFormat());
@@ -50,8 +51,8 @@ public class MovieAssetMapper {
         return to;
     }
 
-    public List<MovieAssetEntity> mapToEntities(Long movieId, Long episodeId, List<MovieAsset> from) {
-        return from.stream().map(movieAsset -> mapToEntity(movieId, episodeId, movieAsset)).toList();
+    public List<MovieAssetEntity> mapToEntities(Long objectId, MovieObjectType objectType, List<MovieAsset> from) {
+        return from.stream().map(movieAsset -> mapToEntity(objectId, objectType, movieAsset)).toList();
     }
 
     public List<MovieAsset> mapFromEntities(List<MovieAssetEntity> from) {
