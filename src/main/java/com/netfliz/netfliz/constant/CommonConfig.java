@@ -15,7 +15,6 @@ public class CommonConfig {
             "/webjars/**",
             "/swagger-ui.html",
             "/graphiql/**",
-            "/graphql",
             "/api/v1/file/presign-url",
             "/api/v1/auth/register",
             "/api/v1/auth/authenticate",

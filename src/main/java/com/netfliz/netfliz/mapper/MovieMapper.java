@@ -1,37 +1,25 @@
 package com.netfliz.netfliz.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.model.Movie;
 import com.netfliz.netfliz.model.MovieByGenreDto;
-import com.netfliz.netfliz.service.FileService;
 import com.netfliz.netfliz.util.JsonUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 @Component
 @AllArgsConstructor
 public class MovieMapper {
-    private final Logger logger = Logger.getLogger(MovieMapper.class.getName());
-    private final FileService fileService;
-
-
     public MovieEntity mapToEntity(Movie from) {
         MovieEntity to = new MovieEntity();
 
         to.setTitle(from.getTitle());
         to.setYear(from.getYear().intValue());
-        to.setTrailer(from.getTrailer());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
@@ -40,15 +28,13 @@ public class MovieMapper {
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
         to.setPlot(from.getPlot());
-        to.setLanguages(from.getLanguages());
-        to.setCountry(from.getCountry());
+        to.setLanguages(JsonUtils.parse(from.getLanguages()));
+        to.setCountries(JsonUtils.parse(from.getCountries()));
         to.setAwards(from.getAwards());
-        to.setPosterId(ObjectUtils.isEmpty(from.getNfFileId()) ? 0 : from.getNfFileId());
         to.setMetaScore(ObjectUtils.isEmpty(from.getMetaScore()) ? 0 : from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
-        to.setImdbVotes(ObjectUtils.isEmpty(from.getImdbVotes()) ? 0 : from.getImdbVotes());
         to.setType(from.getType());
-        to.setResponse(from.getResponse());
+        to.setCategories(JsonUtils.parse(from.getCategories()));
 
         // update date
         to.setUpdatedAt(new Date());
@@ -62,26 +48,21 @@ public class MovieMapper {
         to.setId(from.getId());
         to.setTitle(from.getTitle());
         to.setYear((long) from.getYear());
-        to.setTrailer(from.getTrailer());
         to.setRated(from.getRated());
         to.setReleased(from.getReleased());
         to.setRuntime(from.getRuntime());
-        to.setGenre(JsonUtils.parseList(from.getGenre().toString(), String.class));
+        to.setGenre(parseList(from.getGenre()));
         to.setDirector(from.getDirector());
         to.setWriter(from.getWriter());
         to.setActors(from.getActors());
         to.setPlot(from.getPlot());
-        to.setLanguages(from.getLanguages());
-        to.setCountry(from.getCountry());
+        to.setLanguages(parseList(from.getLanguages()));
+        to.setCountries(parseList(from.getCountries()));
         to.setAwards(from.getAwards());
-        to.setPoster(getPosterLinkById(from.getPosterId()));
-        to.setNfFileId(from.getPosterId());
         to.setMetaScore(from.getMetaScore());
         to.setImdbRating(from.getImdbRating());
-        to.setImdbVotes(from.getImdbVotes());
         to.setType(from.getType());
-        to.setResponse(from.isResponse());
-//        to.setImages(mapStringToList(from.getImages()));
+        to.setCategories(parseList(from.getCategories()));
 
         return to;
     }
@@ -94,42 +75,7 @@ public class MovieMapper {
         return from.stream().map(this::mapFromEntity).toList();
     }
 
-    public List<String> mapStringToList(String genre) {
-        if (genre == null) {
-            return Collections.emptyList();
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            return mapper.readValue(genre, new TypeReference<List<String>>() {
-            });
-        } catch (JsonProcessingException e) {
-            logger.warning("Error parsing genre: " + genre);
-        }
-
-        return Collections.emptyList();
-    }
-
-    public String mapListToString(List<String> genre) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            return mapper.writeValueAsString(genre);
-        } catch (JsonProcessingException e) {
-            logger.warning("Error parsing genre: " + genre);
-        }
-
-        return "";
-    }
-
-    private String getPosterLinkById(long posterId) {
-        AtomicReference<String> poster = new AtomicReference<>("");
-
-        Optional.ofNullable(fileService.getFileById(posterId)).ifPresent(file -> {
-            poster.set(file.getFileDownloadUri());
-        });
-
-        return poster.get();
+    private static List<String> parseList(JsonNode jsonNode) {
+        return JsonUtils.parseList(jsonNode.toString(), String.class);
     }
 }

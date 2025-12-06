@@ -24,7 +24,7 @@ public class GlobalGraphqlExceptionResolver extends DataFetcherExceptionResolver
         }
 
         return GraphqlErrorBuilder.newError()
-                .message("Đã có lỗi xảy ra!")
+                .message(ex.getMessage() == null ? "Đã có lỗi xảy ra!" : ex.getMessage())
                 .path(env.getExecutionStepInfo().getPath())
                 .location(env.getField().getSourceLocation())
                 .errorType(ErrorType.INTERNAL_ERROR)

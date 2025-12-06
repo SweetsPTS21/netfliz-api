@@ -130,7 +130,6 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         m.setTitle(rs.getString("title"));
         m.setGenre(JsonUtils.parse(rs.getString("genre")));
         m.setYear(rs.getInt("year"));
-        m.setTrailer(rs.getString("trailer"));
         m.setRated(rs.getString("rated"));
         m.setReleased(rs.getString("released"));
         m.setRuntime(rs.getString("runtime"));
@@ -138,17 +137,13 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         m.setWriter(rs.getString("writer"));
         m.setActors(rs.getString("actors"));
         m.setPlot(rs.getString("plot"));
-        m.setLanguages(rs.getString("languages"));
-        m.setCountry(rs.getString("country"));
+        m.setLanguages(JsonUtils.parse(rs.getString("languages")));
+        m.setCountries(JsonUtils.parse(rs.getString("countries")));
         m.setAwards(rs.getString("awards"));
-        m.setPosterId(rs.getInt("poster_id"));
         m.setMetaScore(rs.getLong("meta_score"));
         m.setImdbRating(rs.getString("imdb_rating"));
-        m.setImdbVotes(rs.getLong("imdb_votes"));
         m.setType(rs.getString("type"));
-        m.setResponse(rs.getBoolean("response"));
-        m.setImages(rs.getString("images"));
-        m.setCategories(rs.getString("categories"));
+        m.setCategories(JsonUtils.parse(rs.getString("categories")));
 
         return m;
     };
@@ -162,7 +157,6 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         dto.setTitle(rs.getString("title"));
         dto.setGenre(JsonUtils.parse(rs.getString("genre")));
         dto.setYear(rs.getInt("year"));
-        dto.setTrailer(rs.getString("trailer"));
         dto.setRated(rs.getString("rated"));
         dto.setReleased(rs.getString("released"));
         dto.setRuntime(rs.getString("runtime"));
@@ -170,17 +164,13 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
         dto.setWriter(rs.getString("writer"));
         dto.setActors(rs.getString("actors"));
         dto.setPlot(rs.getString("plot"));
-        dto.setLanguages(rs.getString("languages"));
-        dto.setCountry(rs.getString("country"));
+        dto.setLanguages(JsonUtils.parse(rs.getString("languages")));
+        dto.setCountries(JsonUtils.parse(rs.getString("countries")));
         dto.setAwards(rs.getString("awards"));
-        dto.setPosterId(rs.getInt("poster_id"));
         dto.setMetaScore(rs.getLong("meta_score"));
         dto.setImdbRating(rs.getString("imdb_rating"));
-        dto.setImdbVotes(rs.getLong("imdb_votes"));
         dto.setType(rs.getString("type"));
-        dto.setResponse(rs.getBoolean("response"));
-        dto.setImages(rs.getString("images"));
-        dto.setCategories(rs.getString("categories"));
+        dto.setCategories(JsonUtils.parse(rs.getString("categories")));
 
         return dto;
     };

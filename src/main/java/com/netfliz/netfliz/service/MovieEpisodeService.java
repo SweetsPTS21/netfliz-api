@@ -115,8 +115,8 @@ public class MovieEpisodeService {
      * @return SuggestEpisodeNumber
      */
     public SuggestEpisodeNumber suggestEpisodeNumber(Long movieId) {
-        Integer maxEpisodeNumber = movieEpisodeRepository.findMaxEpisodeNumberByMovieId(movieId);
-        Integer maxEpisodeOrder = movieEpisodeRepository.findMaxEpisodeOrderByMovieId(movieId);
+        Integer maxEpisodeNumber = movieEpisodeRepository.findMaxEpisodeNumberByMovieId(movieId).orElse(0);
+        Integer maxEpisodeOrder = movieEpisodeRepository.findMaxEpisodeOrderByMovieId(movieId).orElse(0);
 
         SuggestEpisodeNumber suggest = new SuggestEpisodeNumber();
         suggest.setEpisodeNumber(maxEpisodeNumber + 1);

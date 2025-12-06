@@ -1014,12 +1014,8 @@ components:
           type: integer
           format: int64
           example: 2024
-        trailer:
-          type: string
-          example: 'ndl1W4ltcmg'
         rated:
           type: string
-          example: 'PG-13'
         released:
           type: string
           example: '01/01/2024'
@@ -1031,7 +1027,9 @@ components:
           items:
             type: string
         categories:
-          type: string
+          type: array
+          items:
+            type: string
         director:
           type: string
           example: 'jame'
@@ -1045,20 +1043,16 @@ components:
           type: string
           example: 'this is plot'
         languages:
-          type: string
-          example: 'EN, VI'
-        country:
-          type: string
-          example: 'USA'
+          type: array
+          items:
+            type: string
+        countries:
+          type: array
+          items:
+            type: string
         awards:
           type: string
           example: 'there are awards'
-        poster:
-          type: string
-          example: 'this is poster'
-        nfFileId:
-          type: integer
-          format: int64
         metaScore:
           type: integer
           format: int64
@@ -1066,16 +1060,9 @@ components:
         imdbRating:
           type: string
           example: '7.8'
-        imdbVotes:
-          type: integer
-          format: int64
-          example: 100000
         type:
           type: string
           example: 'movie'
-        response:
-          type: boolean
-          example: true
         images:
           type: array
           items:
