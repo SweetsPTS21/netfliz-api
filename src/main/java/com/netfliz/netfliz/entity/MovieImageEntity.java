@@ -2,8 +2,8 @@ package com.netfliz.netfliz.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.netfliz.netfliz.entity.converter.MovieImageTypeConverter;
-import com.netfliz.netfliz.entity.enums.MovieImageObjectType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
+import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -38,7 +38,7 @@ public class MovieImageEntity {
 
     @Column(name = "object_type")
     @Schema(description = "Loại đối tượng (phim/tập phim/mùa")
-    private MovieImageObjectType objectType;
+    private MovieObjectType objectType;
 
     @Column(name = "file_id")
     private Long fileId;

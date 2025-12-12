@@ -2,7 +2,6 @@ type Movie {
     id: ID
     title: String
     year: Int
-    trailer: String
     rated: String
     released: String
     runtime: String
@@ -11,18 +10,14 @@ type Movie {
     writer: String
     actors: String
     plot: String
-    languages: String
-    country: String
+    languages: [String]
+    countries: [String]
     awards: String
-    poster: String
-    nfFileId: Int
     metaScore: Int
     imdbRating: String
-    imdbVotes: Int
     type: String
-    response: Boolean
+    categories: [String]
     images: [MovieImage]
-    categories: String
     assets: [MovieAsset]
 }
 
@@ -77,7 +72,6 @@ input MovieInput {
     id: ID
     title: String
     year: Int
-    trailer: String
     rated: String
     released: String
     runtime: String
@@ -86,23 +80,19 @@ input MovieInput {
     writer: String
     actors: String
     plot: String
-    languages: String
-    country: String
+    languages: [String]
+    countries: [String]
     awards: String
-    nfFileId: Int
     metaScore: Int
     imdbRating: String
-    imdbVotes: Int
     type: String
-    response: Boolean
-    categories: String
+    categories: [String]
     images: [MovieImageInput]
     assets: [MovieAssetInput]
 }
 
 input MovieImageInput {
     id: ID
-    fileId: ID
     name: String
     format: String
     type: Int

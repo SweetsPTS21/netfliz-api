@@ -1,10 +1,10 @@
 package com.netfliz.netfliz.api.graphql;
 
 import com.netfliz.netfliz.model.Movie;
+import com.netfliz.netfliz.model.MoviePage;
 import com.netfliz.netfliz.model.request.MovieByGenreRequest;
 import com.netfliz.netfliz.model.request.MovieFilterRequest;
 import com.netfliz.netfliz.model.response.MovieByCategoryResponse;
-import com.netfliz.netfliz.model.MoviePage;
 import com.netfliz.netfliz.model.response.MovieByGenreResponse;
 import com.netfliz.netfliz.service.MovieService;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -92,7 +92,7 @@ public class MovieGraphql {
     }
 
     @MutationMapping
-    public boolean updateMovie(@Argument Long id,@Argument Movie movie) {
+    public boolean updateMovie(@Argument Long id, @Argument Movie movie) {
         ResponseEntity<Void> responseEntity = movieService.updateMovie(id, movie);
         return responseEntity.getStatusCode().is2xxSuccessful();
     }

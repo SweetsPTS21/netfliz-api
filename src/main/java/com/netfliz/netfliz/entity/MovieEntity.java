@@ -26,25 +26,26 @@ public class MovieEntity {
     @Column(columnDefinition = "TEXT")
     private String title;
 
-    private int year;
-    private String trailer;
     private String rated;
+    private int year;
     private String released;
     private String runtime;
-    private String languages;
-    private String country;
     private String type;
-    private boolean response;
-    private String categories;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode countries;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode languages;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode categories;
 
     @Column(name = "meta_score")
     private Long metaScore;
 
     @Column(name = "imdb_rating")
     private String imdbRating;
-
-    @Column(name = "imdb_votes")
-    private Long imdbVotes;
 
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode genre;
@@ -63,12 +64,6 @@ public class MovieEntity {
 
     @Column(columnDefinition = "TEXT")
     private String plot;
-
-    @Column(columnDefinition = "bigint default 0")
-    private long posterId;
-
-    @Column(columnDefinition = "TEXT")
-    private String images;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
