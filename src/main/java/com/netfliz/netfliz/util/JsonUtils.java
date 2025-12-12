@@ -16,7 +16,7 @@ public class JsonUtils {
 
     public static JsonNode parse(String jsonString) {
         if (Strings.isBlank(jsonString)) {
-            throw new ValidationException("Json parse error: Config is empty");
+            return null;
         }
 
         try {
