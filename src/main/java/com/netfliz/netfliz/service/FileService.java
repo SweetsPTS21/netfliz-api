@@ -253,11 +253,11 @@ public class FileService {
     }
 
 
-    private FileEntity buildFileEntity(MultipartFile file,
-                                       String fileName,
-                                       String downloadUri,
-                                       String category,
-                                       String username) {
+    public FileEntity buildFileEntity(MultipartFile file,
+                                      String fileName,
+                                      String downloadUri,
+                                      String category,
+                                      String username) {
         return FileEntity.builder()
                 .fileName(fileName)
                 .fileType(file.getContentType())

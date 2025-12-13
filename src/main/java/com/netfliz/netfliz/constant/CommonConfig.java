@@ -19,6 +19,8 @@ public class CommonConfig {
             "/api/v1/auth/register",
             "/api/v1/auth/authenticate",
             "/api/v1/auth/refresh-token",
-            "/api/v1/file/presign-url"
+            "/api/v1/file/presign-url",
+            "/api/v1/utils/mermaid-file/**",
+            "/api/v1/utils/upload-file/**"
     };
 }

@@ -13,4 +13,6 @@ public class ProxyCndProperties {
     private String imageUrl = "";
     private String videoUrl = "";
     private String assetUrl = "";
+    private String mermaidUrl = "";
+    private String commonUrl = "";
 }
