@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class FileValidator {
@@ -16,6 +17,7 @@ public class FileValidator {
     private static final long MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
     private static final long MAX_ASSET_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
     private static final long MAX_VIDEO_FILE_SIZE = 500 * 1024 * 1024; // 500MB in bytes
+    private static final long MAX_COMMON_FILE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
     private static final List<String> FILE_FORMAT_SUPPORT = List.of("jpeg", "jpg", "png");
     private static final List<String> MOVIE_TYPE = List.of("movies", "trailers");
 
@@ -76,6 +78,29 @@ public class FileValidator {
 
         if (!MOVIE_TYPE.contains(type)) {
             throw new ValidationException("Type không hợp lệ!");
+        }
+    }
+
+    public void validateMermaidFile(MultipartFile file) {
+        if (Objects.isNull(file)) {
+            throw new ValidationException("Cần truyền lên mdd file");
+        }
+
+        String fileExt = Optional.ofNullable(file.getOriginalFilename())
+                .map((extension) -> extension.split("\\.")[1])
+                .orElse(null);
+        if (!Objects.equals(fileExt, "mmd")) {
+            throw new ValidationException("Chỉ hỗ trợ định dạng mmd");
+        }
+    }
+
+    public void validateCommonFile(MultipartFile file) {
+        if (Objects.isNull(file)) {
+            throw new ValidationException("File không hợp lệ");
+        }
+
+        if (file.getSize() > MAX_COMMON_FILE_SIZE) {
+            throw new ValidationException("Hỗ trợ file tối đa 50MB");
         }
     }
 }

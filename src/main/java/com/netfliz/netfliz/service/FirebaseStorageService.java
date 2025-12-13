@@ -37,7 +37,7 @@ public class FirebaseStorageService {
      * @param path        path
      * @param contentType contentType
      */
-    private void uploadFile(byte[] bytes, String path, String contentType) {
+    public void uploadFile(byte[] bytes, String path, String contentType) {
         Bucket bucket = StorageClient.getInstance().bucket();
         Blob blob = bucket.create(path, bytes, contentType);
         blob = blob.toBuilder()
