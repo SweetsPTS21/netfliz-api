@@ -81,16 +81,16 @@ public class FileValidator {
         }
     }
 
-    public void validateMermaidFile(MultipartFile file) {
+    public void validateFile(MultipartFile file, String ext) {
         if (Objects.isNull(file)) {
-            throw new ValidationException("Cần truyền lên mdd file");
+            throw new ValidationException("Cần truyền lên file định dạng " + ext);
         }
 
         String fileExt = Optional.ofNullable(file.getOriginalFilename())
                 .map((extension) -> extension.split("\\.")[1])
                 .orElse(null);
-        if (!Objects.equals(fileExt, "mmd")) {
-            throw new ValidationException("Chỉ hỗ trợ định dạng mmd");
+        if (!Objects.equals(fileExt, ext)) {
+            throw new ValidationException("Chỉ hỗ trợ định dạng " + ext);
         }
     }
 

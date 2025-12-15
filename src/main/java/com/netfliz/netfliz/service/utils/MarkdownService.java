@@ -10,19 +10,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @AllArgsConstructor
-public class MermaidService {
+public class MarkdownService {
     private final ProxyCndProperties proxyCndProperties;
     private final FileService fileService;
 
-    public FileModel getMermaidFile(String name) {
-        return fileService.findFilesByName(name, UploadKey.MERMAID_EXT);
+    public FileModel getMarkdownFile(String name) {
+        return fileService.findFilesByName(name, UploadKey.MARKDOWN_EXT);
     }
 
-    public FileModel createMermaidFile(MultipartFile file) {
+    public FileModel createMarkdownFile(MultipartFile file) {
         return fileService.uploadFile(
                 file,
-                UploadKey.MERMAID_EXT,
-                UploadKey.MERMAID_PATH,
-                proxyCndProperties.getMermaidUrl());
+                UploadKey.MARKDOWN_EXT,
+                UploadKey.MARKDOWN_PATH,
+                proxyCndProperties.getMarkdownUrl());
     }
 }
