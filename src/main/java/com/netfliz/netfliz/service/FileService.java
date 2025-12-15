@@ -12,10 +12,12 @@ import com.netfliz.netfliz.util.AuthUtils;
 import com.netfliz.netfliz.validator.FileValidator;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
@@ -250,6 +252,55 @@ public class FileService {
 
         redisService.set(cacheKey, response); // cache 30m
         return response;
+    }
+
+    /**
+     * Upload file to firebase storage
+     *
+     * @param file file
+     * @param ext  extension
+     * @param type file type
+     * @param cdn  cdn url
+     */
+    public FileModel uploadFile(MultipartFile file, String ext, String type, String cdn) {
+        fileValidator.validateFile(file, ext);
+
+        try {
+            String fileContent = new String(file.getBytes(), StandardCharsets.UTF_8);
+            byte[] fileBytes = fileContent.getBytes(StandardCharsets.UTF_8);
+            String fileExtension = "mmd";
+            String uuid = UUID.randomUUID().toString();
+
+            String filename = String.format("%s-%s.%s", uuid, "mermaid", fileExtension);
+            String path = String.format("%s/%s/%s", type, "file", filename);
+            firebaseStorageService.uploadFile(fileBytes, path, "text/plain; charset=utf-8");
+
+            String fileDownloadUri = String.format("%s/%s/%s", cdn, "file", filename);
+
+            return fileMapper.mapToModel(fileRepository.save(
+                    buildFileEntity(
+                            file,
+                            filename,
+                            fileDownloadUri,
+                            type,
+                            "anonymous"
+                    )
+            ));
+        } catch (Exception e) {
+            throw new ValidationException("Lỗi khi đọc file file: " + e.getMessage());
+        }
+    }
+
+    public FileModel findFilesByName(String name, String ext) {
+        if (Strings.isBlank(name)) {
+            throw new ValidationException("Không tìm thấy file");
+        }
+        var files = fileRepository.findByFileName(String.format("%s.%s", name, ext));
+        if (files.isEmpty()) {
+            throw new ValidationException("Không tìm thấy file");
+        }
+
+        return fileMapper.mapToModel(files.get(0));
     }
 
 

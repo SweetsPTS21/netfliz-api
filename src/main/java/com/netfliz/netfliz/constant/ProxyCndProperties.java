@@ -10,9 +10,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "proxy.cdn")
 public class ProxyCndProperties {
-    private String imageUrl = "";
-    private String videoUrl = "";
-    private String assetUrl = "";
-    private String mermaidUrl = "";
-    private String commonUrl = "";
+    private String url = "";
+
+    public String getImageUrl() {
+        return url + "/images";
+    }
+
+    public String getVideoUrl() {
+        return url + "/videos";
+    }
+
+    public String getAssetUrl() {
+        return url + "/assets";
+    }
+
+    public String getMermaidUrl() {
+        return url + "/mermaid";
+    }
+
+    public String getCommonUrl() {
+        return url + "/common";
+    }
+
+    public String getMarkdownUrl() {
+        return url + "/markdown";
+    }
 }
