@@ -268,10 +268,9 @@ public class FileService {
         try {
             String fileContent = new String(file.getBytes(), StandardCharsets.UTF_8);
             byte[] fileBytes = fileContent.getBytes(StandardCharsets.UTF_8);
-            String fileExtension = "mmd";
             String uuid = UUID.randomUUID().toString();
 
-            String filename = String.format("%s-%s.%s", uuid, "mermaid", fileExtension);
+            String filename = String.format("%s-%s.%s", uuid, type, ext);
             String path = String.format("%s/%s/%s", type, "file", filename);
             firebaseStorageService.uploadFile(fileBytes, path, "text/plain; charset=utf-8");
 
