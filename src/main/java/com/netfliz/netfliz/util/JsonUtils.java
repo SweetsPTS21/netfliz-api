@@ -6,6 +6,7 @@ import com.netfliz.netfliz.constant.StringPools;
 import jakarta.validation.ValidationException;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,10 @@ public class JsonUtils {
     }
 
     public static JsonNode parse(List<String> listString) {
+        if (CollectionUtils.isEmpty(listString)) {
+            return null;
+        }
+
         try {
             return objectMapper.valueToTree(listString);
         } catch (Exception e) {
