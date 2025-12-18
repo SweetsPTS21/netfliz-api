@@ -1,6 +1,7 @@
 package com.netfliz.netfliz.repository;
 
 import com.netfliz.netfliz.entity.MovieAssetEntity;
+import com.netfliz.netfliz.entity.enums.MovieAssetType;
 import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,6 +19,6 @@ public interface MovieAssetRepository extends JpaRepository<MovieAssetEntity, Lo
     List<MovieAssetEntity> findByObjectIds(Collection<Long> objectIds, MovieObjectType objectType);
 
     @Modifying
-    @Query("DELETE FROM MovieAssetEntity a WHERE a.objectId = :episodeId AND a.objectType = :objectType")
-    void deleteAllByObjectId(Long episodeId, MovieObjectType objectType);
+    @Query("DELETE FROM MovieAssetEntity a WHERE a.objectId = :episodeId AND a.objectType = :objectType AND a.assetType IN :assetTypes")
+    void deleteAllByObjectId(Long episodeId, MovieObjectType objectType, Collection<MovieAssetType> assetTypes);
 }

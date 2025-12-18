@@ -3,6 +3,7 @@ package com.netfliz.netfliz.service;
 import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.MovieEpisodeEntity;
 import com.netfliz.netfliz.entity.MovieImageEntity;
+import com.netfliz.netfliz.entity.enums.MovieAssetType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
 import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import com.netfliz.netfliz.mapper.MovieAssetMapper;
@@ -80,7 +81,10 @@ public class MovieEpisodeService {
                 movieEpisodeEntity.getId(),
                 MovieObjectType.EPISODE,
                 List.of(MovieImageType.POSTER));
-        movieAssetRepository.deleteAllByObjectId(movieEpisodeEntity.getId(), MovieObjectType.EPISODE);
+        movieAssetRepository.deleteAllByObjectId(
+                movieEpisodeEntity.getId(),
+                MovieObjectType.EPISODE,
+                List.of(MovieAssetType.VIDEO, MovieAssetType.SUBTITLE));
 
         // Lưu posters
         List<MovieImageEntity> movieImageEntities = new ArrayList<>();

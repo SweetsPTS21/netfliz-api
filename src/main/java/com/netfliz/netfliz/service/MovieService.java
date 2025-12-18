@@ -5,6 +5,7 @@ import com.netfliz.netfliz.constant.CacheKey;
 import com.netfliz.netfliz.entity.MovieAssetEntity;
 import com.netfliz.netfliz.entity.MovieEntity;
 import com.netfliz.netfliz.entity.MovieImageEntity;
+import com.netfliz.netfliz.entity.enums.MovieAssetType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
 import com.netfliz.netfliz.entity.enums.MovieObjectType;
 import com.netfliz.netfliz.exception.NotFoundException;
@@ -282,7 +283,10 @@ public class MovieService implements MoviesApiDelegate {
         List<MovieAsset> updatedAssets = getUpdateAssets(movieId, movie.getAssets());
 
         // Xóa tất cả assets
-        movieAssetRepository.deleteAllByObjectId(movieId, MovieObjectType.MOVIE);
+        movieAssetRepository.deleteAllByObjectId(
+                movieId,
+                MovieObjectType.MOVIE,
+                List.of(MovieAssetType.VIDEO, MovieAssetType.TRAILER, MovieAssetType.SUBTITLE));
 
         if (!CollectionUtils.isEmpty(updatedAssets)) {
             movieAssetRepository.saveAll(movieAssetMapper.mapToEntities(movieId, MovieObjectType.MOVIE, updatedAssets));
