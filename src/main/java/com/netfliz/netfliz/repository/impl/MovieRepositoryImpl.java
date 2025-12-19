@@ -36,7 +36,7 @@ public class MovieRepositoryImpl implements CustomMovieRepository {
                 + "  WHERE g.name IN (:genres) "
                 + ") tmp "
                 + "WHERE row_num <= :limit "
-                + "ORDER BY row_num";
+                + "ORDER BY row_num, updated_at DESC";
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("genres", genres);

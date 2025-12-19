@@ -87,10 +87,8 @@ public class MovieService implements MoviesApiDelegate {
 
         Movie movie = movieMapper.mapFromEntity(movieEntity);
 
-        // mapImage
-        List<MovieImageEntity> movieImages = movieImageRepository.findByObjectIdAndObjectType(
-                movieEntity.getId(), MovieObjectType.MOVIE);
-        movie.setImages(movieImageMapper.mapFromEntities(movieImages));
+        // map image and asset
+        mapMovieImageAndAsset(List.of(movie), List.of(movieId));
 
         return ResponseEntity.ok(movie);
     }
@@ -183,24 +181,16 @@ public class MovieService implements MoviesApiDelegate {
         }
 
         Map<String, List<MovieByGenreDto>> map = listDto.stream().collect(Collectors.groupingBy(MovieByGenreDto::getName));
-        // map movie image
-        Map<Long, List<MovieImageEntity>> mapImage = movieImageRepository
-                .findByObjectIdsAndObjectType(listDto.stream().map(MovieByGenreDto::getId).toList(), MovieObjectType.MOVIE)
-                .stream()
-                .collect(Collectors.groupingBy(MovieImageEntity::getObjectId));
-
         List<MovieByGenreResponse> responses = new ArrayList<>();
 
         map.forEach((key, value) -> {
             MovieByGenreResponse response = new MovieByGenreResponse();
             response.setGenre(key);
 
-            List<Movie> movies = movieMapper.mapMovieByGenreDtoToMovieList(value).stream().peek(movie ->
-                    Optional.ofNullable(mapImage.get(movie.getId()))
-                            .ifPresent(movieImages ->
-                                    movie.setImages(movieImages.stream().map(movieImageMapper::mapFromEntity).toList())
-                            )
-            ).toList();
+            List<Movie> movies = movieMapper.mapMovieByGenreDtoToMovieList(value);
+
+            // map to movies
+            mapMovieImageAndAsset(movies, listDto.stream().map(MovieByGenreDto::getId).collect(Collectors.toSet()));
 
             response.setMovies(movies);
             responses.add(response);
@@ -338,15 +328,21 @@ public class MovieService implements MoviesApiDelegate {
 
         List<Movie> movies = movieMapper.mapMovieEntityListToMovieList(resultPage.getContent());
 
-        // map movie image
+        // map to movies
+        mapMovieImageAndAsset(movies, movies.stream().map(Movie::getId).collect(Collectors.toSet()));
+
+        moviePage.setItems(movies);
+
+        return moviePage;
+    }
+
+    private void mapMovieImageAndAsset(List<Movie> movies, Collection<Long> movieIds) {
         Map<Long, List<MovieImageEntity>> mapImage = movieImageRepository
-                .findByObjectIdsAndObjectType(movies.stream().map(Movie::getId).toList(), MovieObjectType.MOVIE)
+                .findByObjectIdsAndObjectType(movieIds, MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getObjectId));
 
-        // map movie asset
-        Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository
-                .findByObjectIds(movies.stream().map(Movie::getId).toList(), MovieObjectType.MOVIE)
+        Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository.findByObjectIds(movieIds, MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieAssetEntity::getObjectId));
 
@@ -360,9 +356,5 @@ public class MovieService implements MoviesApiDelegate {
                             movie.setAssets(movieAssets.stream().map(movieAssetMapper::mapFromEntity).toList())
                     );
         });
-
-        moviePage.setItems(movies);
-
-        return moviePage;
     }
 }
