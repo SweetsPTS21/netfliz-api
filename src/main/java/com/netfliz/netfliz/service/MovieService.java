@@ -87,10 +87,8 @@ public class MovieService implements MoviesApiDelegate {
 
         Movie movie = movieMapper.mapFromEntity(movieEntity);
 
-        // mapImage
-        List<MovieImageEntity> movieImages = movieImageRepository.findByObjectIdAndObjectType(
-                movieEntity.getId(), MovieObjectType.MOVIE);
-        movie.setImages(movieImageMapper.mapFromEntities(movieImages));
+        // map image and asset
+        mapMovieImageAndAsset(List.of(movie), List.of(movieId));
 
         return ResponseEntity.ok(movie);
     }
@@ -332,7 +330,7 @@ public class MovieService implements MoviesApiDelegate {
 
         // map to movies
         mapMovieImageAndAsset(movies, movies.stream().map(Movie::getId).collect(Collectors.toSet()));
-        
+
         moviePage.setItems(movies);
 
         return moviePage;
