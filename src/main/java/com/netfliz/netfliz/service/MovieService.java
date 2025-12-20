@@ -272,13 +272,13 @@ public class MovieService implements MoviesApiDelegate {
         movieAssetValidator.validateAssets(movie.getAssets());
         List<MovieAsset> updatedAssets = getUpdateAssets(movieId, movie.getAssets());
 
-        // Xóa tất cả assets
-        movieAssetRepository.deleteAllByObjectId(
-                movieId,
-                MovieObjectType.MOVIE,
-                List.of(MovieAssetType.VIDEO, MovieAssetType.TRAILER, MovieAssetType.SUBTITLE));
-
         if (!CollectionUtils.isEmpty(updatedAssets)) {
+            // Xóa tất cả assets
+            movieAssetRepository.deleteAllByObjectId(
+                    movieId,
+                    MovieObjectType.MOVIE,
+                    List.of(MovieAssetType.VIDEO, MovieAssetType.TRAILER, MovieAssetType.SUBTITLE));
+            
             movieAssetRepository.saveAll(movieAssetMapper.mapToEntities(movieId, MovieObjectType.MOVIE, updatedAssets));
         }
     }

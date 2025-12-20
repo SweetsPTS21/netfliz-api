@@ -19,6 +19,6 @@ public interface MovieAssetRepository extends JpaRepository<MovieAssetEntity, Lo
     List<MovieAssetEntity> findByObjectIds(Collection<Long> objectIds, MovieObjectType objectType);
 
     @Modifying
-    @Query("DELETE FROM MovieAssetEntity a WHERE a.objectId = :episodeId AND a.objectType = :objectType AND a.assetType IN :assetTypes")
-    void deleteAllByObjectId(Long episodeId, MovieObjectType objectType, Collection<MovieAssetType> assetTypes);
+    @Query("DELETE FROM MovieAssetEntity a WHERE a.objectId = :objectId AND a.objectType = :objectType AND a.assetType IN :assetTypes")
+    void deleteAllByObjectId(Long objectId, MovieObjectType objectType, Collection<MovieAssetType> assetTypes);
 }

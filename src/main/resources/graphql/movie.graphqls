@@ -93,6 +93,7 @@ input MovieInput {
 
 input MovieImageInput {
     id: ID
+    fileId: ID
     name: String
     format: String
     type: Int

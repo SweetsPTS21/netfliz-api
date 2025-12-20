@@ -1,10 +1,11 @@
 type MovieEpisode {
     id: ID!
-    episodeNumber: Int!
     name: String!
     description: String
     runtime: Int!
     metadata: String
+    episodeNumber: Int!
+    episodeOrder: Int!
     assets: [MovieAsset]
     posters: [MovieImage]
 }
@@ -35,12 +36,12 @@ type MovieAsset {
 
 input MovieEpisodeInput {
     id: ID
-    episodeNumber: Int!
-    episodeOrder: Int!
     name: String!
     description: String
     runtime: Int!
     metadata: String
+    episodeNumber: Int!
+    episodeOrder: Int!
     posters: [MovieImageInput]
     assets: [MovieAssetInput]
 }
