@@ -9,8 +9,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -76,6 +78,10 @@ public class MovieMapper {
     }
 
     private static List<String> parseList(JsonNode jsonNode) {
+        if (Objects.isNull(jsonNode)) {
+            return Collections.emptyList();
+        }
+
         return JsonUtils.parseList(jsonNode.toString(), String.class);
     }
 }
