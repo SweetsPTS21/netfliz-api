@@ -18,22 +18,38 @@ services:
     container_name: netfliz-api
     restart: unless-stopped
     ports:
-      - "${SERVER_PORT:-8080}:8080"
+      - "8080:8080"
     env_file:
       - .env
+    environment:
+      # G1GC optimized for low latency, 75% heap
+      - JAVA_TOOL_OPTIONS=-XX:+UseG1GC -XX:MaxRAMPercentage=75.0 -XX:+UseStringDeduplication -XX:+ExitOnOutOfMemoryError
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 1024M
     depends_on:
-      postgres:
+      postgres-main:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
       - netfliz-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api-docs"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api-docs" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 # ----------------------------------------
 # Networks

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,6 +54,9 @@ public class JsonUtils {
 
     public static <T> List<T> parseList(String jsonString, Class<T> clazz) {
         try {
+            if (Strings.isBlank(jsonString)) {
+                return Collections.emptyList();
+            }
             return objectMapper.readValue(jsonString, objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
         } catch (Exception e) {
             throw new ValidationException("Json parse error: Config is invalid");
