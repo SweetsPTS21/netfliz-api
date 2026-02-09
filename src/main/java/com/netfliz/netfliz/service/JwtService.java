@@ -53,22 +53,19 @@ public class JwtService {
 
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserEntity userEntity
-    ) {
+            UserEntity userEntity) {
         return buildToken(extraClaims, userEntity, jwtExpiration);
     }
 
     public String generateRefreshToken(
-            UserEntity userEntity
-    ) {
+            UserEntity userEntity) {
         return buildToken(new HashMap<>(), userEntity, refreshExpiration);
     }
 
     private String buildToken(
             Map<String, Object> extraClaims,
             UserEntity userEntity,
-            long expiration
-    ) {
+            long expiration) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -82,6 +79,13 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    /**
+     * Check if token is not expired (for filter use without UserDetails)
+     */
+    public boolean isTokenNotExpired(String token) {
+        return !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
@@ -109,7 +113,7 @@ public class JwtService {
 
     public String extractRole(String token) {
         final Claims claims = extractAllClaims(token);
-      return claims.get("role", String.class);
+        return claims.get("role", String.class);
     }
 
     private Key getSignInKey() {

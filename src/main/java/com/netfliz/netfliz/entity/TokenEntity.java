@@ -36,10 +36,8 @@ public class TokenEntity {
     @Column(nullable = false)
     private boolean expired = false;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_token_user"))
-    private UserEntity user;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")

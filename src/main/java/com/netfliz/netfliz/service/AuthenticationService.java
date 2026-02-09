@@ -29,6 +29,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +64,7 @@ public class AuthenticationService implements UserDetailsChecker {
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        saveUserToken(savedUser, jwtToken);
+        saveUserToken(savedUser, refreshToken);
 
         // Cache user info
         String cacheKey = CacheKey.buildKey(CacheKey.CACHE_USER_INFO, savedUser.getUsername());
@@ -81,9 +84,11 @@ public class AuthenticationService implements UserDetailsChecker {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .tokenType(TokenType.BEARER)
                 .build();
     }
 
+    @Transactional
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialException("Invalid email/password"));
@@ -104,8 +109,8 @@ public class AuthenticationService implements UserDetailsChecker {
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
+        revokeAllUserTokens(user.getId());
+        saveUserToken(user, refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
@@ -116,8 +121,7 @@ public class AuthenticationService implements UserDetailsChecker {
 
     public ResponseEntity<AuthenticationResponse> logout(
             HttpServletRequest request,
-            HttpServletResponse response
-    ) {
+            HttpServletResponse response) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -125,14 +129,8 @@ public class AuthenticationService implements UserDetailsChecker {
         }
         final String refreshToken = authHeader.substring(7);
 
-        var storedToken = tokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new BadCredentialException("Invalid token"));
-
-        if (storedToken != null) {
-            storedToken.setExpired(true);
-            storedToken.setRevoked(true);
-            tokenRepository.save(storedToken);
-        }
+        // Delete refreshToken from DB instead of marking as revoked
+        tokenRepository.deleteByToken(refreshToken);
 
         return ResponseEntity.ok().build();
     }
@@ -158,7 +156,7 @@ public class AuthenticationService implements UserDetailsChecker {
 
     private void saveUserToken(UserEntity user, String jwtToken) {
         var token = TokenEntity.builder()
-                .user(user)
+                .userId(user.getId())
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
                 .expired(false)
@@ -167,15 +165,12 @@ public class AuthenticationService implements UserDetailsChecker {
         tokenRepository.save(token);
     }
 
-    private void revokeAllUserTokens(UserEntity user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
+    private void revokeAllUserTokens(Long userId) {
+        if (Objects.isNull(userId)) {
             return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
+        }
+        // Delete all tokens instead of marking as revoked
+        tokenRepository.deleteAllByUserId(userId);
     }
 
     public AuthenticationResponse refreshToken(HttpServletRequest request) {
@@ -192,11 +187,11 @@ public class AuthenticationService implements UserDetailsChecker {
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
+                // Keep refreshToken in DB, just return new accessToken
                 return AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
+                        .tokenType(TokenType.BEARER)
                         .build();
             }
         }
@@ -219,8 +214,7 @@ public class AuthenticationService implements UserDetailsChecker {
                 return userMapper.mapUserEntityToUser(user);
             }
             UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(
-                    () -> new BadCredentialException("User not found")
-            );
+                    () -> new BadCredentialException("User not found"));
             redisService.set(cacheKey, userEntity);
 
             return userMapper.mapUserEntityToUser(userEntity);
