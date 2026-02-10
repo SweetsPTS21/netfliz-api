@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +25,14 @@ public class RedisService {
 
     public void set(String key, Object value) {
         setObj(key, value, DEFAULT_TTL);
+    }
+
+    public Boolean tryLock(String key, long ttlSeconds) {
+        return redisTemplate.opsForValue().setIfAbsent(key, "locked", Duration.ofSeconds(ttlSeconds));
+    }
+
+    public void unlock(String key) {
+        redisTemplate.delete(key);
     }
 
     private void setObj(String key, Object value, long ttlSeconds) {
@@ -69,4 +78,7 @@ public class RedisService {
         return redisTemplate.hasKey(key);
     }
 
+    public long randomTtl(int origin, int bound) {
+        return ThreadLocalRandom.current().nextInt(origin, origin + bound);
+    }
 }
