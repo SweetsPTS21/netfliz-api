@@ -34,7 +34,7 @@ public class FirebaseConfig {
             inputStream = new FileInputStream(path);
         }
 
-        FirebaseOptions options = new FirebaseOptions.Builder()
+        FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(inputStream))
                 .setStorageBucket(firebaseProperties.getBucketName())
                 .build();

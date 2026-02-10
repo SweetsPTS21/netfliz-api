@@ -9,16 +9,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ITokenRepository extends JpaRepository<TokenEntity, Long> {
-    @Query(value = """
+  @Query(value = """
       select t from TokenEntity t inner join UserEntity u\s
-      on t.user.id = u.id\s
+      on t.userId = u.id\s
       where u.id = :id and (t.expired = false or t.revoked = false)\s
       """)
-    List<TokenEntity> findAllValidTokenByUser(Long id);
+  List<TokenEntity> findAllValidTokenByUser(Long id);
 
-    Optional<TokenEntity> findByToken(String token);
+  Optional<TokenEntity> findByToken(String token);
 
-    @Modifying
-    @Query("DELETE FROM TokenEntity t WHERE t.user.id = :userId")
-    void deleteAllByUserId(Long userId);
+  @Modifying
+  @Query("DELETE FROM TokenEntity t WHERE t.userId = :userId")
+  void deleteAllByUserId(Long userId);
+
+  @Modifying
+  void deleteByToken(String token);
+
+  Optional<TokenEntity> findByUserIdAndRevokedFalse(Long userId);
 }
