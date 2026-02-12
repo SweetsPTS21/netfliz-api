@@ -10,6 +10,7 @@ import com.netfliz.netfliz.exception.BadRequestException;
 import com.netfliz.netfliz.mapper.UserMapper;
 import com.netfliz.netfliz.model.User;
 import com.netfliz.netfliz.model.request.AuthenticationRequest;
+import com.netfliz.netfliz.model.request.RefreshTokenRequest;
 import com.netfliz.netfliz.model.request.RegisterRequest;
 import com.netfliz.netfliz.model.response.AuthenticationResponse;
 import com.netfliz.netfliz.repository.IProfileRepository;
@@ -18,6 +19,7 @@ import com.netfliz.netfliz.repository.UserRepository;
 import com.netfliz.netfliz.util.CommonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -173,15 +175,9 @@ public class AuthenticationService implements UserDetailsChecker {
         tokenRepository.deleteAllByUserId(userId);
     }
 
-    public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String username;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new BadCredentialException("Invalid token");
-        }
-        refreshToken = authHeader.substring(7);
-        username = jwtService.extractUsername(refreshToken);
+    public AuthenticationResponse refreshToken(@Valid RefreshTokenRequest request) {
+        final String refreshToken = request.getRefreshToken();
+        final String username = jwtService.extractUsername(refreshToken);
         if (username != null) {
             var user = this.userRepository.findByUsername(username)
                     .orElseThrow();

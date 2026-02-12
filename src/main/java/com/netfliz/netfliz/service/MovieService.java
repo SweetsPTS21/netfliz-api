@@ -8,6 +8,7 @@ import com.netfliz.netfliz.entity.MovieImageEntity;
 import com.netfliz.netfliz.entity.enums.MovieAssetType;
 import com.netfliz.netfliz.entity.enums.MovieImageType;
 import com.netfliz.netfliz.entity.enums.MovieObjectType;
+import com.netfliz.netfliz.exception.BadRequestException;
 import com.netfliz.netfliz.exception.NotFoundException;
 import com.netfliz.netfliz.mapper.MovieAssetMapper;
 import com.netfliz.netfliz.mapper.MovieImageMapper;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +57,8 @@ public class MovieService implements MoviesApiDelegate {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MoviePage> getAllMovie(Integer page, Integer pageSize, String filter, String sort) {
         Specification<MovieEntity> specification = null;
-        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : page, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : page, pageSize,
+                Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         if (filter != null && !filter.isEmpty()) {
             String[] filterArray = filter.split(" ");
@@ -65,8 +68,7 @@ public class MovieService implements MoviesApiDelegate {
 
             specification = (root, query, criteriaBuilder) -> {
                 return criteriaBuilder.and(
-                        criteriaBuilder.equal(root.get(field), value)
-                );
+                        criteriaBuilder.equal(root.get(field), value));
             };
 
             Page<MovieEntity> resultPage = movieRepository.findAllByFieldName(field, value, pageable);
@@ -79,18 +81,62 @@ public class MovieService implements MoviesApiDelegate {
 
     @Override
     public ResponseEntity<Movie> getMovieById(Long movieId) {
-        movieValidator.validateMovieExist(movieId);
+        if (Objects.isNull(movieId)) {
+            throw new BadRequestException("Movie id is required");
+        }
 
-        MovieEntity movieEntity = movieRepository.findById(movieId).orElseThrow(
-                () -> new NotFoundException("Movie not found with id: " + movieId)
-        );
+        String cacheKey = CacheKey.buildKey(CacheKey.CACHE_MOVIE, String.valueOf(movieId));
+        String lockKey = CacheKey.buildKey(CacheKey.LOCK_MOVIE, String.valueOf(movieId));
+        var cachedMovie = redisService.get(cacheKey, Movie.class);
+        Boolean locked = redisService.tryLock(lockKey, CacheKey.LOCK_MOVIE_TTL);
 
-        Movie movie = movieMapper.mapFromEntity(movieEntity);
+        if (Objects.nonNull(cachedMovie)) {
+            return ResponseEntity.ok(cachedMovie);
+        }
 
-        // map image and asset
-        mapMovieImageAndAsset(List.of(movie), List.of(movieId));
+        // acquire lock
+        if (Boolean.TRUE.equals(locked)) {
+            try {
+                // double check
+                Movie cachedAgain = redisService.get(cacheKey, Movie.class);
+                if (cachedAgain != null)
+                    return ResponseEntity.ok(cachedAgain);
 
-        return ResponseEntity.ok(movie);
+                // fetch
+                MovieEntity movieEntity = movieRepository.findById(movieId).orElse(null);
+                if (Objects.isNull(movieEntity)) {
+                    // cache null for 1 minute (avoid cache stampede)
+                    redisService.set(cacheKey, "NULL", 60);
+                    throw new NotFoundException("Movie not found with id: " + movieId);
+                }
+
+                Movie movie = movieMapper.mapFromEntity(movieEntity);
+
+                // map image and asset
+                mapMovieImageAndAsset(List.of(movie), List.of(movieId));
+
+                // Cache with random ttl (1 hour + random 20 minutes)
+                long ttl = redisService.randomTtl(CacheKey.CACHE_ONE_HOUR, 60 * 20);
+                redisService.set(cacheKey, movie, ttl);
+
+                return ResponseEntity.ok(movie);
+            } finally {
+                redisService.unlock(lockKey);
+            }
+        }
+
+        // Không lấy được lock -> chờ cache ready
+        Movie waitedMovie = waitAndGetCache(cacheKey, CacheKey.LOCK_MOVIE_TTL);
+        if (waitedMovie != null) {
+            return ResponseEntity.ok(waitedMovie);
+        }
+
+        // Timeout mà cache vẫn chưa có -> fallback query DB
+        MovieEntity fallbackEntity = movieRepository.findById(movieId)
+                .orElseThrow(() -> new NotFoundException("Movie not found with id: " + movieId));
+        Movie fallbackMovie = movieMapper.mapFromEntity(fallbackEntity);
+        mapMovieImageAndAsset(List.of(fallbackMovie), List.of(movieId));
+        return ResponseEntity.ok(fallbackMovie);
     }
 
     @Override
@@ -168,7 +214,8 @@ public class MovieService implements MoviesApiDelegate {
     public ResponseEntity<List<MovieByGenreResponse>> getMoviesByGenres(MovieByGenreRequest request) {
         request.validate();
         String genreKey = CacheKey.buildKey(request.getGenres());
-        String cacheKey = CacheKey.buildKey(CacheKey.CACHE_MOVIE_BY_GENRES, genreKey, String.valueOf(request.getLimit()));
+        String cacheKey = CacheKey.buildKey(CacheKey.CACHE_MOVIE_BY_GENRES, genreKey,
+                String.valueOf(request.getLimit()));
         var cachedMovieByGenreList = redisService.getList(cacheKey, MovieByGenreResponse.class);
 
         if (Objects.nonNull(cachedMovieByGenreList)) {
@@ -180,7 +227,8 @@ public class MovieService implements MoviesApiDelegate {
             return ResponseEntity.ok(new ArrayList<>());
         }
 
-        Map<String, List<MovieByGenreDto>> map = listDto.stream().collect(Collectors.groupingBy(MovieByGenreDto::getName));
+        Map<String, List<MovieByGenreDto>> map = listDto.stream()
+                .collect(Collectors.groupingBy(MovieByGenreDto::getName));
         List<MovieByGenreResponse> responses = new ArrayList<>();
 
         map.forEach((key, value) -> {
@@ -213,23 +261,28 @@ public class MovieService implements MoviesApiDelegate {
         return ResponseEntity.ok(buildPage(resultPage));
     }
 
-    public String setFilterQuery(String filter) {
-        String query = "";
-
-        if (filter != null && !filter.isEmpty()) {
-            String[] filterArray = filter.split(" ");
-            String operator = Arrays.stream(filterArray).skip(1).findFirst().get();
-            String value = Arrays.stream(filterArray).skip(2).findFirst().get();
-
-            query = switch (operator) {
-                case "ne" -> " != " + value;
-                case "in" -> " like " + "%" + value + "%";
-                case "nin" -> " not like " + "%" + value + "%";
-                default -> " = " + value;
-            };
+    /**
+     * Chờ cache ready bằng cách poll Redis mỗi 100ms.
+     * 
+     * @param cacheKey       key cần kiểm tra
+     * @param timeoutSeconds thời gian tối đa chờ (giây)
+     * @return Movie từ cache, hoặc null nếu timeout
+     */
+    private Movie waitAndGetCache(String cacheKey, long timeoutSeconds) {
+        long deadline = System.currentTimeMillis() + timeoutSeconds * 1000;
+        while (System.currentTimeMillis() < deadline) {
+            Movie cached = redisService.get(cacheKey, Movie.class);
+            if (cached != null) {
+                return cached;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
-
-        return query;
+        return null;
     }
 
     public void updateMovieImage(Long movieId, Movie movie) {
@@ -287,7 +340,8 @@ public class MovieService implements MoviesApiDelegate {
      * Lấy ra các image cần update (chưa tồn tại trong db)
      */
     public List<MovieImage> getUpdateImage(List<MovieImage> images, Long movieId) {
-        Map<Long, List<MovieImageEntity>> map = movieImageRepository.findByObjectIdAndObjectType(movieId, MovieObjectType.MOVIE)
+        Map<Long, List<MovieImageEntity>> map = movieImageRepository
+                .findByObjectIdAndObjectType(movieId, MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getFileId));
 
@@ -342,19 +396,18 @@ public class MovieService implements MoviesApiDelegate {
                 .stream()
                 .collect(Collectors.groupingBy(MovieImageEntity::getObjectId));
 
-        Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository.findByObjectIds(movieIds, MovieObjectType.MOVIE)
+        Map<Long, List<MovieAssetEntity>> mapAsset = movieAssetRepository
+                .findByObjectIds(movieIds, MovieObjectType.MOVIE)
                 .stream()
                 .collect(Collectors.groupingBy(MovieAssetEntity::getObjectId));
 
         movies.forEach(movie -> {
             Optional.ofNullable(mapImage.get(movie.getId()))
-                    .ifPresent(movieImages ->
-                            movie.setImages(movieImages.stream().map(movieImageMapper::mapFromEntity).toList())
-                    );
+                    .ifPresent(movieImages -> movie
+                            .setImages(movieImages.stream().map(movieImageMapper::mapFromEntity).toList()));
             Optional.ofNullable(mapAsset.get(movie.getId()))
-                    .ifPresent(movieAssets ->
-                            movie.setAssets(movieAssets.stream().map(movieAssetMapper::mapFromEntity).toList())
-                    );
+                    .ifPresent(movieAssets -> movie
+                            .setAssets(movieAssets.stream().map(movieAssetMapper::mapFromEntity).toList()));
         });
     }
 }
