@@ -1,12 +1,14 @@
 package com.netfliz.netfliz.api;
 
 import com.netfliz.netfliz.model.request.AuthenticationRequest;
+import com.netfliz.netfliz.model.request.RefreshTokenRequest;
 import com.netfliz.netfliz.model.response.AuthenticationResponse;
 import com.netfliz.netfliz.service.AuthenticationService;
 import com.netfliz.netfliz.model.request.RegisterRequest;
 import com.netfliz.netfliz.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -54,7 +56,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthenticationResponse> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<AuthenticationResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(service.refreshToken(request));
     }
 

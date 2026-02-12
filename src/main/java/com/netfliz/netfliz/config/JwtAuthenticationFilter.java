@@ -96,13 +96,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void writeJsonForbidden(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
         String json = """
                 {
-                  "code": 403,
+                  "code": 401,
                   "message": "Token không hợp lệ hoặc đã hết hạn!"
                 }
                 """;
